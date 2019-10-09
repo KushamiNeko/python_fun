@@ -1,8 +1,9 @@
 import io
-from typing import Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from bokeh.core.properties import value
 from bokeh.layouts import column
 from bokeh.models.tools import CrosshairTool, HoverTool, SaveTool
 from bokeh.plotting import ColumnDataSource, figure, output_file, save, show
@@ -10,6 +11,7 @@ from bokeh.plotting import ColumnDataSource, figure, output_file, save, show
 from fun.chart.base import Chart
 from fun.chart.theme import InteractiveTheme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
+from fun.trading.transaction import FuturesTransaction
 
 
 class InteractiveChart(Chart):
@@ -100,7 +102,9 @@ class InteractiveChart(Chart):
         p.grid.grid_line_color = self._theme.get_color("grid")
         p.grid.grid_line_alpha = self._theme.get_alpha("grid")
 
-    def _plot_candlesticks(self, p: figure) -> None:
+    def _plot_candlesticks(
+        self, p: figure, records: Optional[List[FuturesTransaction]] = None
+    ) -> None:
         source = ColumnDataSource(
             data=dict(
                 x=np.arange(len(self._quotes.index)),
@@ -300,8 +304,39 @@ class InteractiveChart(Chart):
             line_color=self._theme.get_color("unchanged"),
         )
 
+        if records is not None:
+
+            source = ColumnDataSource(
+                data=dict(
+                    x=np.arange(len(self._quotes.index)),
+                    t=self._quotes.index.to_numpy(),
+                    o=self._quotes["open"].to_numpy(),
+                    h=self._quotes["high"].to_numpy(),
+                    l=self._quotes["low"].to_numpy(),
+                    c=self._quotes["close"].to_numpy(),
+                    sma5=self._quotes["5sma"].to_numpy(),
+                    sma20=self._quotes["20sma"].to_numpy(),
+                )
+            )
+
+            self._plot_trading_records(
+                records,
+                lambda x, y, t, ha, va: p.text(
+                    x,
+                    y,
+                    text=value(t),
+                    text_align=ha,
+                    text_baseline=va,
+                    text_color=self._theme.get_color("text"),
+                    text_font_size=self._text_fontsize,
+                ),
+            )
+
     def futures_price(
-        self, output: Union[str, io.BytesIO], interactive: bool = False
+        self,
+        output: Union[str, io.BytesIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
     ) -> None:
         p = figure(
             tools=[],
@@ -317,7 +352,7 @@ class InteractiveChart(Chart):
             border_fill_color="#000000",
         )
 
-        self._plot_candlesticks(p)
+        self._plot_candlesticks(p, records=records)
 
         if interactive:
             show(p)
@@ -326,7 +361,10 @@ class InteractiveChart(Chart):
             save(p)
 
     def stocks_price(
-        self, output: Union[str, io.BytesIO], interactive: bool = False
+        self,
+        output: Union[str, io.BytesIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
     ) -> None:
         indicator_range = (np.amin(self._quotes["rs"]), np.amax(self._quotes["rs"]))
 
@@ -371,7 +409,7 @@ class InteractiveChart(Chart):
             border_fill_color="#000000",
         )
 
-        self._plot_candlesticks(p_price)
+        self._plot_candlesticks(p_price, records=records)
 
         if interactive:
             show(column(p_indicator, p_price))

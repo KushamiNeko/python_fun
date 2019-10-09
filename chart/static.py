@@ -1,5 +1,6 @@
 import io
-from typing import Tuple, Union
+from datetime import timedelta
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,6 +11,7 @@ from matplotlib.collections import PatchCollection
 from fun.chart.base import Chart
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
+from fun.trading.transaction import FuturesTransaction
 
 
 class StaticChart(Chart):
@@ -59,7 +61,7 @@ class StaticChart(Chart):
 
     @property
     def _text_fontsize(self) -> str:
-        return f"{5.5 * self._size_multiplier}"
+        return f"{5 * self._size_multiplier}"
 
     def _setup_xticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         ticks = ticker.ticks()
@@ -95,7 +97,9 @@ class StaticChart(Chart):
             labelsize=self._tick_fontsize,
         )
 
-    def _plot_candlesticks(self, ax: axes.Axes) -> None:
+    def _plot_candlesticks(
+        self, ax: axes.Axes, records: Optional[List[FuturesTransaction]] = None
+    ) -> None:
         ax.set_xlim(-self._body_width, (len(self._quotes.index) - 1) + self._body_width)
         ax.set_ylim(*self._ylim_from_price_range())
 
@@ -147,10 +151,27 @@ class StaticChart(Chart):
 
         ax.add_collection(PatchCollection(shadows, match_original=True, zorder=5))
 
+        if records is not None:
+            self._plot_trading_records(
+                records,
+                lambda x, y, t, ha, va: ax.text(
+                    x,
+                    y,
+                    t,
+                    ha=ha,
+                    va=va,
+                    fontsize=self._text_fontsize,
+                    color=self._theme.get_color("text"),
+                ),
+            )
+
         ax.autoscale_view()
 
     def futures_price(
-        self, output: Union[str, io.BytesIO], interactive: bool = False
+        self,
+        output: Union[str, io.BytesIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
     ) -> None:
         fig, ax = plt.subplots(
             figsize=self._figsize,
@@ -164,7 +185,7 @@ class StaticChart(Chart):
         self._setup_xticks(ax, TimeTicker(self._quotes.index))
         self._setup_yticks(ax, StepTicker(*self._ylim_from_price_range()))
 
-        self._plot_candlesticks(ax)
+        self._plot_candlesticks(ax, records=records)
 
         ax.plot(
             self._quotes["5sma"].to_numpy(),
@@ -244,7 +265,10 @@ class StaticChart(Chart):
         plt.close(fig)
 
     def stocks_price(
-        self, output: Union[str, io.BytesIO], interactive: bool = False
+        self,
+        output: Union[str, io.BytesIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
     ) -> None:
 
         fig = plt.figure(
@@ -260,7 +284,7 @@ class StaticChart(Chart):
         self._setup_xticks(ax, TimeTicker(self._quotes.index))
         self._setup_yticks(ax, StepTicker(*self._ylim_from_price_range()))
 
-        self._plot_candlesticks(ax)
+        self._plot_candlesticks(ax, records=records)
 
         ax.plot(
             self._quotes["5sma"].to_numpy(),

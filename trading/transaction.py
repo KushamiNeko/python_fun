@@ -95,7 +95,7 @@ class FuturesTransaction:
         return {
             "index": self._index,
             "time_stamp": str(self._time_stamp),
-            "time": self._time.strftime("%Y-%m-%d"),
+            "time": self._time.strftime("%Y%m%d"),
             "symbol": self._symbol,
             "operation": self._operation,
             "quantity": str(self._quantity),
@@ -106,7 +106,8 @@ class FuturesTransaction:
     @classmethod
     def from_entity(cls, entity: Dict[str, str]) -> FuturesTransaction:
         return cls(
-            dtime=datetime.strptime(entity["time"], "%Y-%m-%d"),
+            # dtime=datetime.strptime(entity["time"], "%Y-%m-%d"),
+            dtime=datetime.strptime(entity["time"], "%Y%m%d"),
             symbol=entity["symbol"],
             operation=entity["operation"],
             quantity=int(entity["quantity"]),

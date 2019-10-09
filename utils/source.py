@@ -55,6 +55,9 @@ class DataSource(metaclass=ABCMeta):
         data = io.BytesIO(resp.content)
         df = pd.read_csv(data)
 
+        cols = {k: k.lower() for k in df.columns}
+        df = df.rename(columns=cols)
+
         df["timestamp"] = df["timestamp"].apply(self._index_preprocessor)
         df = df.set_index("timestamp")
 

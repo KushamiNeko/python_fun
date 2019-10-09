@@ -1,8 +1,11 @@
 import re
-from typing import Tuple
+from datetime import timedelta
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
+
+from fun.trading.transaction import FuturesTransaction
 
 
 class Chart:
@@ -55,3 +58,68 @@ class Chart:
         bottom[mini] = avg[mini].to_numpy() - (self._body_min_height / 2.0)
 
         return (top, bottom)
+
+    def _plot_trading_records(
+        self,
+        records: List[FuturesTransaction],
+        cb: Callable[[int, float, str, str, str], Any],
+    ) -> None:
+
+        table = {
+            "long": "L",
+            "short": "S",
+            "increase": "A",
+            "decrease": "D",
+            "close": "X",
+        }
+
+        mn, mx = self._ylim_from_price_range()
+        m = (mn + mx) / 2.0
+
+        records.sort(
+            key=lambda x: x.time + timedelta(microseconds=x.time_stamp / 100000000000.0)
+        )
+
+        ts: Dict[int, Dict[str, Any]] = {}
+
+        for i, r in enumerate(records):
+            assert r.operation in tuple(table.keys())
+
+            if r.time not in self._quotes.index:
+                continue
+
+            x = self._quotes.index.get_loc(r.time)
+
+            t = table[r.operation]
+
+            h = self._quotes.iloc[x]["high"]
+            l = self._quotes.iloc[x]["low"]
+            pm = (h + l) / 2.0
+
+            y = 0
+            va = ""
+
+            if pm > m:
+                y = l - self._body_min_height * 2
+                va = "top"
+            else:
+                y = h + self._body_min_height * 2
+                va = "bottom"
+
+            if x in ts:
+                ts[x]["t"].append(t)
+            else:
+                ts[x] = {}
+                ts[x]["y"] = y
+                ts[x]["va"] = va
+                ts[x]["t"] = [t]
+
+        for x, vs in ts.items():
+
+            y = vs["y"]
+            t = "\n".join(vs["t"])
+
+            ha = "center"
+            va = vs["va"]
+
+            cb(x, y, t, ha, va)

@@ -1,6 +1,10 @@
 from typing import Dict
 
+from matplotlib import rcParams
+
 from fun.utils import colors
+
+# rcParams["font.family"] = "Source Code Pro"
 
 
 class Theme:
@@ -32,6 +36,7 @@ class Theme:
         self._colors["background"] = "#000000"
         self._colors["grid"] = colors.PAPER_GREY_400
         self._colors["ticks"] = "#ffffff"
+        self._colors["text"] = "#ffffff"
 
         self._alpha["bb"] = 0.75
         self._alpha["grid"] = colors.DARK_DISABLED_OPACITY
