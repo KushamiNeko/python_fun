@@ -60,13 +60,13 @@ if __name__ == "__main__":
 
     slices = quotes.loc["2018-01-01":"2019-01-01"]
 
-    root = os.path.join(os.getenv("HOME"), "Documents/database/json/market_wizards")
-
     sm = StaticChart(slices, chart_size="m")
     sl = StaticChart(slices, chart_size="l")
 
     im = InteractiveChart(slices, chart_size="m")
     il = InteractiveChart(slices, chart_size="l")
+
+    root = os.path.join(os.getenv("HOME"), "Documents/database/json/market_wizards")
 
     ts = None
 

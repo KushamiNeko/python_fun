@@ -1,6 +1,6 @@
 import re
-from datetime import timedelta
-from typing import Any, Callable, Dict, List, Tuple
+from datetime import datetime, timedelta, timezone
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -76,43 +76,62 @@ class Chart:
         mn, mx = self._ylim_from_price_range()
         m = (mn + mx) / 2.0
 
-        records.sort(
-            key=lambda x: x.time + timedelta(microseconds=x.time_stamp / 100000000000.0)
-        )
+        records.sort(key=lambda x: x.time_stamp)
 
         ts: Dict[int, Dict[str, Any]] = {}
 
-        for i, r in enumerate(records):
-            assert r.operation in tuple(table.keys())
+        for i, t in enumerate(self._quotes.index):
 
-            if r.time not in self._quotes.index:
-                continue
-
-            x = self._quotes.index.get_loc(r.time)
-
-            t = table[r.operation]
-
-            h = self._quotes.iloc[x]["high"]
-            l = self._quotes.iloc[x]["low"]
-            pm = (h + l) / 2.0
-
-            y = 0
-            va = ""
-
-            if pm > m:
-                y = l - self._body_min_height * 2
-                va = "top"
+            s = t
+            e: datetime
+            if i + 1 < len(self._quotes.index):
+                e = self._quotes.index[i + 1]
             else:
-                y = h + self._body_min_height * 2
-                va = "bottom"
+                e = s + timedelta(days=365)
 
-            if x in ts:
-                ts[x]["t"].append(t)
-            else:
-                ts[x] = {}
-                ts[x]["y"] = y
-                ts[x]["va"] = va
-                ts[x]["t"] = [t]
+            assert e is not None
+
+            for i, r in enumerate(records):
+
+                rt = r.time.astimezone(timezone(timedelta(hours=-5)))
+
+                x: Optional[int] = None
+                op: Optional[str] = None
+                if (rt == s or rt > s) and (rt == e or rt < e):
+                    x = self._quotes.index.get_loc(s)
+                    op = r.operation
+
+                if x is None or op is None:
+                    continue
+
+                assert x is not None
+                assert op is not None
+
+                assert op in tuple(table.keys())
+
+                t = table[op]
+
+                h = self._quotes.iloc[x]["high"]
+                l = self._quotes.iloc[x]["low"]
+                pm = (h + l) / 2.0
+
+                y = 0
+                va = ""
+
+                if pm > m:
+                    y = l - self._body_min_height * 2
+                    va = "top"
+                else:
+                    y = h + self._body_min_height * 2
+                    va = "bottom"
+
+                if x in ts:
+                    ts[x]["t"].append(t)
+                else:
+                    ts[x] = {}
+                    ts[x]["y"] = y
+                    ts[x]["va"] = va
+                    ts[x]["t"] = [t]
 
         for x, vs in ts.items():
 
@@ -123,3 +142,27 @@ class Chart:
             va = vs["va"]
 
             cb(x, y, t, ha, va)
+
+    # def _read_trading_records(self) -> List[FuturesTransaction]:
+
+    # assert os.getenv("HOME")
+
+    # root = os.path.join(
+    # cast(str, os.getenv("HOME")), "Documents/database/json/market_wizards"
+    # )
+
+    # ts = None
+
+    # for f in os.listdir(root):
+    # if not re.match(r"paper_trading_.+", f):
+    # continue
+
+    # with open(os.path.join(root, f), "r") as fc:
+    # entities = json.load(fc)
+    # ts = [FuturesTransaction.from_entity(e) for e in entities]
+
+    # mts = ts[int(len(ts) / 2.0)]
+    # if mts.time.year == 2018:
+    # break
+    # else:
+    # ts = None
