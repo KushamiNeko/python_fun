@@ -19,6 +19,10 @@ class JsonDB:
         if os.path.exists(path):
             with open(path, "r") as f:
                 self._database = json.load(f)
+        else:
+            raise ValueError(
+                f"database: {database} and collection: {collection} do not exist"
+            )
 
     def _write(self, database: str, collection: str) -> None:
         path = os.path.join(self._database_root, f"{database}_{collection}.json")
@@ -59,13 +63,16 @@ class JsonDB:
         self._write(database, collection)
 
     def find(
-        self, database: str, collection: str, query: Dict[str, str]
+        self, database: str, collection: str, query: Optional[Dict[str, str]]
     ) -> Optional[List[Dict[str, str]]]:
+
+        self._read(database, collection)
+
+        if query is None:
+            return self._database
 
         assert query is not None
         assert len(query.keys()) is not None
-
-        self._read(database, collection)
 
         entities = []
 

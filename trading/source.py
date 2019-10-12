@@ -70,7 +70,7 @@ class Barchart(DataSource):
         if not re.match(r"^[a-zA-Z]+[0-9]{2}$", symbol):
             raise ValueError(f"invalid symbol: {symbol}")
 
-        if not os.getenv("BARCHART", None):
+        if os.getenv("BARCHART") is None:
             raise ValueError("empty BARCHART environment variable")
 
         time_fmt = "%Y%m%d"
@@ -123,7 +123,7 @@ class AlphaVantage(DataSource):
         if not re.match(r"^[a-zA-Z]+$", symbol):
             raise ValueError(f"invalid symbol: {symbol}")
 
-        if not os.getenv("ALPHA_VANTAGE", None):
+        if os.getenv("ALPHA_VANTAGE") is None:
             raise ValueError("empty ALPHA_VANTAGE environment variable")
 
         root = r"https://www.alphavantage.co/query"
@@ -171,6 +171,55 @@ class AlphaVantage(DataSource):
 
         df = super().read(start, end, symbol, frequency)
         df = df.iloc[::-1]
+
+        return df
+
+
+class Yahoo:
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        pass
+
+    def _index_preprocessor(self, x: str) -> datetime:
+        return datetime.strptime(x, "%Y-%m-%d").astimezone(
+            timezone(timedelta(hours=-5))
+        )
+
+    def read(
+        self, start: datetime, end: datetime, symbol: str, frequency: str
+    ) -> pd.DataFrame:
+
+        if frequency not in (
+            "h",
+            "d",
+            "w",
+            "m",
+            "hourly",
+            "daily",
+            "weekly",
+            "monthly",
+        ):
+            raise ValueError(f"invalid frequency: {frequency}")
+
+        home = os.getenv("HOME")
+        assert home is not None
+
+        path = os.path.join(
+            home, "Documents", "data_source", "yahoo", f"{symbol}_{frequency[0]}.csv"
+        )
+        if not os.path.exists(path):
+            print(path)
+            raise ValueError(f"unknown symbol: {symbol}")
+
+        assert os.path.exists(path)
+
+        df = pd.read_csv(path)
+
+        cols = {k: k.lower() for k in df.columns}
+        cols["Date"] = "timestamp"
+        df = df.rename(columns=cols)
+
+        df["timestamp"] = df["timestamp"].apply(self._index_preprocessor)
+        df = df.set_index("timestamp")
 
         return df
 
