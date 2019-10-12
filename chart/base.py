@@ -143,26 +143,50 @@ class Chart:
 
             cb(x, y, t, ha, va)
 
-    # def _read_trading_records(self) -> List[FuturesTransaction]:
+    def _plot_indicators(self, cb: Callable[[str, str, str], Any]) -> None:
+        smas = []
+        bbs = []
 
-    # assert os.getenv("HOME")
+        for col in self._quotes.columns:
+            if "sma" in col:
+                smas.append(col)
+            elif "bb" in col:
+                bbs.append(col)
 
-    # root = os.path.join(
-    # cast(str, os.getenv("HOME")), "Documents/database/json/market_wizards"
-    # )
+        if len(smas) > 0:
 
-    # ts = None
+            smas.sort(key=lambda x: int(x.replace("sma", "")))
 
-    # for f in os.listdir(root):
-    # if not re.match(r"paper_trading_.+", f):
-    # continue
+            for i, col in enumerate(smas):
+                cb(col, f"sma{i}", "sma")
+                # ax.plot(
+                # self._quotes[col].to_numpy(),
+                # color=self._theme.get_color(f"sma{i}"),
+                # linewidth=self._linewidth,
+                # )
 
-    # with open(os.path.join(root, f), "r") as fc:
-    # entities = json.load(fc)
-    # ts = [FuturesTransaction.from_entity(e) for e in entities]
+        if len(bbs) > 0:
 
-    # mts = ts[int(len(ts) / 2.0)]
-    # if mts.time.year == 2018:
-    # break
-    # else:
-    # ts = None
+            bbs.sort(key=lambda x: float(re.match(r"bb\d+[+-]([0-9.]+)", x).group(1)))
+
+            last = ""
+            ci = 0
+            for col in bbs:
+                m = re.match(r"bb\d+[+-]([0-9.]+)", col)
+                assert m is not None
+                c = m.group(1)
+
+                if last == "":
+                    last = c
+                else:
+                    if c != last:
+                        ci += 1
+                        last = c
+
+                cb(col, f"bb{ci}", "bb")
+                # ax.plot(
+                # self._quotes[col].to_numpy(),
+                # color=self._theme.get_color(f"bb{ci}"),
+                # alpha=self._theme.get_alpha("bb"),
+                # linewidth=self._linewidth,
+                # )

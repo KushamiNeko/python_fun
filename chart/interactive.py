@@ -108,13 +108,13 @@ class InteractiveChart(Chart):
         source = ColumnDataSource(
             data=dict(
                 x=np.arange(len(self._quotes.index)),
-                t=self._quotes.index.to_numpy(),
+                t=[x.strftime("%Y-%m-%d") for x in self._quotes.index],
                 o=self._quotes["open"].to_numpy(),
                 h=self._quotes["high"].to_numpy(),
                 l=self._quotes["low"].to_numpy(),
                 c=self._quotes["close"].to_numpy(),
-                sma5=self._quotes["5sma"].to_numpy(),
-                sma20=self._quotes["20sma"].to_numpy(),
+                sma5=self._quotes["sma5"].to_numpy(),
+                sma20=self._quotes["sma20"].to_numpy(),
             )
         )
 
@@ -131,8 +131,8 @@ class InteractiveChart(Chart):
                     ("low", "@l{%0.2f}"),
                     ("open", "@o{%0.2f}"),
                     ("close", "@c{%0.2f}"),
-                    ("5 sma", "@sma5{%0.2f}"),
-                    ("20 sma", "@sma20{%0.2f}"),
+                    ("sma 5", "@sma5{%0.2f}"),
+                    ("sma 20", "@sma20{%0.2f}"),
                 ],
                 formatters={
                     "o": "printf",
@@ -164,84 +164,6 @@ class InteractiveChart(Chart):
             line_alpha=0,
             source=source,
             name="hover",
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["5sma"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("sma1"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["20sma"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("sma2"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb+15"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb1"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb-15"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb1"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb+20"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb2"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb-20"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb2"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb+25"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb3"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb-25"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb3"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb+30"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb4"),
-            line_alpha=self._theme.get_alpha("bb"),
-        )
-
-        p.line(
-            np.arange(len(self._quotes.index)),
-            self._quotes["bb-30"],
-            line_width=self._linewidth,
-            line_color=self._theme.get_color("bb4"),
-            line_alpha=self._theme.get_alpha("bb"),
         )
 
         inc = self._quotes["close"] > self._quotes["open"]
@@ -305,20 +227,6 @@ class InteractiveChart(Chart):
         )
 
         if records is not None:
-
-            source = ColumnDataSource(
-                data=dict(
-                    x=np.arange(len(self._quotes.index)),
-                    t=self._quotes.index.to_numpy(),
-                    o=self._quotes["open"].to_numpy(),
-                    h=self._quotes["high"].to_numpy(),
-                    l=self._quotes["low"].to_numpy(),
-                    c=self._quotes["close"].to_numpy(),
-                    sma5=self._quotes["5sma"].to_numpy(),
-                    sma20=self._quotes["20sma"].to_numpy(),
-                )
-            )
-
             self._plot_trading_records(
                 records,
                 lambda x, y, t, ha, va: p.text(
@@ -353,6 +261,15 @@ class InteractiveChart(Chart):
         )
 
         self._plot_candlesticks(p, records=records)
+        self._plot_indicators(
+            lambda col, cl, al: p.line(
+                np.arange(len(self._quotes.index)),
+                self._quotes[col],
+                line_width=self._linewidth,
+                line_color=self._theme.get_color(cl),
+                line_alpha=self._theme.get_alpha(al),
+            )
+        )
 
         if interactive:
             show(p)
@@ -392,7 +309,7 @@ class InteractiveChart(Chart):
             np.arange(len(self._quotes.index)),
             self._quotes["rs"],
             line_width=self._linewidth,
-            line_color=self._theme.get_color("in1"),
+            line_color=self._theme.get_color("in0"),
         )
 
         p_price = figure(
@@ -410,6 +327,15 @@ class InteractiveChart(Chart):
         )
 
         self._plot_candlesticks(p_price, records=records)
+        self._plot_indicators(
+            lambda col, cl, al: p_price.line(
+                np.arange(len(self._quotes.index)),
+                self._quotes[col],
+                line_width=self._linewidth,
+                line_color=self._theme.get_color(cl),
+                line_alpha=self._theme.get_alpha(al),
+            )
+        )
 
         if interactive:
             show(column(p_indicator, p_price))

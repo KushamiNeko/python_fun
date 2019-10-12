@@ -1,6 +1,6 @@
 import io
-from datetime import timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+import re
+from typing import Any, List, Optional, Tuple, Union, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -186,73 +186,13 @@ class StaticChart(Chart):
         self._setup_yticks(ax, StepTicker(*self._ylim_from_price_range()))
 
         self._plot_candlesticks(ax, records=records)
-
-        ax.plot(
-            self._quotes["5sma"].to_numpy(),
-            color=self._theme.get_color("sma1"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["20sma"].to_numpy(),
-            color=self._theme.get_color("sma2"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb+15"].to_numpy(),
-            color=self._theme.get_color("bb1"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb-15"].to_numpy(),
-            color=self._theme.get_color("bb1"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb+20"].to_numpy(),
-            color=self._theme.get_color("bb2"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb-20"].to_numpy(),
-            color=self._theme.get_color("bb2"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb+25"].to_numpy(),
-            color=self._theme.get_color("bb3"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb-25"].to_numpy(),
-            color=self._theme.get_color("bb3"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb+30"].to_numpy(),
-            color=self._theme.get_color("bb4"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["bb-30"].to_numpy(),
-            color=self._theme.get_color("bb4"),
-            alpha=self._theme.get_alpha("bb"),
-            linewidth=self._linewidth,
+        self._plot_indicators(
+            lambda col, cl, al: ax.plot(
+                self._quotes[col].to_numpy(),
+                color=self._theme.get_color(cl),
+                alpha=self._theme.get_alpha(al),
+                linewidth=self._linewidth,
+            )
         )
 
         plt.tight_layout()
@@ -286,31 +226,14 @@ class StaticChart(Chart):
 
         self._plot_candlesticks(ax, records=records)
 
-        ax.plot(
-            self._quotes["5sma"].to_numpy(),
-            color=self._theme.get_color("sma1"),
-            linewidth=self._linewidth,
+        self._plot_indicators(
+            lambda col, cl, al: ax.plot(
+                self._quotes[col].to_numpy(),
+                color=self._theme.get_color(cl),
+                alpha=self._theme.get_alpha(al),
+                linewidth=self._linewidth,
+            )
         )
-
-        ax.plot(
-            self._quotes["20sma"].to_numpy(),
-            color=self._theme.get_color("sma2"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["50sma"].to_numpy(),
-            color=self._theme.get_color("sma3"),
-            linewidth=self._linewidth,
-        )
-
-        ax.plot(
-            self._quotes["200sma"].to_numpy(),
-            color=self._theme.get_color("sma4"),
-            linewidth=self._linewidth,
-        )
-
-        # plot indicator
 
         in_ax = fig.add_subplot(grid[:2, 0], sharex=ax)
         in_ax.set_yscale("linear")
@@ -328,7 +251,7 @@ class StaticChart(Chart):
 
         in_ax.plot(
             self._quotes["rs"].to_numpy(),
-            color=self._theme.get_color("in1"),
+            color=self._theme.get_color("in0"),
             linewidth=self._linewidth,
         )
 
