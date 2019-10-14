@@ -12,15 +12,11 @@ class Ticker(metaclass=ABCMeta):
 
 
 class TimeTicker(Ticker):
-    # def __init__(self, times: List[str]):
     def __init__(self, times: List[datetime]):
         self._times = times
 
     def ticks(self) -> Dict[float, str]:
         frequency = ""
-
-        # start = datetime.strptime(self._times[0], r"%Y-%m-%d")
-        # end = datetime.strptime(self._times[-1], r"%Y-%m-%d")
 
         start = self._times[0]
         end = self._times[-1]
@@ -40,13 +36,10 @@ class TimeTicker(Ticker):
         labels: List[str] = []
 
         for i, t in enumerate(self._times):
-            # time = datetime.strptime(t, r"%Y-%m-%d")
             time = t
 
             if frequency == "d":
                 if not last_time:
-                    # if time.month != 1 or time.day > 15:
-                    # continue
                     if time.day > 15:
                         continue
                 else:

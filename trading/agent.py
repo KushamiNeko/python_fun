@@ -43,9 +43,11 @@ class Agent:
         )
 
         if books is not None:
-            return [TradingBook.from_entity(b) for b in books]
+            bs = [TradingBook.from_entity(b) for b in books]
+            bs.sort(key=lambda b: b.time.year)
+            return bs
         else:
-            return books
+            return None
 
     def read_records(
         self, symbol: str, year: int, version: int
@@ -56,19 +58,33 @@ class Agent:
         if books is None or len(books) == 0:
             return None
 
-        index: Optional[str] = None
-        book_type: Optional[str] = None
         for b in books:
             if b.symbol == symbol and b.time.year == year and b.version == version:
-                index = b.index
-                book_type = b.book_type
+                entities = self._db.find(f"{b.book_type}_trading", b.index, query=None)
+                if entities is None or len(entities) == 0:
+                    continue
+                else:
+                    return [FuturesTransaction.from_entity(e) for e in entities]
 
-        if index is None or book_type is None:
+        return None
+
+    def read_all_records(
+        self, symbol: str, version: int
+    ) -> Optional[List[FuturesTransaction]]:
+
+        assert symbol != ""
+
+        books = self.books()
+        if books is None or len(books) == 0:
             return None
 
-        entities = self._db.find(f"{book_type}_trading", index, query=None)
+        ts = []
+        for b in books:
+            if b.symbol == symbol and b.version == version:
+                entities = self._db.find(f"{b.book_type}_trading", b.index, query=None)
+                if entities is None or len(entities) == 0:
+                    continue
 
-        if entities is None or len(entities) == 0:
-            return None
+                ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 
-        return [FuturesTransaction.from_entity(e) for e in entities]
+        return ts

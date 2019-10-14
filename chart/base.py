@@ -92,12 +92,11 @@ class Chart:
             assert e is not None
 
             for i, r in enumerate(records):
-
-                rt = r.time.astimezone(timezone(timedelta(hours=-5)))
+                rt = r.time
 
                 x: Optional[int] = None
                 op: Optional[str] = None
-                if (rt == s or rt > s) and (rt == e or rt < e):
+                if rt >= s and rt < e:
                     x = self._quotes.index.get_loc(s)
                     op = r.operation
 
@@ -159,11 +158,6 @@ class Chart:
 
             for i, col in enumerate(smas):
                 cb(col, f"sma{i}", "sma")
-                # ax.plot(
-                # self._quotes[col].to_numpy(),
-                # color=self._theme.get_color(f"sma{i}"),
-                # linewidth=self._linewidth,
-                # )
 
         if len(bbs) > 0:
 
@@ -184,9 +178,3 @@ class Chart:
                         last = c
 
                 cb(col, f"bb{ci}", "bb")
-                # ax.plot(
-                # self._quotes[col].to_numpy(),
-                # color=self._theme.get_color(f"bb{ci}"),
-                # alpha=self._theme.get_alpha("bb"),
-                # linewidth=self._linewidth,
-                # )

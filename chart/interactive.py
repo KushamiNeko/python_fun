@@ -77,6 +77,10 @@ class InteractiveChart(Chart):
     def _text_fontsize(self) -> str:
         return f"{8.0 * self._size_multiplier}pt"
 
+    @property
+    def _text_fontweigth(self) -> str:
+        return "bold"
+
     def _setup_xticks(self, p: figure, ticker: Ticker) -> None:
         xticks = ticker.ticks()
 
@@ -237,6 +241,7 @@ class InteractiveChart(Chart):
                     text_baseline=va,
                     text_color=self._theme.get_color("text"),
                     text_font_size=self._text_fontsize,
+                    text_font_style=self._text_fontweigth,
                 ),
             )
 

@@ -94,9 +94,12 @@ class Barchart(DataSource):
         return url
 
     def _index_preprocessor(self, x: str) -> datetime:
-        return datetime.strptime(x.replace(":", ""), "%Y-%m-%dT%H%M%S%z").astimezone(
-            timezone(timedelta(hours=-5))
-        )
+        pattern = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})-\d{2}:\d{2}"
+
+        m = re.match(pattern, x)
+        assert m is not None
+
+        return datetime.strptime(m.group(1), r"%Y-%m-%dT%H:%M:%S")
 
     def _interval(self, freq: str) -> str:
         if freq in ("h", "hourly"):
@@ -141,17 +144,12 @@ class AlphaVantage(DataSource):
         return url
 
     def _index_preprocessor(self, x: str) -> datetime:
-        time_fmt = "%Y-%m-%d"
+        pattern = r"^\d{4}-\d{2}-\d{2}$"
 
-        try:
-            return datetime.strptime(x, time_fmt).replace(
-                tzinfo=timezone(timedelta(hours=-5))
-            )
-        except ValueError:
-            time_fmt = f"{time_fmt} %H:%M:%S"
-            return datetime.strptime(x, time_fmt).replace(
-                tzinfo=timezone(timedelta(hours=-5))
-            )
+        if re.match(pattern, x):
+            return datetime.strptime(x, "%Y-%m-%d")
+        else:
+            return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
 
     def _frequency(self, freq: str) -> str:
         if freq in ("h", "hourly"):

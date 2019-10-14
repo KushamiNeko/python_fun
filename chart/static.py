@@ -63,6 +63,10 @@ class StaticChart(Chart):
     def _text_fontsize(self) -> str:
         return f"{5 * self._size_multiplier}"
 
+    @property
+    def _text_fontweigth(self) -> str:
+        return "bold"
+
     def _setup_xticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         ticks = ticker.ticks()
         ax.set_xticks(list(ticks.keys()))
@@ -161,6 +165,7 @@ class StaticChart(Chart):
                     ha=ha,
                     va=va,
                     fontsize=self._text_fontsize,
+                    weight=self._text_fontweigth,
                     color=self._theme.get_color("text"),
                 ),
             )
