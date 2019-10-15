@@ -97,7 +97,7 @@ class StepTicker(Ticker):
         mn: float,
         mx: float,
         nbins: int = 25,
-        steps: Optional[List[int]] = [5, 10],
+        steps: Optional[List[int]] = [1, 2, 5, 10],
     ):
         self._nbins = nbins
         self._steps = steps
