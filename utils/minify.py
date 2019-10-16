@@ -2,33 +2,38 @@ import re
 from typing import IO
 
 
-def minifyWeb(content: bytes) -> bytes:
-    jsLineComment = re.compile(bytes(r"(\s|\n)//.*\n", "utf-8"))
-    htmlLineComment = re.compile(bytes(r"(\s|\n)*<!--[^\r]*?-->", "utf-8"))
-    cssLineComment = re.compile(bytes(r"(?m)^(\s|\n)*/\*[^\r]*?\*/", "utf-8"))
-    emptyLine = re.compile(bytes(r"(?m)\s*\n+", "utf-8"))
-    startingSpace = re.compile(bytes(r"(?m)^\s+", "utf-8"))
-
-    content = jsLineComment.sub(b"", content)
-    content = htmlLineComment.sub(b"", content)
-    content = cssLineComment.sub(b"", content)
-    content = emptyLine.sub(b"", content)
-    content = startingSpace.sub(b"", content)
+def _clean_js_comment(content: str) -> str:
+    content = re.sub(r"\s*\/\/\s*.+\S", "", content)  # line comment
+    content = re.sub(r"\s*\/\*\s*[\s\S]*?\s*\*\/", "", content)  # block comment
     return content
 
 
-def minifyWebString(content: str) -> str:
-    jsLineComment = re.compile(r"(\s|\n)//.*\n")
-    htmlLineComment = re.compile(r"(\s|\n)*<!--[^\r]*?-->")
-    cssLineComment = re.compile(r"(?m)^(\s|\n)*/\*[^\r]*?\*/")
-    emptyLine = re.compile(r"(?m)\s*\n+")
-    startingSpace = re.compile(r"(?m)^\s+")
+def _clean_html_comment(content: str) -> str:
+    content = re.sub(r"\s*<!--\s*(?:[\s\S]*?)\s*-->", "", content)
+    return content
 
-    content = jsLineComment.sub("", content)
-    content = htmlLineComment.sub("", content)
-    content = cssLineComment.sub("", content)
-    content = emptyLine.sub("", content)
-    content = startingSpace.sub("", content)
+
+def _clean_css_comment(content: str) -> str:
+    return _clean_js_comment(content)
+
+
+def _clean_leading_spaces(content: str) -> str:
+    content = re.sub(r"^\s*", "", content, flags=re.MULTILINE)
+    return content
+
+
+def minifyWebBytes(content: bytes, encoding: str = "utf-8") -> bytes:
+    c = content.decode(encoding=encoding)
+    c = minifyWebString(c)
+    return c.encode(encoding=encoding)
+
+
+def minifyWebString(content: str) -> str:
+    content = _clean_js_comment(content)
+    # content = _clean_css_comment(content)
+    content = _clean_html_comment(content)
+    content = _clean_leading_spaces(content)
+
     return content
 
 
@@ -39,7 +44,7 @@ def minifyWebIO(src: IO) -> IO:
     if type(content) == str:
         content = minifyWebString(content)
     elif type(content) == bytes:
-        content = minifyWeb(content)
+        content = minifyWebBytes(content)
 
     src.seek(0)
     src.write(content)
