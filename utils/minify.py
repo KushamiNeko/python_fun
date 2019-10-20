@@ -3,7 +3,9 @@ from typing import IO
 
 
 def _clean_js_comment(content: str) -> str:
-    content = re.sub(r"\s*\/\/\s*.+\S", "", content)  # line comment
+    content = re.sub(
+        r"""(?<!\:)\s*\/\/\s*.+(?!["'])""", "", content
+    )  # line comment
     content = re.sub(r"\s*\/\*\s*[\s\S]*?\s*\*\/", "", content)  # block comment
     return content
 
