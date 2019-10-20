@@ -174,7 +174,7 @@ class StaticChart(Chart):
 
     def futures_price(
         self,
-        output: Union[str, io.BytesIO],
+        output: Union[str, io.BytesIO, io.StringIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
@@ -211,7 +211,7 @@ class StaticChart(Chart):
 
     def stocks_price(
         self,
-        output: Union[str, io.BytesIO],
+        output: Union[str, io.BytesIO, io.StringIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
