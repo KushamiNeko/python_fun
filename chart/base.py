@@ -1,6 +1,8 @@
+import io
 import re
-from datetime import datetime, timedelta, timezone
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from abc import ABCMeta, abstractmethod
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -8,7 +10,7 @@ import pandas as pd
 from fun.trading.transaction import FuturesTransaction
 
 
-class Chart:
+class Chart(metaclass=ABCMeta):
     def __init__(self, quotes: pd.DataFrame, chart_size: str = "l"):
 
         assert quotes is not None
@@ -178,3 +180,21 @@ class Chart:
                         last = c
 
                 cb(col, f"bb{ci}", "bb")
+
+    @abstractmethod
+    def futures_price(
+        self,
+        output: Union[str, io.BytesIO, io.StringIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
+    ) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def stocks_price(
+        self,
+        output: Union[str, io.BytesIO, io.StringIO],
+        records: Optional[List[FuturesTransaction]] = None,
+        interactive: bool = False,
+    ) -> None:
+        raise NotImplementedError

@@ -61,6 +61,7 @@ class DataSource(metaclass=ABCMeta):
         df["timestamp"] = df["timestamp"].apply(self._index_preprocessor)
         df = df.set_index("timestamp")
 
+
         return df
 
 

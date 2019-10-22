@@ -1,6 +1,5 @@
 import io
-import re
-from typing import Any, List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,6 +30,9 @@ class StaticChart(Chart):
             self._figsize = (figsize[0] * 2.0, figsize[1] * 2.0)
 
         self._theme = Theme()
+
+        self._figure: Optional[figure.Figure] = None
+        self._ax: Optional[axes.Axes] = None
 
     @property
     def _size_multiplier(self) -> float:
@@ -174,7 +176,7 @@ class StaticChart(Chart):
 
     def futures_price(
         self,
-        output: Union[str, io.BytesIO, io.StringIO],
+        output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
@@ -189,6 +191,9 @@ class StaticChart(Chart):
         self._setup_general(fig, ax)
         self._setup_xticks(ax, TimeTicker(self._quotes.index))
         self._setup_yticks(ax, StepTicker(*self._ylim_from_price_range()))
+
+        self._figure = fig
+        self._ax = ax
 
         self._plot_candlesticks(ax, records=records)
         self._plot_indicators(
@@ -211,7 +216,7 @@ class StaticChart(Chart):
 
     def stocks_price(
         self,
-        output: Union[str, io.BytesIO, io.StringIO],
+        output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
@@ -228,6 +233,9 @@ class StaticChart(Chart):
         self._setup_general(fig, ax)
         self._setup_xticks(ax, TimeTicker(self._quotes.index))
         self._setup_yticks(ax, StepTicker(*self._ylim_from_price_range()))
+
+        self._figure = fig
+        self._ax = ax
 
         self._plot_candlesticks(ax, records=records)
 
@@ -270,3 +278,17 @@ class StaticChart(Chart):
             plt.savefig(output, dpi=100, facecolor=self._theme.get_color("background"))
 
         plt.close(fig)
+
+    def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
+        if self._figure is None or self._ax is None:
+            return None
+
+        dx, dy = self._figure.transFigure.transform_point((x, y))
+        nx, ny = self._ax.transData.inverted().transform_point((dx, dy))
+
+        min_y, max_y = self._ax.get_ylim()
+
+        nx = int(min(max(round(nx), 0), len(self._quotes) - 1))
+        ny = min(max(ny, min_y), max_y)
+
+        return (nx, ny)

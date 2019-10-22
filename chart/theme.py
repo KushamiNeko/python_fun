@@ -60,4 +60,3 @@ class InteractiveTheme(Theme):
 
         self._alpha["bb"] = 0.65
         self._alpha["crosshair"] = 0.5
-        self._alpha["grid"] = 0.5

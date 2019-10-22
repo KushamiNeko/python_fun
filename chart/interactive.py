@@ -7,7 +7,7 @@ from bokeh.core.properties import value
 from bokeh.embed import file_html
 from bokeh.layouts import column
 from bokeh.models.tools import CrosshairTool, HoverTool, SaveTool
-from bokeh.plotting import ColumnDataSource, figure, show, output_file, save
+from bokeh.plotting import ColumnDataSource, figure, output_file, save, show
 from bokeh.resources import CDN
 
 from fun.chart.base import Chart
@@ -281,10 +281,13 @@ class InteractiveChart(Chart):
         if interactive:
             show(p)
         else:
-            assert type(output) in (str, io.BytesIO)
+            assert type(output) in (str, io.BytesIO, io.StringIO)
             if type(output) is io.BytesIO:
                 html = file_html(p, CDN, "futures price")
                 cast(io.BytesIO, output).write(html.encode("utf-8"))
+            elif type(output) is io.StringIO:
+                html = file_html(p, CDN, "stocks price")
+                cast(io.StringIO, output).write(html)
             elif type(output) is str:
                 output_file(output)
                 save(p)
@@ -352,10 +355,13 @@ class InteractiveChart(Chart):
         if interactive:
             show(column(p_indicator, p_price))
         else:
-            assert type(output) in (str, io.BytesIO)
+            assert type(output) in (str, io.BytesIO, io.StringIO)
             if type(output) is io.BytesIO:
                 html = file_html(column(p_indicator, p_price), CDN, "stocks price")
                 cast(io.BytesIO, output).write(html.encode("utf-8"))
+            elif type(output) is io.StringIO:
+                html = file_html(column(p_indicator, p_price), CDN, "stocks price")
+                cast(io.StringIO, output).write(html)
             elif type(output) is str:
                 output_file(output)
                 save(column(p_indicator, p_price))
