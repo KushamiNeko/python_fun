@@ -40,7 +40,7 @@ class Theme:
 
         self._alpha["sma"] = 1.0
         self._alpha["bb"] = 0.75
-        self._alpha["grid"] = colors.DARK_DISABLED_OPACITY
+        self._alpha["grid"] = 0.2
 
     def get_color(self, key: str) -> str:
         return self._colors[key]

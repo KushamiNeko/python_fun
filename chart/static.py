@@ -46,7 +46,13 @@ class StaticChart(Chart):
     # candlesticks settings
     @property
     def _shadow_width(self) -> float:
-        return 0.2
+        # return 0.2
+        if self._chart_size == "m":
+            return 0.14
+        elif self._chart_size == "l":
+            return 0.2
+        else:
+            raise ValueError(f"invalid chart size: {self._chart_size}")
 
     @property
     def _body_width(self) -> float:
