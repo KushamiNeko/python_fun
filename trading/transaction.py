@@ -105,9 +105,17 @@ class FuturesTransaction:
 
     @classmethod
     def from_entity(cls, entity: Dict[str, str]) -> FuturesTransaction:
+
+        dtime: datetime
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", entity["time"]):
+            dtime = datetime.strptime(entity["time"], "%Y-%m-%d")
+        elif re.match(r"^\d{8}$", entity["time"]):
+            dtime = datetime.strptime(entity["time"], "%Y%m%d")
+        else:
+            raise ValueError(f"invalid dtime {entity['time']}")
+
         return cls(
-            # dtime=datetime.strptime(entity["time"], "%Y-%m-%d"),
-            dtime=datetime.strptime(entity["time"], "%Y%m%d"),
+            dtime=dtime,
             symbol=entity["symbol"],
             operation=entity["operation"],
             quantity=int(entity["quantity"]),

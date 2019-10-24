@@ -13,7 +13,7 @@ class TradingBook:
         self,
         dtime: datetime,
         symbol: str,
-        version: int,
+        version: str,
         note: str,
         book_type: str,
         index: Optional[str] = None,
@@ -34,7 +34,7 @@ class TradingBook:
             raise ValueError("invalid book symbol")
         self._symbol = symbol.lower()
 
-        if version < 0:
+        if version == "":
             raise ValueError("invalid book version")
         self._version = version
 
@@ -63,7 +63,7 @@ class TradingBook:
         return self._symbol
 
     @property
-    def version(self) -> int:
+    def version(self) -> str:
         return self._version
 
     @property
@@ -99,7 +99,7 @@ class TradingBook:
             book_type=entity["book_type"],
             dtime=datetime.strptime(entity["time"], "%Y%m%d"),
             symbol=entity["symbol"],
-            version=int(entity["version"]),
+            version=entity["version"],
             note=entity.get("note", ""),
             last_modified=float(entity.get("last_modified", "0")),
             index=entity.get("index", ""),

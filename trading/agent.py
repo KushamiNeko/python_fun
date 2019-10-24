@@ -50,7 +50,7 @@ class Agent:
             return None
 
     def read_records(
-        self, symbol: str, year: int, version: int
+        self, symbol: str, year: int, version: str
     ) -> Optional[List[FuturesTransaction]]:
         assert symbol != ""
 
@@ -69,7 +69,7 @@ class Agent:
         return None
 
     def read_all_records(
-        self, symbol: str, version: int
+        self, symbol: str, version: str
     ) -> Optional[List[FuturesTransaction]]:
 
         assert symbol != ""

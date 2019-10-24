@@ -108,6 +108,25 @@ class InteractiveChart(Chart):
         p.grid.grid_line_color = self._theme.get_color("grid")
         p.grid.grid_line_alpha = self._theme.get_alpha("grid")
 
+    def _calculate_candlesticks_body_top_bottom(self) -> Tuple[np.array, np.array]:
+        dec = self._quotes["open"] > self._quotes["close"]
+
+        r = np.abs(self._quotes["open"] - self._quotes["close"])
+        avg = (self._quotes["open"] + self._quotes["close"]) / 2.0
+
+        mini = r < self._body_min_height
+
+        top = np.copy(self._quotes["close"].to_numpy())
+        bottom = np.copy(self._quotes["open"].to_numpy())
+
+        top[dec] = self._quotes[dec]["open"].to_numpy()
+        bottom[dec] = self._quotes[dec]["close"].to_numpy()
+
+        top[mini] = avg[mini].to_numpy() + (self._body_min_height / 2.0)
+        bottom[mini] = avg[mini].to_numpy() - (self._body_min_height / 2.0)
+
+        return (top, bottom)
+
     def _plot_candlesticks(
         self, p: figure, records: Optional[List[FuturesTransaction]] = None
     ) -> None:

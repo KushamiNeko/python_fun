@@ -46,17 +46,21 @@ class StaticChart(Chart):
     # candlesticks settings
     @property
     def _shadow_width(self) -> float:
-        # return 0.2
         if self._chart_size == "m":
-            return 0.14
+            return 1.3
         elif self._chart_size == "l":
-            return 0.2
+            return 2.2
         else:
             raise ValueError(f"invalid chart size: {self._chart_size}")
 
     @property
     def _body_width(self) -> float:
-        return 0.6
+        if self._chart_size == "m":
+            return 3.9
+        elif self._chart_size == "l":
+            return 6.6
+        else:
+            raise ValueError(f"invalid chart size: {self._chart_size}")
 
     # general chart settings
     @property
@@ -112,26 +116,28 @@ class StaticChart(Chart):
     def _plot_candlesticks(
         self, ax: axes.Axes, records: Optional[List[FuturesTransaction]] = None
     ) -> None:
-        ax.set_xlim(-self._body_width, (len(self._quotes.index) - 1) + self._body_width)
+        ax.set_xlim(-0.5, (len(self._quotes.index) - 1) + 0.5)
         ax.set_ylim(*self._ylim_from_price_range())
 
-        bodys = []
-        shadows = []
+        bodys = np.empty(len(self._quotes.index), dtype=np.dtype(object))
+        shadows = np.empty(len(self._quotes.index), dtype=np.dtype(object))
 
-        body_offset = self._body_width / 2.0
-        shadow_offset = self._shadow_width / 2.0
-
-        top, bottom = self._calculate_candlesticks_body_top_bottom()
-
-        for t in np.arange(len(self._quotes.index)):
+        for i, t in enumerate(np.arange(len(self._quotes.index))):
 
             p_open = self._quotes.iloc[t]["open"]
             p_high = self._quotes.iloc[t]["high"]
             p_low = self._quotes.iloc[t]["low"]
             p_close = self._quotes.iloc[t]["close"]
 
-            p_top = top[t]
-            p_bottom = bottom[t]
+            p_top: float
+            p_bottom: float
+
+            if p_open > p_close:
+                p_top = p_open
+                p_bottom = p_close
+            else:
+                p_top = p_close
+                p_bottom = p_open
 
             color = self._theme.get_color("unchanged")
 
@@ -140,27 +146,24 @@ class StaticChart(Chart):
             elif p_close < p_open:
                 color = self._theme.get_color("down")
 
-            shadow = patches.Rectangle(
-                xy=(t - shadow_offset, p_low),
-                width=self._shadow_width,
-                height=p_high - p_low,
+            shadow = patches.Polygon(
+                xy=[(t, p_low), (t, p_high)],
+                linewidth=self._shadow_width,
                 facecolor=color,
                 edgecolor=color,
             )
 
-            body = patches.Rectangle(
-                xy=(t - body_offset, p_bottom),
-                width=self._body_width,
-                height=p_top - p_bottom,
+            body = patches.Polygon(
+                xy=[(t, p_bottom), (t, p_top)],
+                linewidth=self._body_width,
                 facecolor=color,
                 edgecolor=color,
             )
 
-            bodys.append(body)
-            shadows.append(shadow)
+            shadows[i] = shadow
+            bodys[i] = body
 
         ax.add_collection(PatchCollection(bodys, match_original=True, zorder=5))
-
         ax.add_collection(PatchCollection(shadows, match_original=True, zorder=5))
 
         if records is not None:

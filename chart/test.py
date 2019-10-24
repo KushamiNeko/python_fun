@@ -26,11 +26,11 @@ if __name__ == "__main__":
 
     sdf = df.loc["2018-01-01":"2019-01-01"]
 
-    # sm = StaticChart(df, chart_size="m")
+    sm = StaticChart(sdf, chart_size="m")
     sl = StaticChart(sdf, chart_size="l")
 
     # im = InteractiveChart(df, chart_size="m")
-    il = InteractiveChart(sdf, chart_size="l")
+    # il = InteractiveChart(sdf, chart_size="l")
 
     root = os.path.join(os.getenv("HOME"), "Documents/database/json/market_wizards")
 
@@ -57,22 +57,30 @@ if __name__ == "__main__":
     # exit(0)
 
     ps = [
-        Process(
-            target=StaticChart(
-                ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
-                chart_size="l",
-            ).stocks_price,
-            args=("stocks_l.png", ts),
-        ),
+        # Process(
+            # target=StaticChart(
+                # ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
+                # chart_size="l",
+            # ).stocks_price,
+            # args=("stocks_l.png", ts),
+        # ),
         Process(target=sl.futures_price, args=("futures_l.png", ts)),
-        Process(
-            target=InteractiveChart(
-                ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
-                chart_size="l",
-            ).stocks_price,
-            args=("stocks_l.html",),
-        ),
-        Process(target=il.futures_price, args=("futures_l.html", ts)),
+        # Process(
+            # target=StaticChart(
+                # ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
+                # chart_size="m",
+            # ).stocks_price,
+            # args=("stocks_m.png", ts),
+        # ),
+        Process(target=sm.futures_price, args=("futures_m.png", ts)),
+        # Process(
+        # target=InteractiveChart(
+        # ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
+        # chart_size="l",
+        # ).stocks_price,
+        # args=("stocks_l.html",),
+        # ),
+        # Process(target=il.futures_price, args=("futures_l.html", ts)),
     ]
 
     for p in ps:

@@ -61,7 +61,6 @@ class DataSource(metaclass=ABCMeta):
         df["timestamp"] = df["timestamp"].apply(self._index_preprocessor)
         df = df.set_index("timestamp")
 
-
         return df
 
 
@@ -179,9 +178,10 @@ class Yahoo:
         pass
 
     def _index_preprocessor(self, x: str) -> datetime:
-        return datetime.strptime(x, "%Y-%m-%d").astimezone(
-            timezone(timedelta(hours=-5))
-        )
+        # return datetime.strptime(x, "%Y-%m-%d").astimezone(
+        # timezone(timedelta(hours=-5))
+        # )
+        return datetime.strptime(x, "%Y-%m-%d")
 
     def read(
         self, start: datetime, end: datetime, symbol: str, frequency: str

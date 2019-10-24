@@ -13,12 +13,12 @@ class TestBook(unittest.TestCase):
     def test_init_succeed(self):
 
         trading_book = TradingBook(
-            dtime=self.dtime, symbol="esz19", version=1, note="hello", book_type="PAPER"
+            dtime=self.dtime, symbol="esz19", version="1", note="hello", book_type="PAPER"
         )
 
         self.assertEqual(trading_book.time, self.dtime)
         self.assertEqual(trading_book.symbol, "esz19")
-        self.assertEqual(trading_book.version, 1)
+        self.assertEqual(trading_book.version, "1")
         self.assertEqual(trading_book.note, "hello")
         self.assertEqual(trading_book.book_type, "paper")
 
@@ -31,7 +31,7 @@ class TestBook(unittest.TestCase):
         trading_book = TradingBook(
             dtime=self.dtime,
             symbol="spx",
-            version=1,
+            version="1",
             note="HELLO",
             book_type="LIVE",
             last_modified=last_time,
@@ -40,7 +40,7 @@ class TestBook(unittest.TestCase):
 
         self.assertEqual(trading_book.time, self.dtime)
         self.assertEqual(trading_book.symbol, "spx")
-        self.assertEqual(trading_book.version, 1)
+        self.assertEqual(trading_book.version, "1")
         self.assertEqual(trading_book.note, "HELLO")
         self.assertEqual(trading_book.book_type, "live")
         self.assertEqual(trading_book.last_modified, last_time)
@@ -53,7 +53,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": -1,
                     "symbol": "rut",
-                    "version": 1,
+                    "version": "1",
                     "note": "hello",
                     "book_type": "paper",
                 }
@@ -62,7 +62,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": self.dtime,
                     "symbol": "qrz19",
-                    "version": 1,
+                    "version": "1",
                     "note": "hello",
                     "book_type": "WORLD",
                 }
@@ -71,7 +71,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": self.dtime,
                     "symbol": "tyz19",
-                    "version": 1,
+                    "version": "1",
                     "note": "hello",
                     "book_type": "PAPER",
                     "index": "[]",
@@ -81,7 +81,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": self.dtime,
                     "symbol": "19",
-                    "version": 1,
+                    "version": "1",
                     "note": "hello",
                     "book_type": "PAPER",
                 }
@@ -90,7 +90,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": self.dtime,
                     "symbol": "esa19",
-                    "version": 1,
+                    "version": "1",
                     "note": "hello",
                     "book_type": "PAPER",
                 }
@@ -99,7 +99,7 @@ class TestBook(unittest.TestCase):
                 "inputs": {
                     "dtime": self.dtime,
                     "symbol": "esz19",
-                    "version": -1,
+                    "version": "",
                     "note": "hello",
                     "book_type": "live",
                 }
@@ -119,7 +119,7 @@ class TestBook(unittest.TestCase):
 
     def test_has_modified_succeed(self):
         trading_book = TradingBook(
-            dtime=self.dtime, symbol="spx", version=1, note="hello", book_type="PAPER"
+            dtime=self.dtime, symbol="spx", version="1", note="hello", book_type="PAPER"
         )
         last_modified = trading_book.last_modified
         trading_book.has_modified()
@@ -129,7 +129,7 @@ class TestBook(unittest.TestCase):
 
     def test_entity_succeed(self):
         trading_book = TradingBook(
-            dtime=self.dtime, symbol="spx", version=1, note="hello", book_type="PAPER"
+            dtime=self.dtime, symbol="spx", version="1", note="hello", book_type="PAPER"
         )
 
         self.assertEqual(trading_book.to_entity().get("time", ""), "20190313")
@@ -147,7 +147,7 @@ class TestBook(unittest.TestCase):
 
     def test_entity_exchange_succeed(self):
         trading_book = TradingBook(
-            dtime=self.dtime, symbol="nqz19", version=1, note="hello", book_type="PAPER"
+            dtime=self.dtime, symbol="nqz19", version="1", note="hello", book_type="PAPER"
         )
         new_book = TradingBook.from_entity(trading_book.to_entity())
 
@@ -175,7 +175,7 @@ class TestBook(unittest.TestCase):
         )
 
         self.assertEqual(trading_book.symbol, "compq")
-        self.assertEqual(trading_book.version, 1)
+        self.assertEqual(trading_book.version, "1")
 
         self.assertEqual(trading_book.note, "hello world")
         self.assertEqual(trading_book.book_type, "paper")
