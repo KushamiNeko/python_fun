@@ -69,7 +69,7 @@ class StaticChart(Chart):
 
     @property
     def _tick_fontsize(self) -> str:
-        return f"{5.5 * self._size_multiplier}"
+        return f"{6 * self._size_multiplier}"
 
     @property
     def _text_fontsize(self) -> str:
@@ -113,6 +113,29 @@ class StaticChart(Chart):
             labelsize=self._tick_fontsize,
         )
 
+    def _plot_text_info(self, ax: axes.Axes, text: str) -> None:
+        ymin, ymax = self._ylim_from_price_range()
+        mid = (ymin + ymax) / 2.0
+
+        y: float
+        va: str
+        if np.amax(self._quotes.iloc[: int(len(self._quotes) / 4.0)]["high"]) > mid:
+            y = np.amin(self._quotes["low"])
+            va = "bottom"
+        else:
+            y = np.amax(self._quotes["high"])
+            va = "top"
+
+        ax.text(
+            5,
+            y,
+            text,
+            color=self._theme.get_color("text"),
+            fontsize=f"{float(self._text_fontsize)*1.75}",
+            ha="left",
+            va=va,
+        )
+
     def _plot_candlesticks(
         self, ax: axes.Axes, records: Optional[List[FuturesTransaction]] = None
     ) -> None:
@@ -138,6 +161,11 @@ class StaticChart(Chart):
             else:
                 p_top = p_close
                 p_bottom = p_open
+
+            if abs(p_top - p_bottom) < self._body_min_height:
+                m = (p_top + p_bottom) / 2.0
+                p_top = m + (self._body_min_height / 2.0)
+                p_bottom = m - (self._body_min_height / 2.0)
 
             color = self._theme.get_color("unchanged")
 
@@ -214,6 +242,18 @@ class StaticChart(Chart):
             )
         )
 
+        d = self._quotes.iloc[-1]
+        self._plot_text_info(
+            ax,
+            f"time:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
+            f"open:  {d['open']:,.2f}\n"
+            f"high: {d['high']:,.2f}\n"
+            f"low: {d['low']:,.2f}\n"
+            f"close:  {d['close']:,.2f}\n"
+            f"volume:  {int(d.get('volume', 0)):,}\n"
+            f"interest:  {int(d.get('openinterest', 0)):,}\n",
+        )
+
         plt.tight_layout()
 
         if interactive:
@@ -247,6 +287,18 @@ class StaticChart(Chart):
         self._ax = ax
 
         self._plot_candlesticks(ax, records=records)
+
+        d = self._quotes.iloc[-1]
+        self._plot_text_info(
+            ax,
+            f"time:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
+            f"open:  {d['open']:,.2f}\n"
+            f"high: {d['high']:,.2f}\n"
+            f"low: {d['low']:,.2f}\n"
+            f"close:  {d['close']:,.2f}\n"
+            f"volume:  {int(d.get('volume', 0)):,}\n"
+            f"interest:  {int(d.get('openinterest', 0)):,}\n",
+        )
 
         self._plot_indicators(
             lambda col, cl, al: ax.plot(

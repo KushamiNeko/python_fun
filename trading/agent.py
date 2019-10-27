@@ -81,7 +81,6 @@ class Agent:
         ts = []
         for b in books:
             if b.symbol == symbol and b.version == version:
-                print(b)
                 entities = self._db.find(f"{b.book_type}_trading", b.index, query=None)
                 if entities is None or len(entities) == 0:
                     continue

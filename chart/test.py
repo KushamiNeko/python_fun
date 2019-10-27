@@ -57,13 +57,13 @@ if __name__ == "__main__":
     # exit(0)
 
     ps = [
-        # Process(
-            # target=StaticChart(
-                # ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
-                # chart_size="l",
-            # ).stocks_price,
-            # args=("stocks_l.png", ts),
-        # ),
+        Process(
+            target=StaticChart(
+                ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],
+                chart_size="l",
+            ).stocks_price,
+            args=("stocks_l.png", ts),
+        ),
         Process(target=sl.futures_price, args=("futures_l.png", ts)),
         # Process(
             # target=StaticChart(
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             # ).stocks_price,
             # args=("stocks_m.png", ts),
         # ),
-        Process(target=sm.futures_price, args=("futures_m.png", ts)),
+        # Process(target=sm.futures_price, args=("futures_m.png", ts)),
         # Process(
         # target=InteractiveChart(
         # ind.my_simple_moving_average_extend(df).loc["2018-01-01":"2019-01-01"],

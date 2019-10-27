@@ -164,7 +164,7 @@ class Chart(metaclass=ABCMeta):
     @abstractmethod
     def futures_price(
         self,
-        output: Union[str, io.BytesIO, io.StringIO],
+        output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
@@ -173,7 +173,7 @@ class Chart(metaclass=ABCMeta):
     @abstractmethod
     def stocks_price(
         self,
-        output: Union[str, io.BytesIO, io.StringIO],
+        output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
         interactive: bool = False,
     ) -> None:
