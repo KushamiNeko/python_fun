@@ -4,6 +4,13 @@ import scipy.stats as stats
 from matplotlib import font_manager as fm
 
 
+def label_simplify(label, length_limit=50):
+    if len(label) > length_limit:
+        return f"{label[: int(length_limit / 2.0)]}.....{label[-int(length_limit / 2.0) :]}"
+    else:
+        return label
+
+
 def plot_correlation(
     xs,
     ys,
@@ -11,16 +18,14 @@ def plot_correlation(
     xlabel=None,
     ylabel=None,
     labelsize=14,
-    label_len_limit=50,
+    label_length_limit=50,
     pointsize=50,
     linewidth=2,
     font_src=None,
 ):
 
     if font_src is not None:
-        prop = fm.FontProperties(
-            fname=font_src, size=labelsize
-        )
+        prop = fm.FontProperties(fname=font_src, size=labelsize)
     else:
         prop = None
 
@@ -30,21 +35,32 @@ def plot_correlation(
     ry = maxy - miny
     ryratio = 0.2
 
-    tau, p = stats.kendalltau(xs, ys)
+    mask = ~np.isnan(xs.reset_index(drop=True)) & ~np.isnan(ys.reset_index(drop=True))
 
-    s, i, _, _, _ = stats.linregress(xs.values, ys.values)
+    tau, p = stats.kendalltau(
+        # xs.astype(np.float), ys.astype(np.float), nan_policy="omit"
+        xs[mask].astype(np.float),
+        ys[mask].astype(np.float),
+    )
+
+    s, i, _, _, _ = stats.linregress(xs[mask], ys[mask])
     xl = np.linspace(xs.min(), xs.max())
 
     if ax is None:
         ax = plt.gca()
 
-    ax.set_ylim(
-        top=maxy + (ry * ryratio),
-        bottom=min(miny, (xs.min() * s) + i) - (ry * (ryratio / 2.0)),
-    )
-
     ax.scatter(xs.values, ys.values, s=pointsize, color="k")
     ax.plot(xl, xl * s + i, color="k", linewidth=linewidth)
+
+    if maxy != miny and maxy > miny:
+        ax.set_ylim(
+            top=maxy + (ry * ryratio),
+            bottom=min(miny, (xs.min() * s) + i) - (ry * (ryratio / 2.0)),
+        )
+
+    ylim_min, ylim_max = ax.get_ylim()
+    ylim_mean = (ylim_max + ylim_min) / 2.0
+    ylim_range = ylim_max - ylim_min
 
     minx, maxx = ax.get_xlim()
     rx = maxx - minx
@@ -61,8 +77,8 @@ def plot_correlation(
 
     ax.text(
         tx,
-        maxy + (ry * (ryratio / 2.0)),
-        s=f"P: {round(p, 3):.3f}\nTAU: {round(tau, 3):.3f}",
+        max(maxy + (ry * (ryratio / 2.0)), ylim_mean + (ylim_range * 0.4)),
+        s=f"P: {p:.3f}\nTAU: {tau:.3f}",
         color="k",
         ha=ha,
         va="bottom",
@@ -70,19 +86,7 @@ def plot_correlation(
     )
 
     if xlabel is not None:
-        if len(xlabel) > label_len_limit:
-            ax.set_xlabel(
-                f"{xlabel[: int(label_len_limit / 2.0)]}.....{xlabel[-int(label_len_limit / 2.0) :]}",
-                fontproperties=prop,
-            )
-        else:
-            ax.set_xlabel(xlabel, fontproperties=prop)
+        ax.set_xlabel(label_simplify(xlabel, label_length_limit), fontproperties=prop)
 
     if ylabel is not None:
-        if len(ylabel) > label_len_limit:
-            ax.set_ylabel(
-                f"{ylabel[: int(label_len_limit / 2.0)]}.....{ylabel[-int(label_len_limit / 2.0) :]}",
-                fontproperties=prop,
-            )
-        else:
-            ax.set_ylabel(ylabel, fontproperties=prop)
+        ax.set_ylabel(label_simplify(ylabel, label_length_limit), fontproperties=prop)
