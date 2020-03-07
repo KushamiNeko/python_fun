@@ -27,7 +27,7 @@ def plot_correlation(
     if font_src is not None:
         prop = fm.FontProperties(fname=font_src, size=labelsize)
     else:
-        prop = None
+        prop = fm.FontProperties(size=labelsize)
 
     maxy = ys.max()
     miny = ys.min()
