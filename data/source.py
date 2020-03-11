@@ -15,17 +15,24 @@ class DataSource(metaclass=ABCMeta):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         raise NotImplementedError
 
-    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
-        pass
+    @abstractmethod
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+        raise NotImplementedError
 
-    def _path(self, folder: str, symbol: str, ext: str = "csv") -> str:
+    def _datafeed(self, url: str) -> io.BytesIO:
+        resp = requests.get(url)
+        resp.raise_for_status()
+
+        data = io.BytesIO(resp.content)
+
+        return data
+
+    def _localpath(self, folder: str, symbol: str, ext: str = "csv") -> str:
 
         home = os.getenv("HOME")
         assert home is not None
 
-        path = os.path.join(
-            home, "Documents", "data_source", f"{folder}", f"{symbol}.{ext}"
-        )
+        path = os.path.join(home, "Documents", "data_source", folder, f"{symbol}.{ext}")
         if not os.path.exists(path):
             pretty.color_print(colors.PAPER_RED_400, f"unknown path: {path}")
             raise ValueError(f"unknown symbol: {symbol}")
@@ -48,21 +55,6 @@ class DataSource(metaclass=ABCMeta):
         else:
             raise ValueError(f"invalid frequency: {freq}")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
-
-        url = self._url(start, end, symbol, frequency)
-
-        resp = requests.get(url)
-        resp.raise_for_status()
-
-        data = io.BytesIO(resp.content)
-
-        df = pd.read_csv(data)
-
-        return df
-
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         cols = {k: k.lower() for k in df.columns}
         return df.rename(columns=cols)
@@ -71,9 +63,9 @@ class DataSource(metaclass=ABCMeta):
         self, start: datetime, end: datetime, symbol: str, frequency: str
     ) -> pd.DataFrame:
 
-        assert frequency in ("h", "d", "w", "m")
+        assert frequency in ("d", "w")
 
-        df = self._read_data(start, end, symbol, frequency)
+        df = self._read_data(start, end, symbol)
 
         df = self._rename_columns(df)
 
@@ -84,6 +76,29 @@ class DataSource(metaclass=ABCMeta):
         df = df.set_index("timestamp")
 
         df = df.sort_index()
+
+        # cols = ["open", "high", "low", "close", "volume"]
+        # if "open interest" in df.columns:
+        # cols.append("open interest")
+
+        # df = df[cols]
+
+        if frequency == "w":
+            agg = {
+                "open": "first",
+                "high": "max",
+                "low": "min",
+                "close": "last",
+                "volume": "sum",
+            }
+
+            if "open interest" in df.columns:
+                agg["open interest"] = "sum"
+
+            dfg = df.groupby(pd.Grouper(freq="W-MON", label="left", closed="left"))
+
+            df = dfg.agg(agg)
+            # df = dfg.agg(agg)[df.columns]
 
         return df.astype(np.float)
 
@@ -131,12 +146,9 @@ class AlphaVantage(DataSource):
         else:
             raise ValueError(f"invalid frequency: {freq}")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = super()._read_data(start, end, symbol, frequency)
-
+        df = pd.read_csv(self._datafeed(self._url(start, end, symbol, "d")))
         return df
 
 
@@ -144,11 +156,10 @@ class Yahoo(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%Y-%m-%d")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = pd.read_csv(self._path("yahoo", symbol, ext="csv"))
+        df = pd.read_csv(self._localpath("yahoo", symbol, ext="csv"))
+        df = df.drop("Adj Close", axis=1)
 
         return df
 
@@ -162,11 +173,9 @@ class StockCharts(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%m-%d-%Y")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        with open(self._path("stockcharts", symbol, ext="txt"), "r") as f:
+        with open(self._localpath("stockcharts", symbol, ext="txt"), "r") as f:
             lines = f.readlines()
 
         content = "\n".join([re.subn(r"\s+", ",", l.strip())[0] for l in lines])
@@ -189,11 +198,9 @@ class InvestingCom(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%b %d, %Y")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = pd.read_csv(self._path("investing.com", symbol, ext="csv"))
+        df = pd.read_csv(self._localpath("investing.com", symbol, ext="csv"))
         df = df.drop("Change %", axis=1)
 
         df.loc[:, "Vol."] = df.loc[:, "Vol."].apply(
@@ -205,7 +212,8 @@ class InvestingCom(DataSource):
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         cols = {k: k.lower() for k in df.columns}
         cols["Date"] = "timestamp"
-        cols["Vol."] = "volumn"
+        cols["Vol."] = "volume"
+        cols["Price"] = "close"
         return df.rename(columns=cols)
 
 
@@ -215,15 +223,22 @@ if __name__ == "__main__":
     # c = Barchart()
     # c = AlphaVantage()
     # c = Yahoo()
-    # c = StockCharts()
-    c = InvestingCom()
+    c = StockCharts()
+    # c = InvestingCom()
 
     s = datetime.strptime("20170101", time_fmt)
     e = datetime.strptime("20180101", time_fmt)
 
-    # df = c.read(s, e, "rvx", "d")
-    df = c.read(s, e, "vstx", "d")
-    # df = c.read(s, e, "vix", "d")
+    df = c.read(s, e, "rvx", "d")
     # df = c.read(s, e, "hyg", "d")
+    # df = c.read(s, e, "vix", "d")
+    # df = c.read(s, e, "vstx", "d")
 
-    print(df)
+    print(df.tail(15))
+
+    df = c.read(s, e, "rvx", "w")
+    # df = c.read(s, e, "hyg", "w")
+    # df = c.read(s, e, "vix", "w")
+    # df = c.read(s, e, "vstx", "w")
+
+    print(df.tail(15))

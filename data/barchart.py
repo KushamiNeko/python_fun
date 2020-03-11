@@ -3,7 +3,6 @@ import re
 from datetime import datetime
 
 import pandas as pd
-
 from fun.utils import colors, pretty
 from source import DataSource
 
@@ -61,6 +60,11 @@ class BarchartOnDemand(DataSource):
         else:
             raise ValueError(f"invalid frequency: {freq}")
 
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+
+        df = pd.read_csv(self._datafeed(self._url(start, end, symbol, "d")))
+        return df
+
 
 class Barchart(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
@@ -82,38 +86,63 @@ class Barchart(DataSource):
 
         raise ValueError("unknown timestamp format")
 
-    def _read_data(
-        self, start: datetime, end: datetime, symbol: str, frequency: str
-    ) -> pd.DataFrame:
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = pd.read_csv(self._path("barchart", symbol, ext="csv"))
+        with open(self._localpath("barchart", symbol, ext="csv"), "r") as f:
+            content = f.readlines()
 
-        na = df[df.isna().any(axis=1)]
+        if content[0].strip().endswith(","):
+            df = pd.read_csv(self._localpath("barchart", symbol, ext="csv"), header=1)
+        else:
+            df = pd.read_csv(self._localpath("barchart", symbol, ext="csv"))
 
-        pretty.color_print(
-            colors.PAPER_RED_400, f"dropping row containing nan\n{na}",
-        )
+        if content[-1].find(",") == -1:
+            df = df.drop(df.tail(1).index)
 
-        df = df.drop(na.index)
+        df = df.fillna(0)
+
+        # na = df[df.isna().any(axis=1)]
+
+        # pretty.color_print(
+        # colors.PAPER_RED_400, f"dropping row containing nan\n{na}",
+        # )
+
+        # df = df.drop(na.index)
+
+        # barchart historic
+        if "Change" in df.columns:
+            df = df.drop("Change", axis=1)
+
+        # barchart ondemand
+        if "symbol" in df.columns:
+            df = df.drop("symbol", axis=1)
+
+        if "tradingDay" in df.columns:
+            df = df.drop("tradingDay", axis=1)
 
         return df
 
-    # def read(
-    # self, start: datetime, end: datetime, symbol: str, frequency: str
-    # ) -> pd.DataFrame:
-
-    # df = super().read(start, end, symbol, frequency)
-
-    # return df
+    # symbol,timestamp,tradingDay,open,high,low,close,volume,openInterest
 
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         cols = {k: k.lower() for k in df.columns}
         # barchart historic
         if "Time" in df.columns:
             cols["Time"] = "timestamp"
+
+        if "Open Int" in df.columns:
+            cols["Open Int"] = "open interest"
+
+        if "Last" in df.columns:
+            cols["Last"] = "close"
+
         # barchart interactive
-        elif "Date Time" in df.columns:
+        if "Date Time" in df.columns:
             cols["Date Time"] = "timestamp"
+
+        # barchart ondemand
+        if "openInterest" in df.columns:
+            cols["openInterest"] = "open interest"
 
         return df.rename(columns=cols)
 
@@ -128,4 +157,8 @@ if __name__ == "__main__":
 
     df = c.read(s, e, "spx", "d")
 
-    print(df)
+    print(df.tail(15))
+
+    df = c.read(s, e, "spx", "w")
+
+    print(df.tail(15))
