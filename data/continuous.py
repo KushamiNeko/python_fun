@@ -1,46 +1,30 @@
 import os
-import re
 from datetime import datetime
 
 import pandas as pd
-from fun.utils import colors, pretty
-from source import DataSource
 from barchart import Barchart
 
 
-class ContinuousContract(Barchart):
-    def _localpath(self, folder: str, contract: str, ext: str = "csv") -> str:
+class Contract(Barchart):
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("continuous", symbol[:2], f"{symbol}.csv",)
 
-        home = os.getenv("HOME")
-        assert home is not None
 
-        path = os.path.join(
-            home,
-            "Documents",
-            "data_source",
-            "continuous",
-            contract[:2],
-            f"{contract}.{ext}",
-        )
-        if not os.path.exists(path):
-            pretty.color_print(colors.PAPER_RED_400, f"unknown path: {path}")
-            raise ValueError(f"unknown contract: {contract}")
-
-        assert os.path.exists(path)
-
-        return path
+class ContinuousContract(Contract):
+    pass
 
 
 if __name__ == "__main__":
     time_fmt = "%Y%m%d"
 
-    c = ContinuousContract()
+    c = Contract()
 
     s = datetime.strptime("20170101", time_fmt)
     e = datetime.strptime("20180101", time_fmt)
 
-    contract = "clf98"
-    # contract = "qrh03"
+    # contract = "clf98"
+    contract = "qrh03"
+    # contract = "esh20"
 
     df = c.read(s, e, contract, "d")
 

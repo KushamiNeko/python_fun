@@ -84,19 +84,36 @@ class Barchart(DataSource):
         if m is not None:
             return datetime.strptime(m.group(1), r"%Y-%m-%dT%H:%M:%S")
 
-        raise ValueError("unknown timestamp format")
+        raise ValueError(f"unknown timestamp format: {x}")
+
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("barchart", f"{symbol}.csv")
 
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        with open(self._localpath("barchart", symbol, ext="csv"), "r") as f:
+        with open(self._localfile(self._url(start, end, symbol, "d")), "r") as f:
             content = f.readlines()
 
-        if content[0].strip().endswith(","):
-            df = pd.read_csv(self._localpath("barchart", symbol, ext="csv"), header=1)
+        if (
+            re.match(
+                r"""["']*Symbol:\s*\w+\d*["']*,+["']*Study:\s*\w+["']*,""",
+                content[0].strip(),
+            )
+            is not None
+        ):
+            df = pd.read_csv(
+                self._localfile(self._url(start, end, symbol, "d")), header=1
+            )
         else:
-            df = pd.read_csv(self._localpath("barchart", symbol, ext="csv"))
+            df = pd.read_csv(self._localfile(self._url(start, end, symbol, "d")))
 
-        if content[-1].find(",") == -1:
+        if (
+            re.match(
+                r"""["']*\s*Downloaded\s*from\s*Barchart\.com\s*as\s*of\s*\d{2}-\d{2}-\d{4}\s*\d{2}:\d{2}[ap]m\s*C[SD]T["']*""",
+                content[-1].strip(),
+            )
+            is not None
+        ):
             df = df.drop(df.tail(1).index)
 
         df = df.fillna(0)

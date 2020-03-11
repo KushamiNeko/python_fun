@@ -19,6 +19,10 @@ class DataSource(metaclass=ABCMeta):
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
         raise NotImplementedError
 
+    @abstractmethod
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        raise NotImplementedError
+
     def _datafeed(self, url: str) -> io.BytesIO:
         resp = requests.get(url)
         resp.raise_for_status()
@@ -27,17 +31,15 @@ class DataSource(metaclass=ABCMeta):
 
         return data
 
-    def _localpath(self, folder: str, symbol: str, ext: str = "csv") -> str:
+    def _localfile(self, path: str) -> str:
 
         home = os.getenv("HOME")
         assert home is not None
 
-        path = os.path.join(home, "Documents", "data_source", folder, f"{symbol}.{ext}")
+        path = os.path.join(home, "Documents", "data_source", path)
         if not os.path.exists(path):
             pretty.color_print(colors.PAPER_RED_400, f"unknown path: {path}")
-            raise ValueError(f"unknown symbol: {symbol}")
-
-        assert os.path.exists(path)
+            raise ValueError(f"unknown path: {path}")
 
         return path
 
@@ -82,6 +84,15 @@ class DataSource(metaclass=ABCMeta):
         # cols.append("open interest")
 
         # df = df[cols]
+
+        na = df.isna().any(axis=1)
+        if na.any():
+            pretty.color_print(
+                colors.PAPER_RED_400,
+                f"\ndropping rows containing nan from {symbol.upper()}:\n{df[na]}",
+            )
+
+            df = df.dropna()
 
         if frequency == "w":
             agg = {
@@ -156,9 +167,11 @@ class Yahoo(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%Y-%m-%d")
 
-    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("yahoo", f"{symbol}.csv")
 
-        df = pd.read_csv(self._localpath("yahoo", symbol, ext="csv"))
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+        df = pd.read_csv(self._localfile(self._url(start, end, symbol, "d")))
         df = df.drop("Adj Close", axis=1)
 
         return df
@@ -173,9 +186,12 @@ class StockCharts(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%m-%d-%Y")
 
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("stockcharts", f"{symbol}.txt")
+
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        with open(self._localpath("stockcharts", symbol, ext="txt"), "r") as f:
+        with open(self._localfile(self._url(start, end, symbol, "d")), "r") as f:
             lines = f.readlines()
 
         content = "\n".join([re.subn(r"\s+", ",", l.strip())[0] for l in lines])
@@ -198,9 +214,12 @@ class InvestingCom(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
         return datetime.strptime(x, "%b %d, %Y")
 
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("investing.com", f"{symbol}.csv")
+
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = pd.read_csv(self._localpath("investing.com", symbol, ext="csv"))
+        df = pd.read_csv(self._localfile(self._url(start, end, symbol, "d")))
         df = df.drop("Change %", axis=1)
 
         df.loc[:, "Vol."] = df.loc[:, "Vol."].apply(
@@ -222,23 +241,26 @@ if __name__ == "__main__":
 
     # c = Barchart()
     # c = AlphaVantage()
-    # c = Yahoo()
-    c = StockCharts()
+    c = Yahoo()
+    # c = StockCharts()
     # c = InvestingCom()
 
     s = datetime.strptime("20170101", time_fmt)
     e = datetime.strptime("20180101", time_fmt)
 
-    df = c.read(s, e, "rvx", "d")
+    # df = c.read(s, e, "rvx", "d")
     # df = c.read(s, e, "hyg", "d")
     # df = c.read(s, e, "vix", "d")
+    df = c.read(s, e, "gvz", "d")
     # df = c.read(s, e, "vstx", "d")
 
     print(df.tail(15))
+    # print(df.isna().any(axis=1).any())
+    print(df[df.isna().any(axis=1)])
 
-    df = c.read(s, e, "rvx", "w")
+    # df = c.read(s, e, "rvx", "w")
     # df = c.read(s, e, "hyg", "w")
     # df = c.read(s, e, "vix", "w")
     # df = c.read(s, e, "vstx", "w")
 
-    print(df.tail(15))
+    # print(df.tail(15))
