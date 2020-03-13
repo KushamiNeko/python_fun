@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 
 import pandas as pd
-from barchart import Barchart
+
+from fun.data.barchart import Barchart
 
 
 class Contract(Barchart):
@@ -23,13 +24,9 @@ if __name__ == "__main__":
     e = datetime.strptime("20180101", time_fmt)
 
     # contract = "clf98"
-    contract = "qrh03"
+    contract = "qrh06"
     # contract = "esh20"
 
     df = c.read(s, e, contract, "d")
 
-    print(df.tail(15))
-
-    df = c.read(s, e, contract, "w")
-
-    print(df.tail(15))
+    print(df.head(15))

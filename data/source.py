@@ -3,11 +3,12 @@ import os
 import re
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta
-from fun.utils import pretty, colors
 
 import numpy as np
 import pandas as pd
 import requests
+
+from fun.utils import colors, pretty
 
 
 class DataSource(metaclass=ABCMeta):
@@ -77,19 +78,27 @@ class DataSource(metaclass=ABCMeta):
 
         df = df.set_index("timestamp")
 
+        unusual = df.index.hour != 0
+        if unusual.any():
+            pretty.color_print(
+                colors.PAPER_RED_400,
+                f"dropping {len(df.loc[unusual])} rows containing unusual timestamp from {symbol.upper()}",
+            )
+            df = df.drop(df.loc[unusual].index)
+
         df = df.sort_index()
 
         # cols = ["open", "high", "low", "close", "volume"]
         # if "open interest" in df.columns:
         # cols.append("open interest")
 
-        # df = df[cols]
+        # df = df.loc[:, cols]
 
         na = df.isna().any(axis=1)
         if na.any():
             pretty.color_print(
                 colors.PAPER_RED_400,
-                f"\ndropping rows containing nan from {symbol.upper()}:\n{df[na]}",
+                f"dropping {len(df.loc[na])} rows containing nan from {symbol.upper()}",
             )
 
             df = df.dropna()
@@ -109,7 +118,7 @@ class DataSource(metaclass=ABCMeta):
             dfg = df.groupby(pd.Grouper(freq="W-MON", label="left", closed="left"))
 
             df = dfg.agg(agg)
-            # df = dfg.agg(agg)[df.columns]
+            # df = dfg.agg(agg).loc[df.columns]
 
         return df.astype(np.float)
 

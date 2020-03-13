@@ -3,8 +3,8 @@ import re
 from datetime import datetime
 
 import pandas as pd
-from fun.utils import colors, pretty
-from source import DataSource
+
+from fun.data.source import DataSource
 
 
 class BarchartOnDemand(DataSource):
@@ -70,13 +70,14 @@ class Barchart(DataSource):
     def _timestamp_preprocessing(self, x: str) -> datetime:
 
         # barchart historic
-        m = re.match(r"^\d{2}/\d{2}/\d{4}$", x)
-        if m is not None:
+        if re.match(r"^\d{2}/\d{2}/\d{4}$", x) is not None:
             return datetime.strptime(x, r"%m/%d/%Y")
 
+        if re.match(r"^\d{2}/\d{2}/\d{2}$", x) is not None:
+            return datetime.strptime(x, r"%m/%d/%y")
+
         # barchart interactive
-        m = re.match(r"^\d{4}-\d{2}-\d{2}$", x)
-        if m is not None:
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", x) is not None:
             return datetime.strptime(x, r"%Y-%m-%d")
 
         # barchart ondemand

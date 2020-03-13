@@ -1,9 +1,13 @@
 import unittest
 import os
 
-from source import Yahoo, StockCharts, InvestingCom
+from fun.data.source import Yahoo, StockCharts, InvestingCom
+from fun.data.barchart import Barchart
+from fun.data.continuous import Contract
 
 from datetime import datetime
+
+from utils import pretty, colors
 
 
 class TestSource(unittest.TestCase):
@@ -27,6 +31,7 @@ class TestSource(unittest.TestCase):
 
             with open(src, "r") as fc:
                 if len(fc.read().strip()) == 0:
+                    pretty.color_print(colors.PAPER_AMBER_300, f"empty file: {src}")
                     continue
 
             symbol = os.path.splitext(f)[0]
@@ -47,3 +52,29 @@ class TestSource(unittest.TestCase):
     def test_investing(self):
         root = os.path.join(self._root(), "investing.com")
         self._loop_files(root, InvestingCom())
+
+    def test_barchart(self):
+        root = os.path.join(self._root(), "barchart")
+        self._loop_files(root, Barchart())
+
+    def test_contract(self):
+        source = Contract()
+
+        root = os.path.join(self._root(), "continuous")
+        for f in os.listdir(os.path.join(self._root(), "continuous")):
+            symbols = os.path.join(root, f)
+
+            for f in os.listdir(symbols):
+                src = os.path.join(symbols, f)
+
+                with open(src, "r") as fc:
+                    if len(fc.read().strip()) == 0:
+                        pretty.color_print(colors.PAPER_AMBER_300, f"empty file: {src}")
+                        continue
+
+                symbol = os.path.splitext(f)[0]
+
+                df = source.read(self._start, self._end, symbol, "d")
+                self.assertNotEqual(len(df.index), 0)
+
+                self.assertFalse(df.isna().any(axis=1).any())
