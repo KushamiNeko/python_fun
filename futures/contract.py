@@ -1,28 +1,176 @@
+from __future__ import annotations
+
 import re
-from typing import Optional
 from datetime import datetime
+from typing import Optional, List
 
 import pandas as pd
 
 from fun.data import continuous
 
-# BarchartSymbolFormat SymbolFormat = iota
-# QuandlSymbolFormat
+ALL_CONTRACT_MONTHS = "fghjkmnquvxz"
+EVEN_CONTRACT_MONTHS = "gjmqvz"
+FINANCIAL_CONTRACT_MONTHS = "hmuz"
 
-# AllContractMonths  ContractMonths = "fghjkmnquvxz"
-# EvenContractMonths ContractMonths = "gjmqvz"
 
-# FinancialContractMonths ContractMonths = "hmuz"
+class Contract:
 
-# LastNTradingDay RollingMethod = iota
-# FirstOfMonth
-# OpenInterest
+    _barchart_format = r"(\w{2})([fghjkmnquvxz])(\d{2})"
+    _quandl_format = r"([\d\w]+)([fghjkmnquvxz])(\d{4})"
 
-# PanamaCanal AdjustingMethod = iota
-# Ratio
+    @classmethod
+    def front_month(
+        cls,
+        symbol: str,
+        months: str,
+        fmt: str,
+        read_data: bool = True,
+        time: datetime = datetime.now(),
+    ) -> Contract:
+        assert fmt in ("barchart", "quandl")
+        assert months in (
+            ALL_CONTRACT_MONTHS,
+            EVEN_CONTRACT_MONTHS,
+            FINANCIAL_CONTRACT_MONTHS,
+        )
 
-# barchartContractPattern = `(\w{2})([fghjkmnquvxz])(\d{2})`
-# quandlContractPattern   = `([\d\w]+)([fghjkmnquvxz])(\d{4})`
+        front_year = time.year
+
+        front_month = ""
+        if months == FINANCIAL_CONTRACT_MONTHS:
+            offset = time.month + 1
+            if offset > 12:
+                offset %= 13
+                front_year += 1
+
+            for m in months:
+                if month_from_futures_month_code(m) > time.month:
+                    front_month = m
+                    break
+        else:
+            offset = time.month + 2
+            if offset > 12:
+                offset %= 13
+                front_year += 1
+
+            for m in months:
+                if month_from_futures_month_code(m) > offset:
+                    front_month = m
+                    break
+
+        if fmt == "barchart":
+            front_year %= 100
+
+        return Contract(
+            code=f"{symbol}{front_month}", fmt=fmt, months=months, read_data=read_data
+        )
+
+    def __init__(
+        self,
+        code: str,
+        months: str,
+        fmt: str,
+        read_data: bool = True,
+        df: Optional[pd.DataFrame] = None,
+    ) -> None:
+
+        assert fmt in ("barchart", "quandl")
+        assert months in (
+            ALL_CONTRACT_MONTHS,
+            EVEN_CONTRACT_MONTHS,
+            FINANCIAL_CONTRACT_MONTHS,
+        )
+
+        self._df = df
+        if read_data:
+            self.read_data()
+
+        self._code = code
+        self._fmt = fmt
+        self._months = months
+
+        symbol = ""
+        year = 0
+        month = 0
+
+        match = None
+
+        if self._fmt == "barchart":
+            match = re.match(self._barchart_format, self._code)
+            if match is None:
+                raise ValueError(
+                    f"invalid contract code {self._code} for {self._fmt} format"
+                )
+
+            year = int(f"20{match.group(3)}")
+
+        elif self._fmt == "quandl":
+            match = re.match(self._quandl_format, self._code)
+            if match is None:
+                raise ValueError(
+                    f"invalid contract code {self._code} for {self._fmt} format"
+                )
+
+            year = int(match.group(3))
+
+        else:
+            raise ValueError("unknown contract code format: {self._fmt}")
+
+        assert match is not None
+
+        symbol = match.group(1)
+        month = month_from_futures_month_code(match.group(2))
+
+        assert symbol != ""
+        assert year != 0
+        assert month != 0
+
+        if year > datetime.now().year:
+            year -= 100
+
+        self._symbol = symbol
+        self._year = year
+        self._month = month
+
+    def read_data(self) -> None:
+        src = continuous.Contract()
+        self._df = src.read(datetime(1776, 7, 4), datetime.now(), self._code, "d")
+        assert self._df is not None
+
+    def code(self) -> str:
+        return self._code
+
+    def symbol(self) -> str:
+        return self._symbol
+
+    def year(self) -> int:
+        return self._year
+
+    def month(self) -> int:
+        return self._month
+
+    # def previous_contract(self) -> str:
+    def previous_contract(self, read_data: bool = True) -> Contract:
+        p_year = self.year()
+        mi = self._months.index(month_to_futures_month_code(self._month))
+        if mi - 1 < 0:
+            p_year -= 1
+
+        p_month = month_from_futures_month_code(
+            self._months[mi - 1 % len(self._months)]
+        )
+
+        if self._fmt == "barchart":
+            p_year %= 100
+
+        # return f"{self._symbol}{month_to_futures_month_code(p_month)}{p_year}"
+
+        return Contract(
+            code=f"{self._symbol}{month_to_futures_month_code(p_month)}{p_year}",
+            months=self._months,
+            fmt=self._fmt,
+            read_data=read_data,
+        )
 
 
 def month_to_futures_month_code(month: int) -> str:
@@ -83,69 +231,15 @@ def month_from_futures_month_code(code: str) -> int:
         raise ValueError(f"unknonw month code: {code}")
 
 
-class Contract:
-    def __init__(
-        self, symbol: str, fmt: str, df: Optional[pd.DataFrame], read_data: bool = True
-    ) -> None:
+def contract_list(
+    start: datetime, end: datetime, symbol: str, months: str, fmt: str
+) -> List[Contract]:
 
-        assert fmt in ("barchart", "quandl")
+    cur = Contract.front_month(symbol=symbol, months=months, fmt=fmt, time=end)
 
-        self._df = df
-        if read_data:
-            self.read_contract_data()
+    contracts = []
+    while cur.year() > start.year and cur.month() >= start.month:
+        contracts.append(cur)
+        cur = cur.previous_contract()
 
-        self._symbol = symbol
-        self._fmt = fmt
-
-        year = 0
-        month = 0
-        if self._fmt == "barchart":
-            match = re.match(self._barchart_symbol_format, self._symbol)
-            if match is None:
-                raise ValueError(
-                    f"invalid symbol {self._symbol} for {self._fmt} format"
-                )
-
-            year = int(f"20{match.group(3)}")
-            month = month_from_futures_month_code(match.group(2))
-
-        elif self._fmt == "quandl":
-            match = re.match(self._quandl_symbol_format, self._symbol)
-            if match is None:
-                raise ValueError(
-                    f"invalid symbol {self._symbol} for {self._fmt} format"
-                )
-
-            year = int(match.group(3))
-            month = month_from_futures_month_code(match.group(2))
-
-        else:
-            raise ValueError("unknown symbol format: {self._fmt}")
-
-        assert year != 0
-        assert month != 0
-
-        if year > datetime.now().year:
-            year -= 100
-
-        self._year = year
-        self._month = month
-
-    @property
-    def _barchart_symbol_format(self) -> str:
-        return r"(\w{2})([fghjkmnquvxz])(\d{2})"
-
-    @property
-    def _quandl_symbol_format(self) -> str:
-        return r"([\d\w]+)([fghjkmnquvxz])(\d{4})"
-
-    def read_contract_data(self) -> None:
-        src = continuous.Contract()
-        self._df = src.read(datetime(1776, 7, 4), datetime.now(), self._symbol, "d")
-        assert self._df is not None
-
-    def contract_year(self) -> int:
-        return self._year
-
-    def contract_month(self) -> int:
-        return self._month
+    return contracts

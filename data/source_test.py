@@ -40,6 +40,7 @@ class TestSource(unittest.TestCase):
             self.assertNotEqual(len(df.index), 0)
 
             self.assertFalse(df.isna().any(axis=1).any())
+            self.assertFalse((df.index.hour != 0).any())
 
     def test_yahoo(self):
         root = os.path.join(self._root(), "yahoo")
@@ -78,3 +79,7 @@ class TestSource(unittest.TestCase):
                 self.assertNotEqual(len(df.index), 0)
 
                 self.assertFalse(df.isna().any(axis=1).any())
+
+
+if __name__ == "__main__":
+    unittest.main()

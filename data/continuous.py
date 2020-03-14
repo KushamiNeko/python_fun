@@ -13,20 +13,3 @@ class Contract(Barchart):
 
 class ContinuousContract(Contract):
     pass
-
-
-if __name__ == "__main__":
-    time_fmt = "%Y%m%d"
-
-    c = Contract()
-
-    s = datetime.strptime("20170101", time_fmt)
-    e = datetime.strptime("20180101", time_fmt)
-
-    # contract = "clf98"
-    contract = "qrh06"
-    # contract = "esh20"
-
-    df = c.read(s, e, contract, "d")
-
-    print(df.head(15))

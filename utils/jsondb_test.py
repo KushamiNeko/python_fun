@@ -120,3 +120,7 @@ class TestJsonDB(unittest.TestCase):
         result = self.database.find(self.test_database, self.test_collection, entity)
 
         self.assertIsNone(result)
+
+
+if __name__ == "__main__":
+    unittest.main()

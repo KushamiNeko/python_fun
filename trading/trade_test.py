@@ -1224,3 +1224,7 @@ class TestFuturesTrade(unittest.TestCase):
                 ]
 
                 FuturesTrade(orders)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -38,3 +38,7 @@ class TestHelper(unittest.TestCase):
         for table in tables:
             with self.assertRaises(ValueError):
                 helper.key_value_pair(table["inputs"])
+
+
+if __name__ == "__main__":
+    unittest.main()

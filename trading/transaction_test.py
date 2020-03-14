@@ -449,3 +449,7 @@ class TestFuturesTransaction(unittest.TestCase):
         for table in tables:
             with self.assertRaises(KeyError):
                 FuturesTransaction.from_entity(table["inputs"])
+
+
+if __name__ == "__main__":
+    unittest.main()

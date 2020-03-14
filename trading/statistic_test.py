@@ -148,3 +148,7 @@ class TestStatistic(unittest.TestCase):
                 config.FLOAT_DECIMALS,
             ),
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

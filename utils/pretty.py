@@ -17,7 +17,8 @@ def color_print(hex_rgb: str, message: str) -> None:
         print(err)
         rgb = (255, 255, 255)
 
-    print("\033[38;2;{};{};{}m{}\033[0m".format(rgb[0], rgb[1], rgb[2], message))
+    # print("\033[38;2;{};{};{}m{}\033[0m".format(rgb[0], rgb[1], rgb[2], message))
+    print(f"\033[38;2;{rgb[0]};{rgb[1]};{rgb[2]}m{message}\033[0m")
 
 
 def color_input(hex_rgb: str, message: str) -> str:

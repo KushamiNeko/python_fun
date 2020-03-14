@@ -163,20 +163,3 @@ class Barchart(DataSource):
             cols["openInterest"] = "open interest"
 
         return df.rename(columns=cols)
-
-
-if __name__ == "__main__":
-    time_fmt = "%Y%m%d"
-
-    c = Barchart()
-
-    s = datetime.strptime("20170101", time_fmt)
-    e = datetime.strptime("20180101", time_fmt)
-
-    df = c.read(s, e, "spx", "d")
-
-    print(df.tail(15))
-
-    df = c.read(s, e, "spx", "w")
-
-    print(df.tail(15))

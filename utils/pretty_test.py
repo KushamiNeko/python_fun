@@ -28,3 +28,7 @@ class TestHelper(unittest.TestCase):
         rgb = pretty.hex_to_rgb8("000000")
 
         self.assertTupleEqual(rgb, (0, 0, 0))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -243,33 +243,3 @@ class InvestingCom(DataSource):
         cols["Vol."] = "volume"
         cols["Price"] = "close"
         return df.rename(columns=cols)
-
-
-if __name__ == "__main__":
-    time_fmt = "%Y%m%d"
-
-    # c = Barchart()
-    # c = AlphaVantage()
-    c = Yahoo()
-    # c = StockCharts()
-    # c = InvestingCom()
-
-    s = datetime.strptime("20170101", time_fmt)
-    e = datetime.strptime("20180101", time_fmt)
-
-    # df = c.read(s, e, "rvx", "d")
-    # df = c.read(s, e, "hyg", "d")
-    # df = c.read(s, e, "vix", "d")
-    df = c.read(s, e, "gvz", "d")
-    # df = c.read(s, e, "vstx", "d")
-
-    print(df.tail(15))
-    # print(df.isna().any(axis=1).any())
-    print(df[df.isna().any(axis=1)])
-
-    # df = c.read(s, e, "rvx", "w")
-    # df = c.read(s, e, "hyg", "w")
-    # df = c.read(s, e, "vix", "w")
-    # df = c.read(s, e, "vstx", "w")
-
-    # print(df.tail(15))

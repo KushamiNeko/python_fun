@@ -39,3 +39,7 @@ class TestFuturesSpecs(unittest.TestCase):
         self.assertEqual(FuturesContractSpecs.lookup_contract_unit("le"), 40000)
         self.assertEqual(FuturesContractSpecs.lookup_contract_unit("he"), 40000)
         self.assertEqual(FuturesContractSpecs.lookup_contract_unit("gf"), 50000)
+
+
+if __name__ == "__main__":
+    unittest.main()
