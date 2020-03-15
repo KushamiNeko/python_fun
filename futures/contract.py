@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Optional, List
+from typing import List
 
 import pandas as pd
 
-from fun.data import continuous
+from fun.data.barchart import BarchartContract
 
-ALL_CONTRACT_MONTHS = "fghjkmnquvxz"
-EVEN_CONTRACT_MONTHS = "gjmqvz"
-FINANCIAL_CONTRACT_MONTHS = "hmuz"
+ALL_CONTRACT_MONTHS: str = "fghjkmnquvxz"
+EVEN_CONTRACT_MONTHS: str = "gjmqvz"
+FINANCIAL_CONTRACT_MONTHS: str = "hmuz"
 
 
 class Contract:
@@ -39,30 +39,35 @@ class Contract:
         front_month = ""
         if months == FINANCIAL_CONTRACT_MONTHS:
             offset = time.month + 1
-            if offset > 12:
-                offset %= 13
-                front_year += 1
-
-            for m in months:
-                if month_from_futures_month_code(m) > time.month:
-                    front_month = m
-                    break
         else:
             offset = time.month + 2
-            if offset > 12:
-                offset %= 13
-                front_year += 1
 
-            for m in months:
-                if month_from_futures_month_code(m) > offset:
-                    front_month = m
-                    break
+        if offset > 12:
+            offset %= 12
+            front_year += 1
 
+        for m in months:
+            if month_from_futures_month_code(m) > offset:
+                front_month = m
+                break
+
+        year_code = ""
         if fmt == "barchart":
             front_year %= 100
+            year_code = f"{front_year:02}"
+        elif fmt == "quandl":
+            year_code = f"{front_year:04}"
+        else:
+            raise ValueError("invalid code format")
+
+        assert front_month != ""
+        assert year_code != ""
 
         return Contract(
-            code=f"{symbol}{front_month}", fmt=fmt, months=months, read_data=read_data
+            code=f"{symbol}{front_month}{year_code}",
+            fmt=fmt,
+            months=months,
+            read_data=read_data,
         )
 
     def __init__(
@@ -71,7 +76,7 @@ class Contract:
         months: str,
         fmt: str,
         read_data: bool = True,
-        df: Optional[pd.DataFrame] = None,
+        # df: Optional[pd.DataFrame] = None,
     ) -> None:
 
         assert fmt in ("barchart", "quandl")
@@ -81,13 +86,13 @@ class Contract:
             FINANCIAL_CONTRACT_MONTHS,
         )
 
-        self._df = df
-        if read_data:
-            self.read_data()
-
         self._code = code
         self._fmt = fmt
         self._months = months
+
+        # self._df = df
+        if read_data:
+            self.read_data()
 
         symbol = ""
         year = 0
@@ -133,8 +138,14 @@ class Contract:
         self._month = month
 
     def read_data(self) -> None:
-        src = continuous.Contract()
-        self._df = src.read(datetime(1776, 7, 4), datetime.now(), self._code, "d")
+        src = BarchartContract()
+        self._df = src.read(
+            start=datetime(1776, 7, 4),
+            end=datetime.now(),
+            symbol=self._code,
+            frequency="d",
+        )
+
         assert self._df is not None
 
     def code(self) -> str:
@@ -149,7 +160,10 @@ class Contract:
     def month(self) -> int:
         return self._month
 
-    # def previous_contract(self) -> str:
+    def dataframe(self) -> pd.DataFrame:
+        assert self._df is not None
+        return self._df
+
     def previous_contract(self, read_data: bool = True) -> Contract:
         p_year = self.year()
         mi = self._months.index(month_to_futures_month_code(self._month))
@@ -160,13 +174,17 @@ class Contract:
             self._months[mi - 1 % len(self._months)]
         )
 
+        year_code = ""
         if self._fmt == "barchart":
             p_year %= 100
-
-        # return f"{self._symbol}{month_to_futures_month_code(p_month)}{p_year}"
+            year_code = f"{p_year:02}"
+        elif self._fmt == "quandl":
+            year_code = f"{p_year:04}"
+        else:
+            raise ValueError("invalid code format")
 
         return Contract(
-            code=f"{self._symbol}{month_to_futures_month_code(p_month)}{p_year}",
+            code=f"{self._symbol}{month_to_futures_month_code(p_month)}{year_code}",
             months=self._months,
             fmt=self._fmt,
             read_data=read_data,
@@ -232,14 +250,23 @@ def month_from_futures_month_code(code: str) -> int:
 
 
 def contract_list(
-    start: datetime, end: datetime, symbol: str, months: str, fmt: str
+    start: datetime,
+    end: datetime,
+    symbol: str,
+    months: str,
+    fmt: str,
+    read_data: bool = True,
 ) -> List[Contract]:
 
-    cur = Contract.front_month(symbol=symbol, months=months, fmt=fmt, time=end)
+    cur = Contract.front_month(
+        symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
+    )
 
-    contracts = []
-    while cur.year() > start.year and cur.month() >= start.month:
+    contracts = [cur]
+    while not (cur.year() <= start.year and cur.month() < start.month):
+        cur = cur.previous_contract(read_data=read_data)
         contracts.append(cur)
-        cur = cur.previous_contract()
+
+    assert len(contracts) != 0
 
     return contracts

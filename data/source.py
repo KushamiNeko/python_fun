@@ -81,7 +81,7 @@ class DataSource(metaclass=ABCMeta):
         unusual = df.index.hour != 0
         if unusual.any():
             pretty.color_print(
-                colors.PAPER_RED_400,
+                colors.PAPER_AMBER_300,
                 f"dropping {len(df.loc[unusual])} rows containing unusual timestamp from {symbol.upper()}",
             )
             df = df.drop(df.loc[unusual].index)
@@ -97,7 +97,7 @@ class DataSource(metaclass=ABCMeta):
         na = df.isna().any(axis=1)
         if na.any():
             pretty.color_print(
-                colors.PAPER_RED_400,
+                colors.PAPER_AMBER_300,
                 f"dropping {len(df.loc[na])} rows containing nan from {symbol.upper()}",
             )
 

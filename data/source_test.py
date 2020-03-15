@@ -2,8 +2,7 @@ import unittest
 import os
 
 from fun.data.source import Yahoo, StockCharts, InvestingCom
-from fun.data.barchart import Barchart
-from fun.data.continuous import Contract
+from fun.data.barchart import Barchart, BarchartContract
 
 from datetime import datetime
 
@@ -59,7 +58,7 @@ class TestSource(unittest.TestCase):
         self._loop_files(root, Barchart())
 
     def test_contract(self):
-        source = Contract()
+        source = BarchartContract()
 
         root = os.path.join(self._root(), "continuous")
         for f in os.listdir(os.path.join(self._root(), "continuous")):

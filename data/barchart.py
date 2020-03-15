@@ -119,14 +119,6 @@ class Barchart(DataSource):
 
         df = df.fillna(0)
 
-        # na = df[df.isna().any(axis=1)]
-
-        # pretty.color_print(
-        # colors.PAPER_RED_400, f"dropping row containing nan\n{na}",
-        # )
-
-        # df = df.drop(na.index)
-
         # barchart historic
         if "Change" in df.columns:
             df = df.drop("Change", axis=1)
@@ -139,8 +131,6 @@ class Barchart(DataSource):
             df = df.drop("tradingDay", axis=1)
 
         return df
-
-    # symbol,timestamp,tradingDay,open,high,low,close,volume,openInterest
 
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         cols = {k: k.lower() for k in df.columns}
@@ -163,3 +153,8 @@ class Barchart(DataSource):
             cols["openInterest"] = "open interest"
 
         return df.rename(columns=cols)
+
+
+class BarchartContract(Barchart):
+    def _url(self, start: datetime, end: datetime, code: str, frequency: str) -> str:
+        return os.path.join("continuous", code[:2], f"{code}.csv",)
