@@ -2,15 +2,21 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import List
+from typing import List, NewType
 
 import pandas as pd
 
 from fun.data.barchart import BarchartContract
+from fun.data.source import DAILY
+from fun.utils import colors, pretty
 
 ALL_CONTRACT_MONTHS: str = "fghjkmnquvxz"
 EVEN_CONTRACT_MONTHS: str = "gjmqvz"
 FINANCIAL_CONTRACT_MONTHS: str = "hmuz"
+
+CODE_FORMAT = NewType("CODE_FORMAT", int)
+BARCHART = CODE_FORMAT(0)
+QUANDL = CODE_FORMAT(1)
 
 
 class Contract:
@@ -23,11 +29,11 @@ class Contract:
         cls,
         symbol: str,
         months: str,
-        fmt: str,
+        fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
         time: datetime = datetime.now(),
     ) -> Contract:
-        assert fmt in ("barchart", "quandl")
+        assert fmt in (BARCHART, QUANDL)
         assert months in (
             ALL_CONTRACT_MONTHS,
             EVEN_CONTRACT_MONTHS,
@@ -38,11 +44,11 @@ class Contract:
 
         front_month = ""
         if months == FINANCIAL_CONTRACT_MONTHS:
-            offset = time.month + 1
+            offset = time.month
         else:
             offset = time.month + 2
 
-        if offset > 12:
+        if offset >= 12:
             offset %= 12
             front_year += 1
 
@@ -51,16 +57,17 @@ class Contract:
                 front_month = m
                 break
 
+        assert front_month != ""
+
         year_code = ""
-        if fmt == "barchart":
+        if fmt == BARCHART:
             front_year %= 100
             year_code = f"{front_year:02}"
-        elif fmt == "quandl":
+        elif fmt == QUANDL:
             year_code = f"{front_year:04}"
         else:
             raise ValueError("invalid code format")
 
-        assert front_month != ""
         assert year_code != ""
 
         return Contract(
@@ -74,12 +81,11 @@ class Contract:
         self,
         code: str,
         months: str,
-        fmt: str,
+        fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
-        # df: Optional[pd.DataFrame] = None,
     ) -> None:
 
-        assert fmt in ("barchart", "quandl")
+        assert fmt in (BARCHART, QUANDL)
         assert months in (
             ALL_CONTRACT_MONTHS,
             EVEN_CONTRACT_MONTHS,
@@ -90,7 +96,6 @@ class Contract:
         self._fmt = fmt
         self._months = months
 
-        # self._df = df
         if read_data:
             self.read_data()
 
@@ -100,7 +105,7 @@ class Contract:
 
         match = None
 
-        if self._fmt == "barchart":
+        if self._fmt == BARCHART:
             match = re.match(self._barchart_format, self._code)
             if match is None:
                 raise ValueError(
@@ -109,7 +114,7 @@ class Contract:
 
             year = int(f"20{match.group(3)}")
 
-        elif self._fmt == "quandl":
+        elif self._fmt == QUANDL:
             match = re.match(self._quandl_format, self._code)
             if match is None:
                 raise ValueError(
@@ -142,7 +147,7 @@ class Contract:
             start=datetime(1776, 7, 4),
             end=datetime.now(),
             symbol=self._code,
-            frequency="d",
+            frequency=DAILY,
         )
 
         assert self._df is not None
@@ -174,10 +179,10 @@ class Contract:
         )
 
         year_code = ""
-        if self._fmt == "barchart":
+        if self._fmt == BARCHART:
             p_year %= 100
             year_code = f"{p_year:02}"
-        elif self._fmt == "quandl":
+        elif self._fmt == QUANDL:
             year_code = f"{p_year:04}"
         else:
             raise ValueError("invalid code format")
@@ -270,8 +275,9 @@ def contract_list(
         try:
             cur = cur.previous_contract(read_data=read_data)
             contracts.append(cur)
-        except FileNotFoundError:
-            continue
+        except FileNotFoundError as err:
+            pretty.color_print(colors.PAPER_AMBER_300, str(err))
+            break
 
     assert len(contracts) != 0
 

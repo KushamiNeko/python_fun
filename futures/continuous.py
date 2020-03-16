@@ -1,23 +1,18 @@
 import re
 from datetime import datetime
-from typing import Callable, cast
+from typing import cast
 
 import pandas as pd
 
+from fun.data.source import DAILY, FREQUENCY, WEEKLY, daily_to_weekly
 from fun.futures.contract import (
     ALL_CONTRACT_MONTHS,
     EVEN_CONTRACT_MONTHS,
     FINANCIAL_CONTRACT_MONTHS,
-    Contract,
+    BARCHART,
     contract_list,
 )
-from fun.futures.rolling import last_n_trading_days
-
-# ROLLING_METHOD = NewType("ROLLING_METHOD", int)
-
-# LAST_N_TRADING_DAYS = ROLLING_METHOD(0)
-# FIRST_OF_MONTH = ROLLING_METHOD(1)
-# VOLUME_AND_OPEN_INTEREST = ROLLING_METHOD(2)
+from fun.futures.rolling import RollingMethod
 
 
 class ContinuousContract:
@@ -39,31 +34,20 @@ class ContinuousContract:
         start: datetime,
         end: datetime,
         symbol: str,
-        frequency: str,
-        rolling_method: Callable[
-            [Contract, Contract], datetime
-        ] = lambda front, back: cast(datetime, last_n_trading_days(front, back, n=4)),
-        # adjusting_method: Callable[[datetime, Contract, Contract], pd.DataFrame],
-        # rolling_method: ROLLING_METHOD = LAST_N_TRADING_DAYS,
-        # rolling_parameters: Optional[Dict[str, Any]] = None,
+        frequency: FREQUENCY,
+        rolling_method: RollingMethod,
     ) -> pd.DataFrame:
 
         assert re.match(r"^\w+$", symbol) is not None
-        assert frequency in ("d", "w")
+        assert frequency in (DAILY, WEEKLY)
         assert rolling_method is not None
-
-        # assert rolling_method in (
-        # LAST_N_TRADING_DAYS,
-        # FIRST_OF_MONTH,
-        # VOLUME_AND_OPEN_INTEREST,
-        # )
 
         cs = contract_list(
             start=start,
             end=end,
             symbol=symbol,
             months=self._contract_months(symbol),
-            fmt="barchart",
+            fmt=BARCHART,
             read_data=True,
         )
 
@@ -72,38 +56,37 @@ class ContinuousContract:
         link = None
         for i in range(cs_length):
             rolling_date = None
-            try:
-                if i + 1 < cs_length:
-                    rolling_date = rolling_method(cs[i + 1], cs[i])
-                else:
-                    rolling_date = rolling_method(cs[i].previous_contract(), cs[i])
-            except FileNotFoundError:
-                rolling_date = None
+            if i + 1 < cs_length:
+                rolling_date = rolling_method.rolling_date(cs[i + 1], cs[i])
+            else:
+                # rolling_date = rolling_method(cs[i].previous_contract(), cs[i])
+                p = cs[i].previous_contract(read_data=False)
+                rolling_date = datetime(year=p.year(), month=p.month(), day=1)
+
+            assert rolling_date is not None
 
             df = cs[i].dataframe()
 
-            if rolling_date is not None:
-                part = df.loc[df.index >= rolling_date].sort_index(ascending=False)
-            else:
-                part = df.sort_index(ascending=False)
+            # if rolling_date is not None:
+            part = df.loc[df.index >= rolling_date].sort_index(ascending=False)
+            # else:
+            # part = df.sort_index(ascending=False)
 
             if link is None:
                 link = part
             else:
+                # link = link.append(part)
+                part.loc[:, ["open", "high", "low", "close"]] = rolling_method.adjust(
+                    part.loc[:, ["open", "high", "low", "close"]]
+                )
+
                 link = link.append(part)
 
         assert link is not None
 
-        return link.sort_index()
+        link = link.sort_index()
 
+        if frequency == WEEKLY:
+            link = daily_to_weekly(link)
 
-if __name__ == "__main__":
-    c = ContinuousContract()
-    df = c.read(
-        datetime.strptime("20190101", "%Y%m%d"),
-        datetime.strptime("20200101", "%Y%m%d"),
-        "es",
-        "d",
-    )
-
-    print(df)
+        return link

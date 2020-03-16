@@ -3,4 +3,5 @@
 *cache*
 .vscode
 env
+.pytype
 

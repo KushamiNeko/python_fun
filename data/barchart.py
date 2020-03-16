@@ -4,11 +4,13 @@ from datetime import datetime
 
 import pandas as pd
 
-from fun.data.source import DataSource
+from fun.data.source import DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY, DataSource
 
 
 class BarchartOnDemand(DataSource):
-    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+    def _url(
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+    ) -> str:
 
         if not re.match(r"^[a-zA-Z]+[0-9]{2}$", symbol):
             raise ValueError(f"invalid symbol: {symbol}")
@@ -42,27 +44,27 @@ class BarchartOnDemand(DataSource):
 
         return datetime.strptime(m.group(1), r"%Y-%m-%dT%H:%M:%S")
 
-    def _interval(self, freq: str) -> str:
-        if freq in ("h", "hourly"):
+    def _interval(self, freq: FREQUENCY) -> str:
+        if freq == HOURLY:
             return "60"
         else:
             return "1"
 
-    def _frequency(self, freq: str) -> str:
-        if freq in ("h", "hourly"):
+    def _frequency(self, freq: FREQUENCY) -> str:
+        if freq == HOURLY:
             return "nearbyMinutes"
-        elif freq in ("d", "daily"):
+        elif freq == DAILY:
             return "dailyNearest"
-        elif freq in ("w", "weekly"):
+        elif freq == WEEKLY:
             return "weeklyNearest"
-        elif freq in ("m", "monthly"):
+        elif freq == MONTHLY:
             return "monthlyNearest"
         else:
             raise ValueError(f"invalid frequency: {freq}")
 
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        df = pd.read_csv(self._datafeed(self._url(start, end, symbol, "d")))
+        df = pd.read_csv(self._datafeed(self._url(start, end, symbol, DAILY)))
         return df
 
 
@@ -87,12 +89,14 @@ class Barchart(DataSource):
 
         raise ValueError(f"unknown timestamp format: {x}")
 
-    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+    def _url(
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+    ) -> str:
         return os.path.join("barchart", f"{symbol}.csv")
 
     def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
 
-        with open(self._localfile(self._url(start, end, symbol, "d")), "r") as f:
+        with open(self._localfile(self._url(start, end, symbol, DAILY)), "r") as f:
             content = f.readlines()
 
         if (
@@ -103,10 +107,10 @@ class Barchart(DataSource):
             is not None
         ):
             df = pd.read_csv(
-                self._localfile(self._url(start, end, symbol, "d")), header=1
+                self._localfile(self._url(start, end, symbol, DAILY)), header=1
             )
         else:
-            df = pd.read_csv(self._localfile(self._url(start, end, symbol, "d")))
+            df = pd.read_csv(self._localfile(self._url(start, end, symbol, DAILY)))
 
         if (
             re.match(
@@ -119,42 +123,49 @@ class Barchart(DataSource):
 
         df = df.fillna(0)
 
+        columns = df.columns
+
         # barchart historic
-        if "Change" in df.columns:
+        if "Change" in columns:
             df = df.drop("Change", axis=1)
 
         # barchart ondemand
-        if "symbol" in df.columns:
+        if "symbol" in columns:
             df = df.drop("symbol", axis=1)
 
-        if "tradingDay" in df.columns:
+        if "tradingDay" in columns:
             df = df.drop("tradingDay", axis=1)
 
         return df
 
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         cols = {k: k.lower() for k in df.columns}
+
+        columns = df.columns
+
         # barchart historic
-        if "Time" in df.columns:
+        if "Time" in columns:
             cols["Time"] = "timestamp"
 
-        if "Open Int" in df.columns:
+        if "Open Int" in columns:
             cols["Open Int"] = "open interest"
 
-        if "Last" in df.columns:
+        if "Last" in columns:
             cols["Last"] = "close"
 
         # barchart interactive
-        if "Date Time" in df.columns:
+        if "Date Time" in columns:
             cols["Date Time"] = "timestamp"
 
         # barchart ondemand
-        if "openInterest" in df.columns:
+        if "openInterest" in columns:
             cols["openInterest"] = "open interest"
 
         return df.rename(columns=cols)
 
 
 class BarchartContract(Barchart):
-    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+    def _url(
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+    ) -> str:
         return os.path.join("continuous", symbol[:2], f"{symbol}.csv",)
