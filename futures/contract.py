@@ -137,8 +137,7 @@ class Contract:
         self._year = year
         self._month = month
 
-    def read_data(self) -> None:
-        src = BarchartContract()
+    def read_data(self, src=BarchartContract()) -> None:
         self._df = src.read(
             start=datetime(1776, 7, 4),
             end=datetime.now(),
@@ -263,9 +262,16 @@ def contract_list(
     )
 
     contracts = [cur]
-    while not (cur.year() <= start.year and cur.month() < start.month):
-        cur = cur.previous_contract(read_data=read_data)
-        contracts.append(cur)
+    while not (
+        (cur.year() * 10000 + cur.month() * 100)
+        < (start.year * 10000 + start.month * 100)
+    ):
+
+        try:
+            cur = cur.previous_contract(read_data=read_data)
+            contracts.append(cur)
+        except FileNotFoundError:
+            continue
 
     assert len(contracts) != 0
 

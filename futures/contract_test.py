@@ -275,6 +275,22 @@ class TestContract(unittest.TestCase):
     @parameterized(
         [
             {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "months": FINANCIAL_CONTRACT_MONTHS,
+                "fmt": "barchart",
+                "expect_list": "esh20,esz19,esu19,esm19,esh19,esz18",
+            },
+            {
+                "start": "20190201",
+                "end": "20200201",
+                "symbol": "es",
+                "months": FINANCIAL_CONTRACT_MONTHS,
+                "fmt": "barchart",
+                "expect_list": "esm20,esh20,esz19,esu19,esm19,esh19,esz18",
+            },
+            {
                 "start": "20170905",
                 "end": "20181205",
                 "symbol": "es",

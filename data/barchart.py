@@ -156,5 +156,5 @@ class Barchart(DataSource):
 
 
 class BarchartContract(Barchart):
-    def _url(self, start: datetime, end: datetime, code: str, frequency: str) -> str:
-        return os.path.join("continuous", code[:2], f"{code}.csv",)
+    def _url(self, start: datetime, end: datetime, symbol: str, frequency: str) -> str:
+        return os.path.join("continuous", symbol[:2], f"{symbol}.csv",)

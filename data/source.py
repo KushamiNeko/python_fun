@@ -40,7 +40,8 @@ class DataSource(metaclass=ABCMeta):
         path = os.path.join(home, "Documents", "data_source", path)
         if not os.path.exists(path):
             pretty.color_print(colors.PAPER_RED_400, f"unknown path: {path}")
-            raise ValueError(f"unknown path: {path}")
+            # raise ValueError(f"unknown path: {path}")
+            raise FileNotFoundError(f"unknown path: {path}")
 
         return path
 

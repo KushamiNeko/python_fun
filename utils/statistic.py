@@ -34,7 +34,7 @@ def bake_correlation_statistic(df, drops, correlation_func, output_file):
             progress += 1
 
             if progress % progress_report == 0:
-                print("{}%.....".format(round((progress / works) * 100.0, 4)))
+                print(f"{round((progress / works) * 100.0, 4)}%.....")
 
             statistic[x][y] = {
                 "p": str(p_value),
