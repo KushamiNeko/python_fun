@@ -74,6 +74,8 @@ class ContinuousContract:
                     p = cs[i].previous_contract(read_data=False)
                     rolling_date = datetime(year=p.year(), month=p.month(), day=1)
 
+        link = link.loc[link.index >= rolling_date]
+
         assert link is not None
 
         link = link.sort_index()

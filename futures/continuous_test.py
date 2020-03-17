@@ -1,6 +1,8 @@
 import unittest
 from datetime import datetime
 
+import numpy as np
+
 from fun.data.source import DAILY
 from fun.futures.continuous import ContinuousContract
 from fun.futures.contract import (
@@ -10,42 +12,18 @@ from fun.futures.contract import (
     FINANCIAL_CONTRACT_MONTHS,
     contract_list,
 )
-from fun.futures.rolling import NO_ADJUSTMENT, LastNTradingDays, RATIO, DIFFERENCE
+from fun.futures.rolling import (
+    NO_ADJUSTMENT,
+    LastNTradingDays,
+    RATIO,
+    DIFFERENCE,
+    FirstOfMonth,
+    VolumeAndOpenInterest,
+)
 from fun.utils.testing import parameterized
 
 
 class TestContinuousContract(unittest.TestCase):
-    # def equal_part(
-    # self, df, front, back, rolling_date, columns, adjustment_back, adjustment_front
-    # ):
-    # self.assertTrue(
-    # df.loc[(df.index >= rolling_date) & (df.index.isin(back.index)), columns]
-    # .eq(
-    # adjustment_back(
-    # back.loc[
-    # (back.index >= rolling_date) & (back.index.isin(df.index)),
-    # columns,
-    # ]
-    # )
-    # )
-    # .all(axis=1)
-    # .all()
-    # )
-
-    # self.assertTrue(
-    # df.loc[(df.index < rolling_date) & (df.index.isin(front.index)), columns]
-    # .eq(
-    # adjustment_front(
-    # front.loc[
-    # (front.index < rolling_date) & (front.index.isin(df.index)),
-    # columns,
-    # ]
-    # )
-    # )
-    # .all(axis=1)
-    # .all()
-    # )
-
     @parameterized(
         [
             {
@@ -53,55 +31,275 @@ class TestContinuousContract(unittest.TestCase):
                 "end": "20200101",
                 "symbol": "es",
                 "rolling_method": LastNTradingDays(
-                    offset=4, adjustment_method=DIFFERENCE
+                    offset=4, adjustment_method=NO_ADJUSTMENT
                 ),
-                "rolling_date": ["20191217", "20190917", "20190618", "20190312"],
+                "rolling_date": [
+                    "20191217",
+                    "20190917",
+                    "20190618",
+                    "20190312",
+                    "20181218",
+                ],
                 "adjustment": [
                     lambda x: x,
-                    lambda x: x + 3.5,
-                    lambda x: x + 6,
-                    lambda x: x + 10.5,
-                    lambda x: x + 15.25,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
                 ],
             },
-            # {
-            # "start": "20200101",
-            # "end": "20200101",
-            # "symbol": "es",
-            # "rolling_method": LastNTradingDays(
-            # offset=4, adjustment_method=NO_ADJUSTMENT
-            # ),
-            # "adjustment": [lambda x: x, lambda x: x],
-            # },
-            # {
-            # "start": "20200101",
-            # "end": "20200101",
-            # "symbol": "es",
-            # "rolling_method": LastNTradingDays(
-            # offset=4, adjustment_method=DIFFERENCE
-            # ),
-            # "adjustment": [lambda x: x, lambda x: x + (3195.5 - 3192)],
-            # },
-            # {
-            # "start": "20191201",
-            # "end": "20200101",
-            # "symbol": "es",
-            # "rolling_method": LastNTradingDays(
-            # offset=4, adjustment_method=DIFFERENCE
-            # ),
-            # "adjustment": [
-            # lambda x: x,
-            # lambda x: x + (3195.5 - 3192),
-            # lambda x: x + (3195.5 - 3192 + 3008 - 3005.5),
-            # ],
-            # },
-            # {
-            # "start": "20200101",
-            # "end": "20200101",
-            # "symbol": "es",
-            # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
-            # "adjustment": [lambda x: x, lambda x: x * (3195.5 / 3192)],
-            # },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": LastNTradingDays(
+                    offset=4, adjustment_method=DIFFERENCE
+                ),
+                "rolling_date": [
+                    "20191217",
+                    "20190917",
+                    "20190618",
+                    "20190312",
+                    "20181218",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x + (3195.5 - 3192),
+                    lambda x: x + (3195.5 - 3192) + (3008 - 3005.5),
+                    lambda x: x
+                    + (3195.5 - 3192)
+                    + (3008 - 3005.5)
+                    + (2926.25 - 2921.75),
+                    lambda x: x
+                    + (3195.5 - 3192)
+                    + (3008 - 3005.5)
+                    + (2926.25 - 2921.75)
+                    + (2797.25 - 2792),
+                    lambda x: x
+                    + (3195.5 - 3192)
+                    + (3008 - 3005.5)
+                    + (2926.25 - 2921.75)
+                    + (2797.25 - 2792)
+                    + (2538 - 2535.75),
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                "rolling_date": [
+                    "20191217",
+                    "20190917",
+                    "20190618",
+                    "20190312",
+                    "20181218",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x * (3195.5 / 3192),
+                    lambda x: x * (3195.5 / 3192) * (3008 / 3005.5),
+                    lambda x: x
+                    * (3195.5 / 3192)
+                    * (3008 / 3005.5)
+                    * (2926.25 / 2921.75),
+                    lambda x: x
+                    * (3195.5 / 3192)
+                    * (3008 / 3005.5)
+                    * (2926.25 / 2921.75)
+                    * (2797.25 / 2792),
+                    lambda x: x
+                    * (3195.5 / 3192)
+                    * (3008 / 3005.5)
+                    * (2926.25 / 2921.75)
+                    * (2797.25 / 2792)
+                    * (2538 / 2535.75),
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": FirstOfMonth(adjustment_method=NO_ADJUSTMENT),
+                "rolling_date": [
+                    "20191202",
+                    "20190903",
+                    "20190603",
+                    "20190301",
+                    "20181203",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": FirstOfMonth(adjustment_method=DIFFERENCE),
+                "rolling_date": [
+                    "20191202",
+                    "20190903",
+                    "20190603",
+                    "20190301",
+                    "20181203",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x + (3116 - 3114.25),
+                    lambda x: x + (3116 - 3114.25) + (2906.5 - 2906),
+                    lambda x: x
+                    + (3116 - 3114.25)
+                    + (2906.5 - 2906)
+                    + (2752.5 - 2749.5),
+                    lambda x: x
+                    + (3116 - 3114.25)
+                    + (2906.5 - 2906)
+                    + (2752.5 - 2749.5)
+                    + (2810.25 - 2805),
+                    lambda x: x
+                    + (3116 - 3114.25)
+                    + (2906.5 - 2906)
+                    + (2752.5 - 2749.5)
+                    + (2810.25 - 2805)
+                    + (2796 - 2790.75),
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": FirstOfMonth(adjustment_method=RATIO),
+                "rolling_date": [
+                    "20191202",
+                    "20190903",
+                    "20190603",
+                    "20190301",
+                    "20181203",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x * (3116 / 3114.25),
+                    lambda x: x * (3116 / 3114.25) * (2906.5 / 2906),
+                    lambda x: x
+                    * (3116 / 3114.25)
+                    * (2906.5 / 2906)
+                    * (2752.5 / 2749.5),
+                    lambda x: x
+                    * (3116 / 3114.25)
+                    * (2906.5 / 2906)
+                    * (2752.5 / 2749.5)
+                    * (2810.25 / 2805),
+                    lambda x: x
+                    * (3116 / 3114.25)
+                    * (2906.5 / 2906)
+                    * (2752.5 / 2749.5)
+                    * (2810.25 / 2805)
+                    * (2796 / 2790.75),
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": VolumeAndOpenInterest(
+                    backup=FirstOfMonth(adjustment_method=NO_ADJUSTMENT),
+                    adjustment_method=NO_ADJUSTMENT,
+                ),
+                "rolling_date": [
+                    "20191216",
+                    "20190916",
+                    "20190617",
+                    "20190311",
+                    "20181217",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                    lambda x: x,
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": VolumeAndOpenInterest(
+                    backup=FirstOfMonth(adjustment_method=DIFFERENCE),
+                    adjustment_method=DIFFERENCE,
+                ),
+                "rolling_date": [
+                    "20191216",
+                    "20190916",
+                    "20190617",
+                    "20190311",
+                    "20181217",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x + (3198.5 - 3194.25),
+                    lambda x: x + (3198.5 - 3194.25) + (3001.5 - 2999),
+                    lambda x: x
+                    + (3198.5 - 3194.25)
+                    + (3001.5 - 2999)
+                    + (2896.25 - 2892),
+                    lambda x: x
+                    + (3198.5 - 3194.25)
+                    + (3001.5 - 2999)
+                    + (2896.25 - 2892)
+                    + (2789 - 2784),
+                    lambda x: x
+                    + (3198.5 - 3194.25)
+                    + (3001.5 - 2999)
+                    + (2896.25 - 2892)
+                    + (2789 - 2784)
+                    + (2555.75 - 2552.5),
+                ],
+            },
+            {
+                "start": "20190101",
+                "end": "20200101",
+                "symbol": "es",
+                "rolling_method": VolumeAndOpenInterest(
+                    backup=FirstOfMonth(adjustment_method=RATIO),
+                    adjustment_method=RATIO,
+                ),
+                "rolling_date": [
+                    "20191216",
+                    "20190916",
+                    "20190617",
+                    "20190311",
+                    "20181217",
+                ],
+                "adjustment": [
+                    lambda x: x,
+                    lambda x: x * (3198.5 / 3194.25),
+                    lambda x: x * (3198.5 / 3194.25) * (3001.5 / 2999),
+                    lambda x: x
+                    * (3198.5 / 3194.25)
+                    * (3001.5 / 2999)
+                    * (2896.25 / 2892),
+                    lambda x: x
+                    * (3198.5 / 3194.25)
+                    * (3001.5 / 2999)
+                    * (2896.25 / 2892)
+                    * (2789 / 2784),
+                    lambda x: x
+                    * (3198.5 / 3194.25)
+                    * (3001.5 / 2999)
+                    * (2896.25 / 2892)
+                    * (2789 / 2784)
+                    * (2555.75 / 2552.5),
+                ],
+            },
         ]
     )
     def test_no_adjustment(
@@ -130,171 +328,56 @@ class TestContinuousContract(unittest.TestCase):
 
         cs = contract_list(s, e, symbol, months, BARCHART)
 
-        print([c.code() for c in cs])
-
         assert len(rolling_date) + 1 == len(adjustment)
+        assert len(rolling_date) + 1 == len(cs)
 
-        columns = ["open", "high", "low", "close"]
+        adjust_columns = ["open", "high", "low", "close"]
+        no_adjust_columns = ["volume", "open interest"]
 
-        # print(df)
-
-        # print(df.tail(90))
-        # for i in range(1, len(df.tail(120))):
-        # print(df.iloc[-i])
-
-        # i = 0
-        # print(cs[i].code())
-        # cdf = cs[i].dataframe()
-
-        # print(
-        # df.loc[(df.index >= rolling_date[i]) & (df.index.isin(cdf.index)), columns,]
-        # )
-
-        # print(
-        # adjustment[i](
-        # cdf.loc[
-        # (cdf.index >= rolling_date[i]) & (cdf.index.isin(df.index)),
-        # columns,
-        # ]
-        # )
-        # )
-
-        # i = 1
-        # # print(cs[i].code())
-        # cdf = cs[i].dataframe()
-
-        # print(
-        # df.loc[
-        # (df.index < rolling_date[i - 1])
-        # & (df.index >= rolling_date[i])
-        # & (df.index.isin(cdf.index)),
-        # columns,
-        # ]
-        # )
-
-        # print(
-        # adjustment[i](
-        # cdf.loc[
-        # (cdf.index < rolling_date[i - 1])
-        # & (cdf.index >= rolling_date[i])
-        # & (cdf.index.isin(df.index)),
-        # columns,
-        # ]
-        # )
-        # )
-
-        # print(df.loc[
-        # (df.index < rolling_date[0])
-        # & (df.index >= rolling_date[1])
-        # & (df.index.isin(cs[1].dataframe().index)),
-        # columns,
-        # ])
-
-        for i in range(len(rolling_date)):
-            if i < len(rolling_date) - 1:
-                cdf = cs[i].dataframe()
-                print(
-                    df.loc[
-                        (df.index >= rolling_date[i]) & (df.index.isin(cdf.index)),
-                        columns,
-                    ]
-                )
-                print(
-                    adjustment[i](
-                        cdf.loc[
-                            (cdf.index >= rolling_date[i]) & (cdf.index.isin(df.index)),
-                            columns,
-                        ]
-                    )
-                )
-                print(
-                    df.loc[(df.index >= rolling_date[i]) & (df.index.isin(cdf.index))]
-                    .eq(
-                        adjustment[i](
-                            cdf.loc[
-                                (cdf.index >= rolling_date[i])
-                                & (cdf.index.isin(df.index))
-                            ]
-                        )
-                    )
-                    .all(axis=1)
-                    .all()
+        for i in range(len(rolling_date) + 1):
+            cdf = cs[i].dataframe()
+            if i == 0:
+                df_selector = (df.index >= rolling_date[i]) & (df.index.isin(cdf.index))
+                cdf_selector = (cdf.index >= rolling_date[i]) & (
+                    cdf.index.isin(df.index)
                 )
 
-            if i > 1:
-                break
+                self.assertTrue(np.isclose(df.iloc[-1], cdf.iloc[-1]).all())
+            elif i > 0 and i < len(rolling_date):
+                df_selector = (df.index >= rolling_date[i]) & (
+                    df.index < rolling_date[i - 1]
+                )
+                cdf_selector = (cdf.index >= rolling_date[i]) & (
+                    cdf.index < rolling_date[i - 1]
+                )
+            elif i >= len(rolling_date):
+                df_selector = (df.index.isin(cdf.index)) & (
+                    df.index < rolling_date[i - 1]
+                )
+                cdf_selector = (cdf.index.isin(df.index)) & (
+                    cdf.index < rolling_date[i - 1]
+                )
 
-    # df.loc[(df.index < rolling_date) & (df.index.isin(front.index)), columns]
-    # .eq(
-    # adjustment_front(
-    # front.loc[
-    # (front.index < rolling_date) & (front.index.isin(df.index)),
-    # columns,
-    # ]
-    # )
+                self.assertTrue(
+                    df.index[0]
+                    < datetime(year=cs[i].year(), month=cs[i].month(), day=1)
+                )
 
-    # print([c.code() for c in cs])
+            self.assertTrue(
+                np.isclose(
+                    df.loc[df_selector, adjust_columns],
+                    adjustment[i](cdf.loc[cdf_selector, adjust_columns]),
+                    rtol=1e-12,
+                    atol=0,
+                ).all()
+            )
 
-    # assert len(cs) >= 2
-    # assert len(adjustment) == len(cs)
-
-    # for i in range(len(cs) - 1):
-    # back = cs[i]
-    # front = cs[i + 1]
-
-    # rolling_date = rolling_method.rolling_date(front, back)
-
-    # print(rolling_date)
-
-    # # columns = ["open", "high", "low", "close"]
-    # # self.equal_part(
-    # # df,
-    # # front.dataframe(),
-    # # back.dataframe(),
-    # # rolling_date,
-    # # columns,
-    # # adjustment[i],
-    # # adjustment[i + 1],
-    # # )
-
-    # print(i)
-    # print(
-    # cs[len(cs) - 1]
-    # .dataframe()
-    # .loc[
-    # # (cs[len(cs) - 1].dataframe().index.isin(back.dataframe().index))
-    # (cs[len(cs) - 1].dataframe().index.isin(df.index))
-    # ]
-    # )
-    # print(
-    # front.dataframe().loc[
-    # (front.dataframe().index.isin(back.dataframe().index))
-    # & (front.dataframe().index.isin(df.index))
-    # ]
-    # )
-    # print(
-    # back.dataframe().loc[
-    # (back.dataframe().index.isin(front.dataframe().index))
-    # & (back.dataframe().index.isin(df.index))
-    # ]
-    # )
-    # print(
-    # df.loc[
-    # (df.index.isin(front.dataframe().index))
-    # & (df.index.isin(back.dataframe().index))
-    # ]
-    # )
-
-    # columns = ["volume", "open interest"]
-    # self.equal_part(
-    # df,
-    # front.dataframe(),
-    # back.dataframe(),
-    # rolling_date,
-    # columns,
-    # lambda x: x,
-    # lambda x: x,
-    # )
+            self.assertTrue(
+                df.loc[df_selector, no_adjust_columns]
+                .eq(cdf.loc[cdf_selector, no_adjust_columns])
+                .all(axis=1)
+                .all()
+            )
 
 
 if __name__ == "__main__":
