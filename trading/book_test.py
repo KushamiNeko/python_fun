@@ -1,217 +1,167 @@
 import time
 import unittest
-from datetime import datetime
 
 from fun.trading.book import TradingBook
-from fun.utils import helper
+from fun.utils.testing import parameterized
 
 
 class TestBook(unittest.TestCase):
+    @parameterized(
+        [
+            {"title": "", "index": ""},
+            {"title": "", "index": "hello"},
+            {"title": "hello", "index": "[]"},
+            {"title": "hello", "index": "hello,;$"},
+            {"title": "hello", "index": "098,;$"},
+        ]
+    )
+    def test_init_invalid(self, title, index):
+        with self.assertRaises(ValueError):
+            TradingBook(
+                title=title, index=index,
+            )
 
-    dtime = datetime.strptime("2019-03-13", "%Y-%m-%d")
-
-    def test_init_succeed(self):
-
-        trading_book = TradingBook(
-            dtime=self.dtime, symbol="esz19", version="1", note="hello", book_type="PAPER"
-        )
-
-        self.assertEqual(trading_book.time, self.dtime)
-        self.assertEqual(trading_book.symbol, "esz19")
-        self.assertEqual(trading_book.version, "1")
-        self.assertEqual(trading_book.note, "hello")
-        self.assertEqual(trading_book.book_type, "paper")
-
-        self.assertNotEqual(trading_book.last_modified, 0)
-        self.assertNotEqual(trading_book.index, "")
-
-        last_time = time.time()
-        last_index = helper.random_string(length=16)
-
-        trading_book = TradingBook(
-            dtime=self.dtime,
-            symbol="spx",
-            version="1",
-            note="HELLO",
-            book_type="LIVE",
-            last_modified=last_time,
-            index=last_index,
-        )
-
-        self.assertEqual(trading_book.time, self.dtime)
-        self.assertEqual(trading_book.symbol, "spx")
-        self.assertEqual(trading_book.version, "1")
-        self.assertEqual(trading_book.note, "HELLO")
-        self.assertEqual(trading_book.book_type, "live")
-        self.assertEqual(trading_book.last_modified, last_time)
-        self.assertEqual(trading_book.index, last_index)
-
-    def test_init_invalid(self):
-
-        tables = [
+    @parameterized(
+        [
             {
-                "inputs": {
-                    "dtime": -1,
-                    "symbol": "rut",
-                    "version": "1",
-                    "note": "hello",
-                    "book_type": "paper",
-                }
+                "title": "hello",
+                "index": "",
+                "last_modified": 0,
+                "expect_index": "",
+                "expect_last_modified": 0,
             },
             {
-                "inputs": {
-                    "dtime": self.dtime,
-                    "symbol": "qrz19",
-                    "version": "1",
-                    "note": "hello",
-                    "book_type": "WORLD",
-                }
+                "title": "hello",
+                "index": "hello",
+                "last_modified": 0,
+                "expect_index": "hello",
+                "expect_last_modified": 0,
             },
             {
-                "inputs": {
-                    "dtime": self.dtime,
-                    "symbol": "tyz19",
-                    "version": "1",
-                    "note": "hello",
-                    "book_type": "PAPER",
-                    "index": "[]",
-                }
+                "title": "hello",
+                "index": "",
+                "last_modified": 123,
+                "expect_index": "",
+                "expect_last_modified": 123,
             },
             {
-                "inputs": {
-                    "dtime": self.dtime,
-                    "symbol": "19",
-                    "version": "1",
-                    "note": "hello",
-                    "book_type": "PAPER",
-                }
-            },
-            {
-                "inputs": {
-                    "dtime": self.dtime,
-                    "symbol": "esa19",
-                    "version": "1",
-                    "note": "hello",
-                    "book_type": "PAPER",
-                }
-            },
-            {
-                "inputs": {
-                    "dtime": self.dtime,
-                    "symbol": "esz19",
-                    "version": "",
-                    "note": "hello",
-                    "book_type": "live",
-                }
+                "title": "hello",
+                "index": "hello",
+                "last_modified": 123,
+                "expect_index": "hello",
+                "expect_last_modified": 123,
             },
         ]
+    )
+    def test_init_succeed(
+        self, title, index, last_modified, expect_index, expect_last_modified
+    ):
+        book = TradingBook(title=title, index=index, last_modified=last_modified,)
 
-        for table in tables:
-            with self.assertRaises(ValueError):
-                TradingBook(
-                    dtime=table["inputs"]["dtime"],
-                    symbol=table["inputs"]["symbol"],
-                    version=table["inputs"]["version"],
-                    note=table["inputs"]["note"],
-                    book_type=table["inputs"]["book_type"],
-                    index=table["inputs"].get("index", ""),
-                )
+        self.assertEqual(book.title(), title)
 
-    def test_has_modified_succeed(self):
-        trading_book = TradingBook(
-            dtime=self.dtime, symbol="spx", version="1", note="hello", book_type="PAPER"
-        )
-        last_modified = trading_book.last_modified
-        trading_book.has_modified()
+        if expect_index == "":
+            self.assertNotEqual(book.index(), "")
+        else:
+            self.assertEqual(book.index(), expect_index)
 
-        self.assertNotEqual(last_modified, trading_book.last_modified)
-        self.assertLess(last_modified, trading_book.last_modified)
+        if expect_last_modified == 0:
+            self.assertNotEqual(book.last_modified(), 0)
+        else:
+            self.assertEqual(book.last_modified(), expect_last_modified)
 
-    def test_entity_succeed(self):
-        trading_book = TradingBook(
-            dtime=self.dtime, symbol="spx", version="1", note="hello", book_type="PAPER"
-        )
+    @parameterized([{"last_modified": 0}, {"last_modified": time.time()}])
+    def test_update_last_modified_succeed(self, last_modified):
+        book = TradingBook(title="hello", last_modified=last_modified)
+        last_modified = book.last_modified()
+        if last_modified == 0:
+            self.assertNotEqual(book.last_modified(), 0)
+        else:
+            self.assertEqual(book.last_modified(), last_modified)
 
-        self.assertEqual(trading_book.to_entity().get("time", ""), "20190313")
-        self.assertEqual(trading_book.to_entity().get("symbol", ""), "spx")
-        self.assertEqual(trading_book.to_entity().get("version", ""), "1")
-        self.assertEqual(trading_book.to_entity().get("note", ""), "hello")
-        self.assertEqual(trading_book.to_entity().get("book_type", ""), "paper")
+        book.update_last_modified()
 
-        self.assertEqual(
-            trading_book.to_entity().get("last_modified", ""),
-            str(trading_book.last_modified),
-        )
+        self.assertNotEqual(last_modified, book.last_modified())
+        self.assertLess(last_modified, book.last_modified())
 
-        self.assertEqual(trading_book.to_entity().get("index", ""), trading_book.index)
-
-    def test_entity_exchange_succeed(self):
-        trading_book = TradingBook(
-            dtime=self.dtime, symbol="nqz19", version="1", note="hello", book_type="PAPER"
-        )
-        new_book = TradingBook.from_entity(trading_book.to_entity())
-
-        self.assertEqual(trading_book.index, new_book.index)
-        self.assertEqual(trading_book.last_modified, new_book.last_modified)
-        self.assertEqual(trading_book.time, new_book.time)
-        self.assertEqual(trading_book.symbol, new_book.symbol)
-        self.assertEqual(trading_book.version, new_book.version)
-        self.assertEqual(trading_book.note, new_book.note)
-        self.assertEqual(trading_book.book_type, new_book.book_type)
-
-    def test_trading_book_from_entity_succeed(self):
-        entity = {
-            "time": "20190313",
-            "symbol": "compq",
-            "version": "1",
-            "note": "hello world",
-            "book_type": "paper",
-        }
-
-        trading_book = TradingBook.from_entity(entity)
-
-        self.assertEqual(
-            trading_book.time.strftime("%Y-%m-%d"), self.dtime.strftime("%Y-%m-%d")
-        )
-
-        self.assertEqual(trading_book.symbol, "compq")
-        self.assertEqual(trading_book.version, "1")
-
-        self.assertEqual(trading_book.note, "hello world")
-        self.assertEqual(trading_book.book_type, "paper")
-
-        self.assertNotEqual(trading_book.last_modified, 0)
-        self.assertNotEqual(trading_book.index, "")
-
-    def test_trading_book_from_entity_missing_necessary_key(self):
-
-        entities = [
-            {
-                "note": "hello world",
-                "symbol": "spx",
-                "version": "1",
-                "book_type": "paper",
-            },
-            {
-                "time": "20190313",
-                "symbol": "spx",
-                "version": "1",
-                "note": "hello world",
-            },
-            {
-                "time": "20190313",
-                "book_type": "paper",
-                "version": "1",
-                "note": "hello world",
-            },
-            {
-                "time": "20190313",
-                "book_type": "paper",
-                "symbol": "rut",
-                "note": "hello world",
-            },
+    @parameterized(
+        [
+            {"title": "hello", "index": "", "last_modified": 0},
+            {"title": "hello", "index": "hello", "last_modified": 0},
+            {"title": "hello", "index": "", "last_modified": 123},
+            {"title": "hello", "index": "hello", "last_modified": 123},
         ]
+    )
+    def test_entity_succeed(self, title, index, last_modified):
+        book = TradingBook(title=title, index=index, last_modified=last_modified,)
 
-        for entity in entities:
-            with self.assertRaises(KeyError):
-                TradingBook.from_entity(entity)
+        self.assertEqual(book.to_entity().get("title", ""), title)
+
+        if index == "":
+            self.assertNotEqual(book.to_entity().get("index", ""), index)
+        else:
+            self.assertEqual(book.to_entity().get("index", ""), index)
+
+        if last_modified == 0:
+            self.assertNotEqual(
+                book.to_entity().get("last_modified", "0"), str(last_modified)
+            )
+        else:
+            self.assertEqual(
+                book.to_entity().get("last_modified", "0"), str(last_modified)
+            )
+
+    @parameterized(
+        [
+            {"entity": {"title": "hello"}},
+            {"entity": {"title": "hello", "index": "", "last_modified": "0"}},
+            {"entity": {"title": "hello", "index": "abc", "last_modified": "0"}},
+            {"entity": {"title": "hello", "index": "", "last_modified": "123"}},
+            {"entity": {"title": "hello", "index": "abc", "last_modified": "123"}},
+        ]
+    )
+    def test_entity_exchange_succeed(self, entity):
+        book = TradingBook(
+            title=entity.get("title", ""),
+            index=entity.get("index", ""),
+            last_modified=float(entity.get("last_modified", "0")),
+        )
+
+        new_book = TradingBook.from_entity(book.to_entity())
+
+        self.assertEqual(book.title(), new_book.title())
+        self.assertEqual(book.index(), new_book.index())
+        self.assertEqual(book.last_modified(), new_book.last_modified())
+
+    @parameterized(
+        [
+            {"entity": {"title": "hello"}},
+            {"entity": {"title": "hello", "index": "", "last_modified": "0"}},
+            {"entity": {"title": "hello", "index": "abc", "last_modified": "0"}},
+            {"entity": {"title": "hello", "index": "", "last_modified": "123"}},
+            {"entity": {"title": "hello", "index": "abc", "last_modified": "123"}},
+        ]
+    )
+    def test_trading_book_from_entity_succeed(self, entity):
+        book = TradingBook.from_entity(entity)
+
+        self.assertEqual(book.title(), entity.get("title", ""))
+        self.assertNotEqual(book.last_modified, 0)
+        self.assertNotEqual(book.index, "")
+
+    @parameterized(
+        [
+            {"entity": {}},
+            {"entity": {"index": ""}},
+            {"entity": {"last_modified": "0"}},
+            {"entity": {"index": "", "last_modified": "0"}},
+            {"entity": {"index": "hello", "last_modified": "123"}},
+        ]
+    )
+    def test_trading_book_from_entity_missing_necessary_key(self, entity):
+        with self.assertRaises(KeyError):
+            TradingBook.from_entity(entity)
+
+
+if __name__ == "__main__":
+    unittest.main()

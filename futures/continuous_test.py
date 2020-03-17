@@ -13,11 +13,11 @@ from fun.futures.contract import (
     contract_list,
 )
 from fun.futures.rolling import (
-    NO_ADJUSTMENT,
-    LastNTradingDays,
-    RATIO,
     DIFFERENCE,
+    NO_ADJUSTMENT,
+    RATIO,
     FirstOfMonth,
+    LastNTradingDays,
     VolumeAndOpenInterest,
 )
 from fun.utils.testing import parameterized
@@ -318,6 +318,8 @@ class TestContinuousContract(unittest.TestCase):
             rolling_method=rolling_method,
         )
 
+        self.assertEqual(df.index.nunique(), len(df))
+
         rolling_date = [datetime.strptime(r, "%Y%m%d") for r in rolling_date]
 
         months = FINANCIAL_CONTRACT_MONTHS
@@ -328,8 +330,8 @@ class TestContinuousContract(unittest.TestCase):
 
         cs = contract_list(s, e, symbol, months, BARCHART)
 
-        assert len(rolling_date) + 1 == len(adjustment)
-        assert len(rolling_date) + 1 == len(cs)
+        self.assertEqual(len(rolling_date) + 1, len(adjustment))
+        self.assertEqual(len(rolling_date) + 1, len(cs))
 
         adjust_columns = ["open", "high", "low", "close"]
         no_adjust_columns = ["volume", "open interest"]
@@ -359,8 +361,18 @@ class TestContinuousContract(unittest.TestCase):
                 )
 
                 self.assertTrue(
-                    df.index[0]
-                    < datetime(year=cs[i].year(), month=cs[i].month(), day=1)
+                    (
+                        df.index[0]
+                        < datetime(year=cs[i].year(), month=cs[i].month(), day=1)
+                    )
+                    and (
+                        df.index[0]
+                        >= datetime(
+                            year=cs[i].previous_contract(read_data=False).year(),
+                            month=cs[i].previous_contract(read_data=False).month(),
+                            day=1,
+                        )
+                    )
                 )
 
             self.assertTrue(

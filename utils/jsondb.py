@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 
 class JsonDB:
-    def __init__(self, database_root: str):
+    def __init__(self, database_root: str) -> None:
 
         assert database_root != ""
         assert os.path.exists(database_root)
@@ -13,19 +13,24 @@ class JsonDB:
 
         self._database: List[Dict[str, str]] = []
 
+    def _path(self, database: str, collection: str) -> str:
+        return os.path.join(self._database_root, f"{database}_{collection}.json")
+
     def _read(self, database: str, collection: str) -> None:
-        path = os.path.join(self._database_root, f"{database}_{collection}.json")
+        path = self._path(database, collection)
 
         if os.path.exists(path):
             with open(path, "r") as f:
                 self._database = json.load(f)
         else:
-            raise ValueError(
-                f"database: {database} and collection: {collection} do not exist"
-            )
+            self._database = []
+            # raise ValueError(
+            # f"database: {database} and collection: {collection} do not exist"
+            # )
 
     def _write(self, database: str, collection: str) -> None:
-        path = os.path.join(self._database_root, f"{database}_{collection}.json")
+        # path = os.path.join(self._database_root, f"{database}_{collection}.json")
+        path = self._path(database, collection)
 
         with open(path, "w") as f:
             json.dump(self._database, f, indent=2)
@@ -83,7 +88,7 @@ class JsonDB:
             if found:
                 entities.append(entity)
 
-        if entities:
+        if len(entities) > 0:
             return entities
         else:
             return None
@@ -107,5 +112,5 @@ class JsonDB:
         self._write(database, collection)
 
     def drop_collection(self, database: str, collection: str) -> None:
-        path = os.path.join(self._database_root, f"{database}_{collection}.json")
+        path = self._path(database, collection)
         os.remove(path)

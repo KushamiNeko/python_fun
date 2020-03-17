@@ -1,6 +1,7 @@
 import unittest
 
 from fun.utils import helper
+from fun.utils.testing import parameterized
 
 
 class TestHelper(unittest.TestCase):
@@ -11,11 +12,8 @@ class TestHelper(unittest.TestCase):
 
             self.assertNotEqual(rand_string_01, rand_string_02)
 
-    def test_key_value_pair_succeed(self):
-        inputs = "price=100;op=l"
-        pair = helper.key_value_pair(inputs)
-
-        tables = [
+    @parameterized(
+        [
             {"inputs": "price=100;op=l", "expected": {"price": "100", "op": "l"}},
             {"inputs": "price=100 ; op=l", "expected": {"price": "100", "op": "l"}},
             {
@@ -24,20 +22,16 @@ class TestHelper(unittest.TestCase):
             },
             {"inputs": "action=+ ; op=-", "expected": {"action": "+", "op": "-"}},
         ]
+    )
+    def test_key_value_pair_succeed(self, inputs, expected):
+        pair = helper.key_value_pair(inputs)
+        for k, v in expected.items():
+            self.assertEqual(pair.get(k, None), v)
 
-        for table in tables:
-            pair = helper.key_value_pair(table["inputs"])
-
-            for k, v in table["expected"].items():
-                self.assertEqual(pair.get(k, None), v)
-
-    def test_key_value_pair_empty(self):
-
-        tables = [{"inputs": ""}, {"inputs": "price=;o=l"}, {"inputs": "=100.5;o=l"}]
-
-        for table in tables:
-            with self.assertRaises(ValueError):
-                helper.key_value_pair(table["inputs"])
+    @parameterized([{"inputs": ""}, {"inputs": "price=;o=l"}, {"inputs": "=100.5;o=l"}])
+    def test_key_value_pair_empty(self, inputs):
+        with self.assertRaises(ValueError):
+            helper.key_value_pair(inputs)
 
 
 if __name__ == "__main__":

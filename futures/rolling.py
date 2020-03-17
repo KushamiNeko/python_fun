@@ -19,7 +19,6 @@ class RollingMethod(metaclass=ABCMeta):
         assert adjustment_method in (RATIO, DIFFERENCE, NO_ADJUSTMENT)
 
         self._adjustment_method = adjustment_method
-        # self.reset_adjustment()
 
         if adjustment_method == RATIO:
             self._adjustment = 1.0
@@ -33,16 +32,6 @@ class RollingMethod(metaclass=ABCMeta):
     @abstractmethod
     def _rolling_date(self, front: Contract, back: Contract) -> datetime:
         raise NotImplementedError
-
-    # def reset_adjustment(self) -> None:
-    # if self._adjustment_method == RATIO:
-    # self._adjustment = 1.0
-    # elif self._adjustment_method == DIFFERENCE:
-    # self._adjustment = 0.0
-    # elif self._adjustment_method == NO_ADJUSTMENT:
-    # self._adjustment = 0.0
-    # else:
-    # raise ValueError("invalid adjustment method")
 
     def rolling_date(self, front: Contract, back: Contract) -> datetime:
         rolling_date = self._rolling_date(front, back)

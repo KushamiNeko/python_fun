@@ -94,7 +94,7 @@ class TestSource(unittest.TestCase):
                     target.loc[target.index == i, columns] == df.loc[i, columns]
                 ).all(axis=1)
 
-                assert len(equals) == 1
+                self.assertEqual(len(equals), 1)
 
                 equals = equals.iloc[0]
                 self.assertTrue(equals)

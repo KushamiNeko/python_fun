@@ -10,9 +10,11 @@ from fun.data.barchart import BarchartContract
 from fun.data.source import DAILY
 from fun.utils import colors, pretty
 
-ALL_CONTRACT_MONTHS: str = "fghjkmnquvxz"
-EVEN_CONTRACT_MONTHS: str = "gjmqvz"
-FINANCIAL_CONTRACT_MONTHS: str = "hmuz"
+CONTRACT_MONTHS = NewType("CONTRACT_MONTHS", str)
+
+ALL_CONTRACT_MONTHS = CONTRACT_MONTHS("fghjkmnquvxz")
+EVEN_CONTRACT_MONTHS = CONTRACT_MONTHS("gjmqvz")
+FINANCIAL_CONTRACT_MONTHS = CONTRACT_MONTHS("hmuz")
 
 CODE_FORMAT = NewType("CODE_FORMAT", int)
 BARCHART = CODE_FORMAT(0)
@@ -21,14 +23,14 @@ QUANDL = CODE_FORMAT(1)
 
 class Contract:
 
-    _barchart_format = r"(\w{2})([fghjkmnquvxz])(\d{2})"
-    _quandl_format = r"([\d\w]+)([fghjkmnquvxz])(\d{4})"
+    _barchart_format = r"^(\w{2})([fghjkmnquvxz])(\d{2})$"
+    _quandl_format = r"^([\d\w]+)([fghjkmnquvxz])(\d{4})$"
 
     @classmethod
     def front_month(
         cls,
         symbol: str,
-        months: str,
+        months: CONTRACT_MONTHS,
         fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
         time: datetime = datetime.now(),
@@ -80,7 +82,7 @@ class Contract:
     def __init__(
         self,
         code: str,
-        months: str,
+        months: CONTRACT_MONTHS,
         fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
     ) -> None:
@@ -92,12 +94,9 @@ class Contract:
             FINANCIAL_CONTRACT_MONTHS,
         )
 
-        self._code = code
         self._fmt = fmt
         self._months = months
-
-        if read_data:
-            self.read_data()
+        self._code = code
 
         symbol = ""
         year = 0
@@ -141,6 +140,9 @@ class Contract:
         self._symbol = symbol
         self._year = year
         self._month = month
+
+        if read_data:
+            self.read_data()
 
     def read_data(self, src=BarchartContract()) -> None:
         self._df = src.read(
@@ -257,7 +259,7 @@ def contract_list(
     start: datetime,
     end: datetime,
     symbol: str,
-    months: str,
+    months: CONTRACT_MONTHS,
     fmt: CODE_FORMAT,
     read_data: bool = True,
 ) -> List[Contract]:

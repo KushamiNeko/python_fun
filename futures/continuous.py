@@ -7,17 +7,18 @@ import pandas as pd
 from fun.data.source import DAILY, FREQUENCY, WEEKLY, daily_to_weekly
 from fun.futures.contract import (
     ALL_CONTRACT_MONTHS,
+    BARCHART,
     EVEN_CONTRACT_MONTHS,
     FINANCIAL_CONTRACT_MONTHS,
-    BARCHART,
     contract_list,
+    CONTRACT_MONTHS,
 )
 from fun.futures.rolling import RollingMethod
 
 
 class ContinuousContract:
-    def _contract_months(self, symbol: str) -> str:
-        months = ""
+    def _contract_months(self, symbol: str) -> CONTRACT_MONTHS:
+        months: CONTRACT_MONTHS
         if symbol in ["cl"]:
             months = ALL_CONTRACT_MONTHS
         elif symbol in ["gc"]:
@@ -25,9 +26,9 @@ class ContinuousContract:
         else:
             months = FINANCIAL_CONTRACT_MONTHS
 
-        assert months != ""
+        assert months is not None and months != ""
 
-        return cast(str, months)
+        return months
 
     def read(
         self,

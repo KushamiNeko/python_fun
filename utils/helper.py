@@ -45,7 +45,7 @@ def random_string(
     has_punctuation: bool = False,
 ) -> str:
 
-    random.seed(time.time())
+    random.seed()
 
     src = ""
     if has_letter:

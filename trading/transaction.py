@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import time
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict
 
 from fun.utils import helper
 
@@ -14,11 +14,10 @@ class FuturesTransaction:
         dtime: datetime,
         symbol: str,
         operation: str,
-        quantity: int,
+        leverage: float,
         price: float,
-        note: str,
-        index: Optional[str] = None,
-        time_stamp: Optional[float] = None,
+        index: str = "",
+        time_stamp: float = 0,
     ):
 
         if index is None or index == "":
@@ -35,92 +34,64 @@ class FuturesTransaction:
 
         if type(dtime) != datetime:
             raise ValueError("invalid transaction time")
-        self._time = dtime
+        self._datetime = dtime
 
         if not re.match(r"^[a-zA-Z]+$", symbol):
             raise ValueError("invalid transaction symbol")
         self._symbol = symbol.lower()
 
-        if not re.match(r"^(?:long|short|increase|decrease|close)$", operation.lower()):
+        if not re.match(r"^[+-]$", operation):
             raise ValueError("invalid transaction operation")
-        self._operation = operation.lower()
+        self._operation = operation
 
-        if quantity <= 0 or type(quantity) != int:
-            raise ValueError("invalid transaction quantity")
-        self._quantity = quantity
+        if leverage <= 0:
+            raise ValueError("invalid transaction leverage")
+        self._leverage = leverage
 
         if price <= 0.0:
             raise ValueError("invalid transaction price")
         self._price = price
 
-        self._note = note.strip()
-
-    @property
     def index(self) -> str:
         return self._index
 
-    @property
     def time_stamp(self) -> float:
         return self._time_stamp
 
-    @property
-    def time(self) -> datetime:
-        return self._time
+    def datetime(self) -> datetime:
+        return self._datetime
 
-    @property
     def symbol(self) -> str:
         return self._symbol
 
-    @property
     def operation(self) -> str:
         return self._operation
 
-    @property
-    def quantity(self) -> int:
-        return self._quantity
+    def leverage(self) -> float:
+        return self._leverage
 
-    @property
     def price(self) -> float:
         return self._price
-
-    @property
-    def note(self) -> str:
-        return self._note
-
-    @property
-    def total_cost(self) -> float:
-        return self._price * self._quantity
 
     def to_entity(self) -> Dict[str, str]:
         return {
             "index": self._index,
             "time_stamp": str(self._time_stamp),
-            "time": self._time.strftime("%Y%m%d"),
+            "datetime": self._datetime.strftime("%Y%m%d"),
             "symbol": self._symbol,
             "operation": self._operation,
-            "quantity": str(self._quantity),
+            "leverage": str(self._leverage),
             "price": str(self._price),
-            "note": self._note,
         }
 
     @classmethod
     def from_entity(cls, entity: Dict[str, str]) -> FuturesTransaction:
-
-        dtime: datetime
-        if re.match(r"^\d{4}-\d{2}-\d{2}$", entity["time"]):
-            dtime = datetime.strptime(entity["time"], "%Y-%m-%d")
-        elif re.match(r"^\d{8}$", entity["time"]):
-            dtime = datetime.strptime(entity["time"], "%Y%m%d")
-        else:
-            raise ValueError(f"invalid dtime {entity['time']}")
-
-        return cls(
-            dtime=dtime,
+        return FuturesTransaction(
+            dtime=datetime.strptime(entity["datetime"], "%Y%m%d"),
             symbol=entity["symbol"],
             operation=entity["operation"],
-            quantity=int(entity["quantity"]),
+            leverage=float(entity["leverage"]),
             price=float(entity["price"]),
-            note=entity.get("note", ""),
             index=entity.get("index", ""),
             time_stamp=float(entity.get("time_stamp", 0)),
         )

@@ -1,14 +1,22 @@
 import json
 import math
 import os
+from typing import Callable, Dict, List, Tuple
+
+import pandas as pd
 
 
-def bake_correlation_statistic(df, drops, correlation_func, output_file):
+def bake_correlation_statistic(
+    df: pd.DataFrame,
+    drops: List[str],
+    correlation_func: Callable[[pd.DataFrame, str, str], Tuple[float, float]],
+    output_file: str,
+) -> None:
 
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    statistic = {}
+    statistic: Dict[str, Dict[str, Dict[str, str]]] = {}
 
     progress = 0.0
     works = float(len(df.columns) * len(df.columns))
