@@ -52,35 +52,27 @@ class ContinuousContract:
         )
 
         cs_length = len(cs)
+        rolling_date = rolling_method.rolling_date(cs[1], cs[0])
 
-        link = None
+        link: pd.DataFrame
         for i in range(cs_length):
-            rolling_date = None
-            if i + 1 < cs_length:
-                rolling_date = rolling_method.rolling_date(cs[i + 1], cs[i])
-            else:
-                # rolling_date = rolling_method(cs[i].previous_contract(), cs[i])
-                p = cs[i].previous_contract(read_data=False)
-                rolling_date = datetime(year=p.year(), month=p.month(), day=1)
-
-            assert rolling_date is not None
-
             df = cs[i].dataframe()
-
-            # if rolling_date is not None:
-            part = df.loc[df.index >= rolling_date].sort_index(ascending=False)
-            # else:
-            # part = df.sort_index(ascending=False)
-
-            if link is None:
-                link = part
+            if i == 0:
+                link = df.loc[df.index >= rolling_date].sort_index(ascending=False)
+                continue
             else:
-                # link = link.append(part)
-                part.loc[:, ["open", "high", "low", "close"]] = rolling_method.adjust(
-                    part.loc[:, ["open", "high", "low", "close"]]
-                )
+                part = df.loc[(df.index < rolling_date)].sort_index(ascending=False)
 
-                link = link.append(part)
+                columns = ["open", "high", "low", "close"]
+                part.loc[:, columns] = rolling_method.adjust(part.loc[:, columns])
+
+                link = link.loc[link.index >= rolling_date].append(part)
+
+                if i + 1 < cs_length:
+                    rolling_date = rolling_method.rolling_date(cs[i + 1], cs[i])
+                else:
+                    p = cs[i].previous_contract(read_data=False)
+                    rolling_date = datetime(year=p.year(), month=p.month(), day=1)
 
         assert link is not None
 

@@ -258,7 +258,7 @@ def contract_list(
     end: datetime,
     symbol: str,
     months: str,
-    fmt: str,
+    fmt: CODE_FORMAT,
     read_data: bool = True,
 ) -> List[Contract]:
 

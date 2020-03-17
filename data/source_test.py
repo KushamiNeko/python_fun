@@ -96,7 +96,7 @@ class TestSource(unittest.TestCase):
 
                 assert len(equals) == 1
 
-                equals = equals[0]
+                equals = equals.iloc[0]
                 self.assertTrue(equals)
 
     def test_yahoo(self):
