@@ -7,12 +7,13 @@ from fun.trading.trade import FuturesTrade
 
 
 class Statistic:
-    # _float_decimals = 4
+    _float_decimals = 4
 
-    def __init__(self, trades: List[FuturesTrade]):
+    def __init__(self, trades: List[FuturesTrade]) -> None:
 
-        if not trades:
+        if len(trades) == 0:
             raise ValueError("empty statistic trades")
+
         self._trades = trades
 
         self._winners: List[FuturesTrade] = []
@@ -28,87 +29,155 @@ class Statistic:
         self._short_losers: List[FuturesTrade] = []
 
         for trade in self._trades:
-            if trade.pl_dollar > 0:
+            if trade.nominal_profit() > 0:
                 self._winners.append(trade)
-            elif trade.pl_dollar < 0:
+            elif trade.nominal_profit() < 0:
                 self._losers.append(trade)
 
-            if trade.operation == "long":
+            if trade.operation() == "+":
                 self._long.append(trade)
-            elif trade.operation == "short":
+            elif trade.operation() == "-":
                 self._short.append(trade)
 
-            if trade.operation == "long" and trade.pl_dollar > 0:
+            if trade.operation() == "+" and trade.nominal_profit() > 0:
                 self._long_winners.append(trade)
-            elif trade.operation == "long" and trade.pl_dollar < 0:
+            elif trade.operation() == "+" and trade.nominal_profit() < 0:
                 self._long_losers.append(trade)
 
-            if trade.operation == "short" and trade.pl_dollar > 0:
+            if trade.operation() == "-" and trade.nominal_profit() > 0:
                 self._short_winners.append(trade)
-            elif trade.operation == "short" and trade.pl_dollar < 0:
+            elif trade.operation() == "-" and trade.nominal_profit() < 0:
                 self._short_losers.append(trade)
 
     def total_trades(self) -> int:
         return len(self._trades)
 
+    def total_long_trades(self) -> int:
+        return len(self._long)
+
+    def total_short_trades(self) -> int:
+        return len(self._short)
+
     def number_of_winners(self) -> int:
         return len(self._winners)
+
+    def number_of_long_winners(self) -> int:
+        return len(self._long_winners)
+
+    def number_of_short_winners(self) -> int:
+        return len(self._short_winners)
 
     def number_of_losers(self) -> int:
         return len(self._losers)
 
+    def number_of_long_losers(self) -> int:
+        return len(self._long_losers)
+
+    def number_of_short_losers(self) -> int:
+        return len(self._short_losers)
+
     def batting_average(self) -> float:
-        return float(len(self._winners)) / float(self.total_trades())
+        return float(self.number_of_winners()) / float(self.total_trades())
 
     def batting_average_long(self) -> float:
-        pass
+        if self.total_long_trades() == 0:
+            return math.nan
 
-    def winners_pl_mean(self) -> float:
-        if len(self._winners) == 0:
+        return float(self.number_of_long_winners()) / float(self.total_long_trades())
+
+    def batting_average_short(self) -> float:
+        if self.total_short_trades() == 0:
+            return math.nan
+
+        return float(self.number_of_short_winners()) / float(self.total_short_trades())
+
+    def winners_nominal_profit_mean(self) -> float:
+        if self.number_of_winners() == 0:
             return math.nan
 
         s = 0.0
         for o in self._winners:
-            s += o.pl_dollar
+            s += o.nominal_profit()
 
-        return s / float(len(self._winners))
+        return s / float(self.number_of_winners())
 
-    def losers_pl_mean(self) -> float:
-        if len(self._losers) == 0:
+    def winners_leveraged_profit_mean(self) -> float:
+        if self.number_of_winners() == 0:
+            return math.nan
+
+        s = 0.0
+        for o in self._winners:
+            s += o.leveraged_profit()
+
+        return s / float(self.number_of_winners())
+
+    def losers_nominal_profit_mean(self) -> float:
+        if self.number_of_losers() == 0:
             return math.nan
 
         s = 0.0
         for o in self._losers:
-            s += o.pl_dollar
+            s += o.nominal_profit()
 
-        return s / float(len(self._losers))
+        return s / float(self.number_of_losers())
 
-    def win_loss_ratio(self) -> float:
-        return self.winners_pl_mean() / abs(self.losers_pl_mean())
+    def losers_leveraged_profit_mean(self) -> float:
+        if self.number_of_losers() == 0:
+            return math.nan
 
-    def adjusted_win_loss_ratio(self) -> float:
-        return (self.winners_pl_mean() * self.batting_average()) / (
-            abs(self.losers_pl_mean()) * (1.0 - self.batting_average())
+        s = 0.0
+        for o in self._losers:
+            s += o.leveraged_profit()
+
+        return s / float(self.number_of_losers())
+
+    def nominal_win_loss_ratio(self) -> float:
+        return self.winners_nominal_profit_mean() / abs(
+            self.losers_nominal_profit_mean()
         )
 
-    def expected_value(self) -> float:
-        return (self.winners_pl_mean() * self.batting_average()) + (
-            self.losers_pl_mean() * (1.0 - self.batting_average())
+    def leveraged_win_loss_ratio(self) -> float:
+        return self.winners_leveraged_profit_mean() / abs(
+            self.losers_leveraged_profit_mean()
         )
 
-    def kelly_criterion(self) -> float:
+    def nominal_adjusted_win_loss_ratio(self) -> float:
+        return (self.winners_nominal_profit_mean() * self.batting_average()) / (
+            abs(self.losers_nominal_profit_mean()) * (1.0 - self.batting_average())
+        )
+
+    def leveraged_adjusted_win_loss_ratio(self) -> float:
+        return (self.winners_leveraged_profit_mean() * self.batting_average()) / (
+            abs(self.losers_leveraged_profit_mean()) * (1.0 - self.batting_average())
+        )
+
+    def nominal_expected_value(self) -> float:
+        return (self.winners_nominal_profit_mean() * self.batting_average()) + (
+            self.losers_nominal_profit_mean() * (1.0 - self.batting_average())
+        )
+
+    def leveraged_expected_value(self) -> float:
+        return (self.winners_leveraged_profit_mean() * self.batting_average()) + (
+            self.losers_leveraged_profit_mean() * (1.0 - self.batting_average())
+        )
+
+    def nominal_kelly_criterion(self) -> float:
         return self.batting_average() - (
-            (1.0 - self.batting_average()) / self.win_loss_ratio()
+            (1.0 - self.batting_average()) / self.nominal_win_loss_ratio()
         )
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "total_trades": str(self.total_trades()),
-            "number_of_winners": str(self.number_of_winners()),
-            "number_of_losers": str(self.number_of_losers()),
-            "batting_average": str(self.batting_average()),
-            "win_loss_ratio": str(self.win_loss_ratio()),
-            "adjusted_win_loss_ratio": str(self.adjusted_win_loss_ratio()),
-            "expected_value": str(self.expected_value()),
-            "kelly_criterion": str(self.kelly_criterion()),
+            "total_trades": f"{self.total_trades()}",
+            "number_of_winners": f"{self.number_of_winners()}",
+            "number_of_losers": f"{self.number_of_losers()}",
+            "batting_average": f"{self.batting_average():.{self._float_decimals}f}%",
+            "batting_average_long": f"{self.batting_average_long():.{self._float_decimals}f}%",
+            "batting_average_short": f"{self.batting_average_short():.{self._float_decimals}f}%",
+            "nominal_win_loss_ratio": f"{self.nominal_win_loss_ratio():.{self._float_decimals}f}",
+            "leveraged_win_loss_ratio": f"{self.leveraged_win_loss_ratio():.{self._float_decimals}f}",
+            "nominal_adjusted_win_loss_ratio": f"{self.nominal_adjusted_win_loss_ratio():.{self._float_decimals}f}",
+            "leveraged_adjusted_win_loss_ratio": f"{self.leveraged_adjusted_win_loss_ratio():.{self._float_decimals}f}",
+            "nominal_expected_value": f"{self.nominal_expected_value():.{self._float_decimals}f}%",
+            "leveraged_expected_value": f"{self.leveraged_expected_value():.{self._float_decimals}f}%",
         }

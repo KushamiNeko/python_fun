@@ -42,7 +42,7 @@ class TradingBook:
         return {
             "title": self._title,
             "index": self._index,
-            "last_modified": str(self._last_modified),
+            "last_modified": f"{self._last_modified}",
         }
 
     @classmethod

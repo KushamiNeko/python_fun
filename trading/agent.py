@@ -15,7 +15,7 @@ class Agent:
 
     _COL_USER = "user"
 
-    def __init__(self, user_name: str):
+    def __init__(self, user_name: str) -> None:
         home = os.getenv("HOME")
         assert home is not None
 

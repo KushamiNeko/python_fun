@@ -18,7 +18,7 @@ class FuturesTransaction:
         price: float,
         index: str = "",
         time_stamp: float = 0,
-    ):
+    ) -> None:
 
         if index is None or index == "":
             self._index = helper.random_string(length=16)
@@ -76,12 +76,12 @@ class FuturesTransaction:
     def to_entity(self) -> Dict[str, str]:
         return {
             "index": self._index,
-            "time_stamp": str(self._time_stamp),
+            "time_stamp": f"{self._time_stamp}",
             "datetime": self._datetime.strftime("%Y%m%d"),
             "symbol": self._symbol,
             "operation": self._operation,
-            "leverage": str(self._leverage),
-            "price": str(self._price),
+            "leverage": f"{self._leverage}",
+            "price": f"{self._price}",
         }
 
     @classmethod

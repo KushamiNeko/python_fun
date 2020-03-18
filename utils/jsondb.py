@@ -29,7 +29,6 @@ class JsonDB:
             # )
 
     def _write(self, database: str, collection: str) -> None:
-        # path = os.path.join(self._database_root, f"{database}_{collection}.json")
         path = self._path(database, collection)
 
         with open(path, "w") as f:
@@ -49,10 +48,10 @@ class JsonDB:
     ) -> None:
 
         assert query is not None
-        assert len(query.keys()) is not None
+        assert len(query.keys()) != 0
 
         assert new_entity is not None
-        assert len(new_entity.keys()) is not None
+        assert len(new_entity.keys()) != 0
 
         self._read(database, collection)
 
@@ -77,7 +76,7 @@ class JsonDB:
             return self._database
 
         assert query is not None
-        assert len(query.keys()) is not None
+        assert len(query.keys()) != 0
 
         entities = []
 

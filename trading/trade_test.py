@@ -2,1228 +2,1028 @@ import unittest
 
 from fun.trading.trade import FuturesTrade
 from fun.trading.transaction import FuturesTransaction
+from fun.utils.testing import parameterized
 
 
 class TestFuturesTrade(unittest.TestCase):
-    def test_init_invalid(self):
-
-        tables = [
+    @parameterized(
+        [
             {"orders": []},
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ty",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                 ]
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ty",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                 ]
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
-                        "symbol": "ty",
-                        "operation": "long",
-                        "quantity": "1",
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                 ]
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "-",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
                         "symbol": "ty",
                         "operation": "short",
-                        "quantity": "1",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                 ]
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
                         "symbol": "ty",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ty",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ty",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "+",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ty",
+                        "operation": "-",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "es",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                ]
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "3",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "2",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10000",
                     },
                 ]
             },
         ]
+    )
+    def test_init_invalid(self, orders):
+        with self.assertRaises(ValueError):
+            orders = [FuturesTransaction.from_entity(order) for order in orders]
 
-        for table in tables:
-            with self.assertRaises(ValueError):
-                orders = [
-                    FuturesTransaction.from_entity(order) for order in table["orders"]
-                ]
+            FuturesTrade(orders)
 
-                FuturesTrade(orders)
-
-    def test_long_gain_succeed(self):
-
-        tables = [
+    @parameterized(
+        [
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10100",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -50000,
-                    "average_close": 50500,
-                    "pl_dollar": 497,
-                    "pl_percent": 0.994,
+                    "operation": "+",
+                    "leverage": 1,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10000,
+                    "average_close": 10100,
+                    "nominal_profit": 1.0,
+                    "leveraged_profit": 1.0,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "10100",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -100000,
-                    "average_close": 101000,
-                    "pl_dollar": 994,
-                    "pl_percent": 0.994,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10000,
+                    "average_close": 10100,
+                    "nominal_profit": 1.0,
+                    "leveraged_profit": 2.0,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2722.75",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "es",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2742",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2776.25",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2777",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "es",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": -273237.5,
-                    "average_close": 277662.5,
-                    "pl_dollar": 4419,
-                    "pl_percent": 1.617274349,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": -2732.375,
+                    "average_close": 2776.625,
+                    "nominal_profit": 1.619470241,
+                    "leveraged_profit": 3.238940482,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2722.75",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "es",
-                        "operation": "increase",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "2742",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2776.25",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "2777",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "es",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": -410337.5,
-                    "average_close": 416512.5,
-                    "pl_dollar": 6166,
-                    "pl_percent": 1.502665489,
+                    "operation": "+",
+                    "leverage": 3,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": -2735.583333333,
+                    "average_close": 2776.75,
+                    "nominal_profit": 1.504858805,
+                    "leveraged_profit": 4.514576415,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10050",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "10100",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -100250,
-                    "average_close": 101000,
-                    "pl_dollar": 744,
-                    "pl_percent": 0.742145,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10025,
+                    "average_close": 10100,
+                    "nominal_profit": 0.7481297,
+                    "leveraged_profit": 1.4962594,
                 },
             },
-        ]
-
-        for table in tables:
-            orders = [
-                FuturesTransaction.from_entity(order) for order in table["orders"]
-            ]
-
-            trade = FuturesTrade(orders)
-
-            self.assertEqual(trade.symbol, table["expected"]["symbol"])
-            self.assertEqual(trade.operation, table["expected"]["operation"])
-            self.assertEqual(
-                trade.open_time.strftime("%Y-%m-%d"), table["expected"]["open_time"]
-            )
-            self.assertEqual(
-                trade.close_time.strftime("%Y-%m-%d"), table["expected"]["close_time"]
-            )
-
-            self.assertAlmostEqual(
-                trade.average_open, table["expected"]["average_open"]
-            )
-            self.assertAlmostEqual(
-                trade.average_close, table["expected"]["average_close"]
-            )
-            self.assertAlmostEqual(trade.pl_dollar, table["expected"]["pl_dollar"])
-            self.assertAlmostEqual(
-                trade.pl_percent, table["expected"]["pl_percent"], places=6
-            )
-
-    def test_long_stop_loss_succeed(self):
-
-        tables = [
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "9900",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -50000,
-                    "average_close": 49500,
-                    "pl_dollar": -503,
-                    "pl_percent": -1.006,
+                    "operation": "+",
+                    "leverage": 1,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10000,
+                    "average_close": 9900,
+                    "nominal_profit": -1.0,
+                    "leveraged_profit": -1.0,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "9900",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -100000,
-                    "average_close": 99000,
-                    "pl_dollar": -1006,
-                    "pl_percent": -1.006,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10000,
+                    "average_close": 9900,
+                    "nominal_profit": -1.0,
+                    "leveraged_profit": -2.0,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2722.75",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "es",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2742",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2725.5",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2722",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "es",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": -273237.5,
-                    "average_close": 272375,
-                    "pl_dollar": -868.5,
-                    "pl_percent": -0.317855346,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": -2732.375,
+                    "average_close": 2723.75,
+                    "nominal_profit": -0.315659454,
+                    "leveraged_profit": -0.631319,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "es",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "2722.75",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "es",
-                        "operation": "increase",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "2742",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "2725.5",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "es",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "2722",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "es",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": -410337.5,
-                    "average_close": 408475,
-                    "pl_dollar": -1871.5,
-                    "pl_percent": -0.456087976,
+                    "operation": "+",
+                    "leverage": 3,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": -2735.583333333,
+                    "average_close": 2723.166666667,
+                    "nominal_profit": -0.45389466,
+                    "leveraged_profit": -1.36168398,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "10050",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "9925",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "long",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": -100250,
-                    "average_close": 99250,
-                    "pl_dollar": -1006,
-                    "pl_percent": -1.003491,
+                    "operation": "+",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": -10025,
+                    "average_close": 9925,
+                    "nominal_profit": -0.997506234,
+                    "leveraged_profit": -1.995012468,
                 },
             },
-        ]
-
-        for table in tables:
-            orders = [
-                FuturesTransaction.from_entity(order) for order in table["orders"]
-            ]
-
-            trade = FuturesTrade(orders)
-
-            self.assertEqual(trade.symbol, table["expected"]["symbol"])
-            self.assertEqual(trade.operation, table["expected"]["operation"])
-            self.assertEqual(
-                trade.open_time.strftime("%Y-%m-%d"), table["expected"]["open_time"]
-            )
-            self.assertEqual(
-                trade.close_time.strftime("%Y-%m-%d"), table["expected"]["close_time"]
-            )
-
-            self.assertAlmostEqual(
-                trade.average_open, table["expected"]["average_open"]
-            )
-            self.assertAlmostEqual(
-                trade.average_close, table["expected"]["average_close"]
-            )
-            self.assertAlmostEqual(trade.pl_dollar, table["expected"]["pl_dollar"])
-            self.assertAlmostEqual(
-                trade.pl_percent, table["expected"]["pl_percent"], places=6
-            )
-
-    def test_short_gain_succeed(self):
-
-        tables = [
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "73.05",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 74400,
-                    "average_close": -73050,
-                    "pl_dollar": 1347,
-                    "pl_percent": 1.810483871,
+                    "operation": "-",
+                    "leverage": 1,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 74.4,
+                    "average_close": -73.05,
+                    "nominal_profit": 1.814516129,
+                    "leveraged_profit": 1.814516129,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "73.05",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 148800,
-                    "average_close": -146100,
-                    "pl_dollar": 2694,
-                    "pl_percent": 1.810483871,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 74.4,
+                    "average_close": -73.05,
+                    "nominal_profit": 1.814516129,
+                    "leveraged_profit": 3.629032258,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "cl",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "73.05",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "53.81",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "46.53",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": 147450,
-                    "average_close": -100340,
-                    "pl_dollar": 47104,
-                    "pl_percent": 31.94574432,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": 73.725,
+                    "average_close": -50.17,
+                    "nominal_profit": 31.949813496,
+                    "leveraged_profit": 63.899626992,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "cl",
-                        "operation": "increase",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "73.05",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "53.81",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "46.53",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": 220500,
-                    "average_close": -146870,
-                    "pl_dollar": 73621,
-                    "pl_percent": 33.388208617,
+                    "operation": "-",
+                    "leverage": 3,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": 73.5,
+                    "average_close": -48.956666667,
+                    "nominal_profit": 33.392290249,
+                    "leveraged_profit": 100.176870748,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10050",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "8020",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 100250,
-                    "average_close": -80200,
-                    "pl_dollar": 20044,
-                    "pl_percent": 19.994015,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 10025,
+                    "average_close": -8020,
+                    "nominal_profit": 20.0,
+                    "leveraged_profit": 40.0,
                 },
             },
-        ]
-
-        for table in tables:
-            orders = [
-                FuturesTransaction.from_entity(order) for order in table["orders"]
-            ]
-
-            trade = FuturesTrade(orders)
-
-            self.assertEqual(trade.symbol, table["expected"]["symbol"])
-            self.assertEqual(trade.operation, table["expected"]["operation"])
-            self.assertEqual(
-                trade.open_time.strftime("%Y-%m-%d"), table["expected"]["open_time"]
-            )
-            self.assertEqual(
-                trade.close_time.strftime("%Y-%m-%d"), table["expected"]["close_time"]
-            )
-
-            self.assertAlmostEqual(
-                trade.average_open, table["expected"]["average_open"]
-            )
-            self.assertAlmostEqual(
-                trade.average_close, table["expected"]["average_close"]
-            )
-            self.assertAlmostEqual(trade.pl_dollar, table["expected"]["pl_dollar"])
-            self.assertAlmostEqual(
-                trade.pl_percent, table["expected"]["pl_percent"], places=6
-            )
-
-    def test_short_stop_loss_succeed(self):
-
-        tables = [
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "75.15",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 74400,
-                    "average_close": -75150,
-                    "pl_dollar": -753,
-                    "pl_percent": -1.012096774,
+                    "operation": "-",
+                    "leverage": 1,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 74.4,
+                    "average_close": -75.15,
+                    "nominal_profit": -1.008064516,
+                    "leveraged_profit": -1.008064516,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "75.15",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 148800,
-                    "average_close": -150300,
-                    "pl_dollar": -1506,
-                    "pl_percent": -1.012097,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 74.4,
+                    "average_close": -75.15,
+                    "nominal_profit": -1.008064516,
+                    "leveraged_profit": -2.016129,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "cl",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "73.05",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "75.1",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "73.8",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": 147450.0,
-                    "average_close": -148900.0,
-                    "pl_dollar": -1456.0,
-                    "pl_percent": -0.987453,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": 73.725,
+                    "average_close": -74.45,
+                    "nominal_profit": -0.983384198,
+                    "leveraged_profit": -1.966768396,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "cl",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "74.4",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-09",
+                        "datetime": "20190309",
                         "symbol": "cl",
-                        "operation": "increase",
-                        "quantity": "2",
+                        "operation": "-",
+                        "leverage": "2",
                         "price": "73.05",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "cl",
-                        "operation": "decrease",
-                        "quantity": "1",
+                        "operation": "+",
+                        "leverage": "1",
                         "price": "75.1",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-18",
+                        "datetime": "20190318",
                         "symbol": "cl",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "73.8",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "cl",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-18",
-                    "average_open": 220500.0,
-                    "average_close": -222700.0,
-                    "pl_dollar": -2209.0,
-                    "pl_percent": -1.001814,
+                    "operation": "-",
+                    "leverage": 3,
+                    "open_time": "20190308",
+                    "close_time": "20190318",
+                    "average_open": 73.5,
+                    "average_close": -74.233333333,
+                    "nominal_profit": -0.997732426,
+                    "leveraged_profit": -2.993197279,
                 },
             },
             {
                 "orders": [
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "short",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10000",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-08",
+                        "datetime": "20190308",
                         "symbol": "ym",
-                        "operation": "increase",
-                        "quantity": "1",
+                        "operation": "-",
+                        "leverage": "1",
                         "price": "10050",
-                        "note": "",
                     },
                     {
-                        "time": "2019-03-15",
+                        "datetime": "20190315",
                         "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
+                        "operation": "+",
+                        "leverage": "2",
                         "price": "10125",
-                        "note": "",
                     },
                 ],
                 "expected": {
                     "symbol": "ym",
-                    "operation": "short",
-                    "open_time": "2019-03-08",
-                    "close_time": "2019-03-15",
-                    "average_open": 100250,
-                    "average_close": -101250,
-                    "pl_dollar": -1006,
-                    "pl_percent": -1.003491,
+                    "operation": "-",
+                    "leverage": 2,
+                    "open_time": "20190308",
+                    "close_time": "20190315",
+                    "average_open": 10025,
+                    "average_close": -10125,
+                    "nominal_profit": -0.997506234,
+                    "leveraged_profit": -1.995012469,
                 },
             },
         ]
+    )
+    def test_trade(self, orders, expected):
+        orders = [FuturesTransaction.from_entity(order) for order in orders]
 
-        for table in tables:
-            orders = [
-                FuturesTransaction.from_entity(order) for order in table["orders"]
-            ]
+        trade = FuturesTrade(orders)
 
-            trade = FuturesTrade(orders)
+        self.assertEqual(trade.symbol(), expected["symbol"])
+        self.assertEqual(trade.operation(), expected["operation"])
+        self.assertEqual(trade.leverage(), expected["leverage"])
+        self.assertEqual(trade.open_time().strftime("%Y%m%d"), expected["open_time"])
+        self.assertEqual(trade.close_time().strftime("%Y%m%d"), expected["close_time"])
 
-            self.assertEqual(trade.symbol, table["expected"]["symbol"])
-            self.assertEqual(trade.operation, table["expected"]["operation"])
-            self.assertEqual(
-                trade.open_time.strftime("%Y-%m-%d"), table["expected"]["open_time"]
-            )
-            self.assertEqual(
-                trade.close_time.strftime("%Y-%m-%d"), table["expected"]["close_time"]
-            )
+        self.assertEqual(trade.open_time_stamp(), orders[0].time_stamp())
+        self.assertEqual(trade.close_time_stamp(), orders[-1].time_stamp())
 
-            self.assertAlmostEqual(
-                trade.average_open, table["expected"]["average_open"]
-            )
-            self.assertAlmostEqual(
-                trade.average_close, table["expected"]["average_close"]
-            )
-            self.assertAlmostEqual(trade.pl_dollar, table["expected"]["pl_dollar"])
-            self.assertAlmostEqual(
-                trade.pl_percent, table["expected"]["pl_percent"], places=6
-            )
+        self.assertAlmostEqual(trade.average_open(), expected["average_open"])
+        self.assertAlmostEqual(trade.average_close(), expected["average_close"])
 
-    def test_quantity_mismatch(self):
-
-        tables = [
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "2",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "short",
-                        "quantity": "2",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "increase",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "decrease",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-        ]
-
-        for table in tables:
-            with self.assertRaises(ValueError):
-                orders = [
-                    FuturesTransaction.from_entity(order) for order in table["orders"]
-                ]
-
-                FuturesTrade(orders)
-
-    def test_symbol_mismatch(self):
-
-        tables = [
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ym",
-                        "operation": "long",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ty",
-                        "operation": "short",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ty",
-                        "operation": "short",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ty",
-                        "operation": "increase",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "es",
-                        "operation": "close",
-                        "quantity": "2",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-            {
-                "orders": [
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "ty",
-                        "operation": "short",
-                        "quantity": "2",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "es",
-                        "operation": "decrease",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                    {
-                        "time": "2019-03-08",
-                        "symbol": "es",
-                        "operation": "close",
-                        "quantity": "1",
-                        "price": "10000",
-                        "note": "",
-                    },
-                ]
-            },
-        ]
-
-        for table in tables:
-            with self.assertRaises(ValueError):
-                orders = [
-                    FuturesTransaction.from_entity(order) for order in table["orders"]
-                ]
-
-                FuturesTrade(orders)
+        self.assertAlmostEqual(trade.nominal_profit(), expected["nominal_profit"])
+        self.assertAlmostEqual(
+            trade.leveraged_profit(), expected["leveraged_profit"], places=6
+        )
 
 
 if __name__ == "__main__":
