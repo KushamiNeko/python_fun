@@ -1,69 +1,40 @@
-from typing import Optional, Tuple
-
 import pandas as pd
 
 
-def my_simple_moving_average(df: pd.DataFrame) -> pd.DataFrame:
-    df = simple_moving_average(df, 5)
-    df = simple_moving_average(df, 20)
+def simple_moving_average(df: pd.DataFrame, n: int, column: str = "") -> pd.DataFrame:
+    if column == "":
+        column = f"sma{n}"
 
+    df.loc[:, column] = df.loc[:, "close"].rolling(n).mean()
     return df
 
 
-def my_simple_moving_average_extend(df: pd.DataFrame) -> pd.DataFrame:
-    df = simple_moving_average(df, 50)
-    df = simple_moving_average(df, 200)
-
-    return df
-
-
-def my_bollinger_bands(df: pd.DataFrame) -> pd.DataFrame:
-    df = bollinger_bands(df, 20, 1.5)
-    df = bollinger_bands(df, 20, 2.0)
-    df = bollinger_bands(df, 20, 2.5)
-    df = bollinger_bands(df, 20, 3.0)
-
-    return df
-
-
-def simple_moving_average(
-    df: pd.DataFrame, n: int, label: Optional[str] = None
-) -> pd.DataFrame:
-
-    if label is None:
-        label = f"sma{n}"
-
-    df[label] = df["close"].rolling(n).mean()
-    return df
-
-
-def bollinger_bands(
-    df: pd.DataFrame, n: int, m: float, labels: Optional[Tuple[str, str]] = None
+def bollinger_band(
+    df: pd.DataFrame, n: int, m: float, column: str = ""
 ) -> pd.DataFrame:
 
     pl: str
     ml: str
 
-    if labels is None:
+    if column == "":
         pl = f"bb{n}{m:+}"
         ml = f"bb{n}{m * -1.0:+}"
-
     else:
-        pl = labels[0]
-        ml = labels[1]
+        pl = f"{column}{n}{m:+}"
+        ml = f"{column}{n}{-m:+}"
 
-    df[pl] = df[f"sma{n}"] + df["close"].rolling(n).std() * m
-    df[ml] = df[f"sma{n}"] + df["close"].rolling(n).std() * m * -1.0
+    df.loc[:, pl] = df.loc[:, f"sma{n}"] + (df.loc[:, "close"].rolling(n).std() * m)
+    df.loc[:, ml] = df.loc[:, f"sma{n}"] + (df.loc[:, "close"].rolling(n).std() * -m)
 
     return df
 
 
 def relative_strength(
-    df: pd.DataFrame, rdf: pd.DataFrame, label: Optional[str]
+    df: pd.DataFrame, rdf: pd.DataFrame, column: str = ""
 ) -> pd.DataFrame:
 
-    if label is None:
-        label = "rs"
+    if column == "":
+        column = "rs"
 
-    df[label] = df["close"] / rdf["close"]
+    df.loc[:, column] = df.loc[:, "close"] / rdf.loc[:, "close"]
     return df

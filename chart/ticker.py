@@ -2,7 +2,11 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Optional
 
+import numpy as np
+import pandas as pd
 from matplotlib import ticker
+
+from fun.data.source import DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY
 
 
 class Ticker(metaclass=ABCMeta):
@@ -12,81 +16,49 @@ class Ticker(metaclass=ABCMeta):
 
 
 class TimeTicker(Ticker):
-    def __init__(self, times: List[datetime]) -> None:
-        self._times = times
+    def __init__(self, quotes: pd.DataFrame) -> None:
+        self._quotes = quotes
 
     def ticks(self) -> Dict[float, str]:
-        frequency = ""
+        frequency: FREQUENCY
 
-        start = self._times[0]
-        end = self._times[-1]
+        start = self._quotes.index[0]
+        end = self._quotes.index[-1]
 
         period = end - start
         if period.days < 30:
-            frequency = "h"
+            frequency = HOURLY
         elif period.days < 365 * 2:
-            frequency = "d"
+            frequency = DAILY
         elif period.days < 365 * 7:
-            frequency = "w"
+            frequency = WEEKLY
         else:
-            frequency = "m"
+            frequency = MONTHLY
 
-        loc = []
-        last_time = None
+        assert frequency is not None
+
+        loc: List[int] = []
         labels: List[str] = []
 
-        for i, t in enumerate(self._times):
-            time = t
+        if frequency == DAILY:
+            dates = self._quotes.index.strftime("%Y-%b")
+            labels = np.unique(dates)
+            loc = [np.argwhere(dates == l).min() for l in labels]
 
-            if frequency == "d":
-                if not last_time:
-                    if time.day > 15:
-                        continue
-                else:
-                    if time.month == last_time.month:
-                        continue
+        elif frequency == WEEKLY:
+            dates = self._quotes.index.strftime("%Y-%b")
+            labels = np.unique(dates)
+            loc = [np.argwhere(dates == l).min() for l in labels]
 
-                last_time = time
-                labels.append(time.strftime(r"%Y-%b"))
-                loc.append(i)
+            func = np.vectorize(
+                lambda x: x.split("-")[0] if "Jan" in x else x.split("-")[1]
+            )
+            labels = func(labels)
 
-            elif frequency == "w":
-                if not last_time:
-                    if time.day > 15:
-                        continue
-                else:
-                    if time.month == last_time.month:
-                        continue
-
-                if time.month == 1:
-                    labels.append(time.strftime(r"%Y"))
-                else:
-                    labels.append(time.strftime(r"%b"))
-
-                last_time = time
-                loc.append(i)
-
-            elif frequency == "m":
-                if time.month == 1:
-                    last_time = time
-                    labels.append(time.strftime(r"%Y"))
-                    loc.append(i)
-
-            elif frequency == "h":
-                if not last_time:
-                    if time.hour > 12:
-                        continue
-                else:
-                    if time.day == last_time.day:
-                        continue
-
-                if not last_time or time.month != last_time.month:
-                    labels.append(time.strftime(r"%b"))
-                else:
-                    labels.append(time.strftime(r"%d"))
-
-                last_time = time
-                loc.append(i)
+        elif frequency == MONTHLY:
+            dates = self._quotes.index.strftime("%Y")
+            labels = np.unique(dates)
+            loc = [np.argwhere(dates == l).min() for l in labels]
 
         return {k: v for k, v in zip(loc, labels)}
 
