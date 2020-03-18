@@ -101,8 +101,9 @@ class DataSource(metaclass=ABCMeta):
 
         df = self._rename_columns(df)
 
-        df.loc[:, "timestamp"] = df.loc[:, "timestamp"].apply(
-            self._timestamp_preprocessing
+        df.loc[:, "timestamp"] = (
+            df.loc[:, "timestamp"].apply(self._timestamp_preprocessing)
+            # .astype(np.datetime64)
         )
 
         df = df.set_index("timestamp")

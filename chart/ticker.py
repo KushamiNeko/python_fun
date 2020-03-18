@@ -12,7 +12,7 @@ class Ticker(metaclass=ABCMeta):
 
 
 class TimeTicker(Ticker):
-    def __init__(self, times: List[datetime]):
+    def __init__(self, times: List[datetime]) -> None:
         self._times = times
 
     def ticks(self) -> Dict[float, str]:
@@ -98,14 +98,18 @@ class StepTicker(Ticker):
         mx: float,
         nbins: int = 25,
         steps: Optional[List[int]] = [1, 2, 5, 10],
-    ):
+        decimals: int = 2,
+    ) -> None:
+
         self._nbins = nbins
         self._steps = steps
         self._min = mn
         self._max = mx
 
+        self._decimals = decimals
+
     def ticks(self) -> Dict[float, str]:
         locator = ticker.MaxNLocator(nbins=self._nbins, steps=self._steps)
         values = locator.tick_values(self._min, self._max)
 
-        return {v: f"{v:.2f}" for v in values}
+        return {v: f"{v:.{self._decimals}f}" for v in values}

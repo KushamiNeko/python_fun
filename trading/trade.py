@@ -106,9 +106,11 @@ class FuturesTrade:
         return average_close
 
     def nominal_profit(self) -> float:
-        return (
-            (self.average_close() + self.average_open()) / abs(self.average_open())
-        ) * 100.0
+        # return (
+        # (self.average_close() + self.average_open()) / abs(self.average_open())
+        # ) * 100.0
+
+        return (self.average_close() + self.average_open()) / abs(self.average_open())
 
     def leveraged_profit(self) -> float:
         return self.nominal_profit() * self.leverage()
@@ -122,6 +124,6 @@ class FuturesTrade:
             "close_time": self.close_time().strftime("%y%m%d"),
             "average_open": f"{self.average_open()}",
             "average_close": f"{self.average_close()}",
-            "nominal_profit": f"{self.nominal_profit():.{self._float_decimals}f}%",
-            "leveraged_profit": f"{self.leveraged_profit():.{self._float_decimals}f}%",
+            "nominal_profit": f"{self.nominal_profit()*100.0:.{self._float_decimals}f}%",
+            "leveraged_profit": f"{self.leveraged_profit()*100.0:.{self._float_decimals}f}%",
         }

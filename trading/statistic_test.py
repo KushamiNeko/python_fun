@@ -12,7 +12,7 @@ class TestStatistic(unittest.TestCase):
         if math.isnan(a) or math.isnan(b):
             self.assertTrue(math.isnan(a) and math.isnan(b))
         else:
-            self.assertEqual(a, b)
+            self.assertAlmostEqual(a, b)
 
     @parameterized(
         [
@@ -58,12 +58,279 @@ class TestStatistic(unittest.TestCase):
                     "batting_average": 0.5,
                     "batting_average_long": 0.5,
                     "batting_average_short": math.nan,
-                    # "nominal_win_loss_ratio": f"{self.nominal_win_loss_ratio():.{self._float_decimals}f}",
-                    # "leveraged_win_loss_ratio": f"{self.leveraged_win_loss_ratio():.{self._float_decimals}f}",
-                    # "nominal_adjusted_win_loss_ratio": f"{self.nominal_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-                    # "leveraged_adjusted_win_loss_ratio": f"{self.leveraged_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-                    # "nominal_expected_value": f"{self.nominal_expected_value():.{self._float_decimals}f}%",
-                    # "leveraged_expected_value": f"{self.leveraged_expected_value():.{self._float_decimals}f}%",
+                    "nominal_win_loss_ratio": 5,
+                    "leveraged_win_loss_ratio": 5,
+                    "nominal_adjusted_win_loss_ratio": 5,
+                    "leveraged_adjusted_win_loss_ratio": 5,
+                    "nominal_expected_value": 0.02,
+                    "leveraged_expected_value": 0.02,
+                },
+            },
+            {
+                "trades": [
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 2,
+                            "price": 105,
+                        },
+                    ],
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 2,
+                            "price": 99,
+                        },
+                    ],
+                ],
+                "expect": {
+                    "total_trades": 2,
+                    "number_of_winners": 1,
+                    "number_of_losers": 1,
+                    "batting_average": 0.5,
+                    "batting_average_long": 0.5,
+                    "batting_average_short": math.nan,
+                    "nominal_win_loss_ratio": 5,
+                    "leveraged_win_loss_ratio": 5,
+                    "nominal_adjusted_win_loss_ratio": 5,
+                    "leveraged_adjusted_win_loss_ratio": 5,
+                    "nominal_expected_value": 0.02,
+                    "leveraged_expected_value": 0.04,
+                },
+            },
+            {
+                "trades": [
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 1,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 101.5,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 105,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 2,
+                            "price": 106.5,
+                        },
+                    ],
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 99,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 98,
+                        },
+                    ],
+                ],
+                "expect": {
+                    "total_trades": 2,
+                    "number_of_winners": 1,
+                    "number_of_losers": 1,
+                    "batting_average": 0.5,
+                    "batting_average_long": 0.5,
+                    "batting_average_short": math.nan,
+                    "nominal_win_loss_ratio": 3.300330033,
+                    "leveraged_win_loss_ratio": 4.950495,
+                    "nominal_adjusted_win_loss_ratio": 3.300330033,
+                    "leveraged_adjusted_win_loss_ratio": 4.950495,
+                    "nominal_expected_value": 0.017252475,
+                    "leveraged_expected_value": 0.059257425,
+                },
+            },
+            {
+                "trades": [
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 1,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 101.5,
+                        },
+                        # 101
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 105,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 2,
+                            "price": 106.5,
+                        },
+                        # 106
+                    ],
+                    # 0.04950495
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 102,
+                        },
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 98,
+                        },
+                        # 100
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 90,
+                        },
+                        # 90
+                    ],
+                    # 0.1
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 102,
+                        },
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 98,
+                        },
+                        # 100
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 94,
+                        },
+                        # 94
+                    ],
+                    # 0.06
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 2,
+                            "price": 100,
+                        },
+                        # 100
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 99,
+                        },
+                        {
+                            "datetime": "20190105",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 98,
+                        },
+                        # 98.5
+                    ],
+                    # -0.015
+                    [
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "-",
+                            "leverage": 1,
+                            "price": 100,
+                        },
+                        {
+                            "datetime": "20190104",
+                            "symbol": "es",
+                            "operation": "+",
+                            "leverage": 1,
+                            "price": 101,
+                        },
+                    ],
+                    # -0.01
+                ],
+                "expect": {
+                    "total_trades": 5,
+                    "number_of_winners": 3,
+                    "number_of_losers": 2,
+                    "batting_average": 0.6,
+                    "batting_average_long": 0.5,
+                    "batting_average_short": 0.666666667,
+                    "nominal_win_loss_ratio": 5.586798667,
+                    "leveraged_win_loss_ratio": 7.808580833,
+                    "nominal_adjusted_win_loss_ratio": 8.380198,
+                    "leveraged_adjusted_win_loss_ratio": 11.71287125,
+                    "nominal_expected_value": 0.03690099,
+                    "leveraged_expected_value": 0.08570297,
                 },
             },
         ]
@@ -87,144 +354,31 @@ class TestStatistic(unittest.TestCase):
             stat.batting_average_short(), expect["batting_average_short"]
         )
 
-    # database = JsonInterface(testing=True)
-    # context = Context(database)
-    # _trades = None
+        self._assert_with_nan(
+            stat.nominal_win_loss_ratio(), expect["nominal_win_loss_ratio"]
+        )
 
-    # @classmethod
-    # def setUpClass(cls):
-    # cls.context.login("TEST")
+        self._assert_with_nan(
+            stat.leveraged_win_loss_ratio(), expect["leveraged_win_loss_ratio"]
+        )
 
-    # es_open_1 = FuturesTransaction(
-    # date=20190308,
-    # symbol="ES",
-    # operation="+",
-    # quantity=2,
-    # contract_price=1000,
-    # note="5SMA bounced off 20SMA",
-    # )
+        self._assert_with_nan(
+            stat.nominal_adjusted_win_loss_ratio(),
+            expect["nominal_adjusted_win_loss_ratio"],
+        )
 
-    # es_close_1 = FuturesTransaction(
-    # date=20190315,
-    # symbol="ES",
-    # operation="-",
-    # quantity=2,
-    # contract_price=2000,
-    # note="losing strength",
-    # )
+        self._assert_with_nan(
+            stat.leveraged_adjusted_win_loss_ratio(),
+            expect["leveraged_adjusted_win_loss_ratio"],
+        )
 
-    # cl_open_1 = FuturesTransaction(
-    # date=20190510,
-    # symbol="CL",
-    # operation="-",
-    # quantity=2,
-    # contract_price=1000,
-    # note="5SMA bounced off 20SMA",
-    # )
+        self._assert_with_nan(
+            stat.nominal_expected_value(), expect["nominal_expected_value"]
+        )
 
-    # cl_close_1 = FuturesTransaction(
-    # date=20190601,
-    # symbol="CL",
-    # operation="+",
-    # quantity=2,
-    # contract_price=500,
-    # note="break down",
-    # )
-
-    # rty_open_1 = FuturesTransaction(
-    # date=20190510,
-    # symbol="RTY",
-    # operation="+",
-    # quantity=2,
-    # contract_price=1000,
-    # note="5SMA bounced off 20SMA",
-    # )
-
-    # rty_close_1 = FuturesTransaction(
-    # date=20190601,
-    # symbol="RTY",
-    # operation="-",
-    # quantity=2,
-    # contract_price=990,
-    # note="break down",
-    # )
-
-    # gc_open_1 = FuturesTransaction(
-    # date=20190510,
-    # symbol="GC",
-    # operation="-",
-    # quantity=2,
-    # contract_price=1000,
-    # note="5SMA bounced off 20SMA",
-    # )
-
-    # gc_close_1 = FuturesTransaction(
-    # date=20190601,
-    # symbol="GC",
-    # operation="+",
-    # quantity=2,
-    # contract_price=1005,
-    # note="break down",
-    # )
-
-    # transactions = [
-    # es_open_1,
-    # es_close_1,
-    # rty_open_1,
-    # rty_close_1,
-    # cl_open_1,
-    # cl_close_1,
-    # gc_open_1,
-    # gc_close_1,
-    # ]
-
-    # trading = Trading(cls.context)
-    # cls._trades = trading._process_trades(transactions)
-
-    # def test_total_trades_succeed(self):
-    # es_dollar = 2000 * FuturesContractSpecs.lookup_contract_unit("ES") - (
-    # 4 * config.PER_CONTRACT_COMMISSION_FEE
-    # )
-    # cl_dollar = 1000 * FuturesContractSpecs.lookup_contract_unit("CL") - (
-    # 4 * config.PER_CONTRACT_COMMISSION_FEE
-    # )
-
-    # rty_dollar = -20 * FuturesContractSpecs.lookup_contract_unit("RTY") - (
-    # 4 * config.PER_CONTRACT_COMMISSION_FEE
-    # )
-    # gc_dollar = -10 * FuturesContractSpecs.lookup_contract_unit("GC") - (
-    # 4 * config.PER_CONTRACT_COMMISSION_FEE
-    # )
-
-    # w_mean = (es_dollar + cl_dollar) / 2.0
-    # l_mean = (rty_dollar + gc_dollar) / 2.0
-
-    # statistic = Statistic(self._trades)
-
-    # self.assertEqual(statistic.total_trades(), len(self._trades))
-    # self.assertEqual(statistic.number_of_winners(), 2)
-    # self.assertEqual(statistic.number_of_losers(), 2)
-    # self.assertEqual(statistic.batting_average(), 0.5)
-
-    # self.assertEqual(
-    # statistic.win_loss_ratio(),
-    # round(w_mean / abs(l_mean), config.FLOAT_DECIMALS),
-    # )
-    # self.assertEqual(
-    # statistic.adjusted_win_loss_ratio(),
-    # round((w_mean * 0.5) / (abs(l_mean) * 0.5), config.FLOAT_DECIMALS),
-    # )
-    # self.assertEqual(
-    # statistic.expected_value(),
-    # round((w_mean * 0.5) + (l_mean * 0.5), config.FLOAT_DECIMALS),
-    # )
-    # self.assertEqual(
-    # statistic.kelly_criterion(),
-    # round(
-    # 0.5 - (0.5 / round(w_mean / abs(l_mean), config.FLOAT_DECIMALS)),
-    # config.FLOAT_DECIMALS,
-    # ),
-    # )
+        self._assert_with_nan(
+            stat.leveraged_expected_value(), expect["leveraged_expected_value"]
+        )
 
 
 if __name__ == "__main__":

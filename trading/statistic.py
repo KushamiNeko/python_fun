@@ -166,6 +166,11 @@ class Statistic:
             (1.0 - self.batting_average()) / self.nominal_win_loss_ratio()
         )
 
+    def leveraged_kelly_criterion(self) -> float:
+        return self.batting_average() - (
+            (1.0 - self.batting_average()) / self.leveraged_win_loss_ratio()
+        )
+
     def to_entity(self) -> Dict[str, str]:
         return {
             "total_trades": f"{self.total_trades()}",

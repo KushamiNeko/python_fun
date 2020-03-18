@@ -302,7 +302,7 @@ class TestContinuousContract(unittest.TestCase):
             },
         ]
     )
-    def test_no_adjustment(
+    def test_adjustment(
         self, start, end, symbol, rolling_method, rolling_date, adjustment
     ):
         c = ContinuousContract()
