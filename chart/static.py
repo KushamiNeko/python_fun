@@ -16,7 +16,7 @@ from fun.futures.rolling import RATIO, LastNTradingDays
 from fun.trading.transaction import FuturesTransaction
 
 
-class StaticChart(BaseChart):
+class CandleSticks(BaseChart):
     def __init__(
         self,
         quotes: pd.DataFrame,
@@ -109,14 +109,14 @@ class StaticChart(BaseChart):
         return "bold"
 
     def _setup_xticks(self, ax: axes.Axes, ticker: Ticker) -> None:
-        ticks = ticker.ticks()
-        ax.set_xticks(list(ticks.keys()))
-        ax.set_xticklabels(list(ticks.values()))
+        loc, labels = ticker.ticks()
+        ax.set_xticks(loc)
+        ax.set_xticklabels(labels)
 
     def _setup_yticks(self, ax: axes.Axes, ticker: Ticker) -> None:
-        ticks = ticker.ticks()
-        ax.set_yticks(list(ticks.keys()))
-        ax.set_yticklabels(list(ticks.values()))
+        loc, labels = ticker.ticks()
+        ax.set_yticks(loc)
+        ax.set_yticklabels(labels)
 
     def _setup_general(self, fig: figure.Figure, ax: axes.Axes) -> None:
         ax.spines["top"].set_visible(False)
@@ -170,73 +170,67 @@ class StaticChart(BaseChart):
             va=va,
         )
 
-    def _candlesticks(self, df: pd.DataFrame, ax: axes.Axes) -> pd.DataFrame:
-        p_open = df.loc["open"]
-        p_high = df.loc["high"]
-        p_low = df.loc["low"]
-        p_close = df.loc["close"]
-
-        index = df.loc["temp_index"]
-
-        p_body_top: float
-        p_body_bottom: float
-
-        if p_open > p_close:
-            p_body_top = p_open
-            p_body_bottom = p_close
-        else:
-            p_body_top = p_close
-            p_body_bottom = p_open
-
-        assert p_body_top is not None
-        assert p_body_bottom is not None
-
-        if abs(p_open - p_close) < self._minimum_body_height():
-            mid = (p_open + p_close) / 2.0
-            mid_height = self._minimum_body_height() / 2.0
-            p_body_top = mid + mid_height
-            p_body_bottom = mid - mid_height
-
-        color = self._theme.get_color("unchanged")
-
-        if p_close > p_open:
-            color = self._theme.get_color("up")
-        elif p_close < p_open:
-            color = self._theme.get_color("down")
-
-        ax.plot(
-            [index, index],
-            [p_high, p_low],
-            linewidth=self._shadow_width(),
-            color=color,
-            zorder=5,
-        )
-        ax.plot(
-            [index, index],
-            [p_body_top, p_body_bottom],
-            linewidth=self._body_width(),
-            color=color,
-            zorder=5,
-        )
-
-        return df
-
     def _plot_candlesticks(self, ax: axes.Axes) -> None:
 
         length = len(self._quotes)
         ax.set_xlim(-0.5, (length - 1) + 0.5)
         ax.set_ylim(*self._ylim_from_price_range())
 
-        self._quotes.loc[:, "temp_index"] = np.arange(length)
-        self._quotes.apply(lambda df: self._candlesticks(df, ax), axis=1)
-        self._quotes = self._quotes.drop("temp_index", axis=1)
+        for index, df in enumerate(self._quotes.itertuples()):
+
+            p_open = df.open
+            p_high = df.high
+            p_low = df.low
+            p_close = df.close
+
+            p_body_top: float
+            p_body_bottom: float
+
+            if p_open > p_close:
+                p_body_top = p_open
+                p_body_bottom = p_close
+            else:
+                p_body_top = p_close
+                p_body_bottom = p_open
+
+            assert p_body_top is not None
+            assert p_body_bottom is not None
+
+            if abs(p_open - p_close) < self._minimum_body_height():
+                mid = (p_open + p_close) / 2.0
+                mid_height = self._minimum_body_height() / 2.0
+                p_body_top = mid + mid_height
+                p_body_bottom = mid - mid_height
+
+            color = self._theme.get_color("unchanged")
+
+            if p_close > p_open:
+                color = self._theme.get_color("up")
+            elif p_close < p_open:
+                color = self._theme.get_color("down")
+
+            ax.plot(
+                [index, index],
+                [p_high, p_low],
+                linewidth=self._shadow_width(),
+                color=color,
+                zorder=5,
+            )
+            ax.plot(
+                [index, index],
+                [p_body_top, p_body_bottom],
+                linewidth=self._body_width(),
+                color=color,
+                zorder=5,
+            )
 
         ax.autoscale_view()
 
-    def futures_price(
+    def plot(
         self,
         output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
+        show_quote: bool = True,
         interactive: bool = False,
     ) -> None:
         fig, ax = plt.subplots(
@@ -270,17 +264,18 @@ class StaticChart(BaseChart):
             )
         )
 
-        d = self._quotes.iloc[-1]
-        self._plot_text_info(
-            ax,
-            f"DATE:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
-            f"OPEN:  {d.loc['open']:,.2f}\n"
-            f"HIGH: {d.loc['high']:,.2f}\n"
-            f"LOW: {d.loc['low']:,.2f}\n"
-            f"CLOSE:  {d.loc['close']:,.2f}\n"
-            f"VOLUME:  {int(d.get('volume', 0)):,}\n"
-            f"INTEREST:  {int(d.get('open interest', 0)):,}\n",
-        )
+        if show_quote:
+            quote = self._quotes.iloc[-1]
+            self._plot_text_info(
+                ax,
+                f"DATE:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
+                f"OPEN:  {quote.loc['open']:,.2f}\n"
+                f"HIGH: {quote.loc['high']:,.2f}\n"
+                f"LOW: {quote.loc['low']:,.2f}\n"
+                f"CLOSE:  {quote.loc['close']:,.2f}\n"
+                f"VOLUME:  {int(quote.get('volume', 0)):,}\n"
+                f"INTEREST:  {int(quote.get('open interest', 0)):,}\n",
+            )
 
         plt.tight_layout()
 
@@ -307,6 +302,7 @@ class StaticChart(BaseChart):
 
 
 if __name__ == "__main__":
+    import time
 
     c = ContinuousContract()
 
@@ -320,7 +316,22 @@ if __name__ == "__main__":
 
     original = df.copy()
 
-    chart = StaticChart(df.loc[(df.index >= s) & (df.index <= e)])
-    chart.futures_price("test.png")
+    chart = CandleSticks(df.loc[(df.index >= s) & (df.index <= e)])
+    chart.plot("test.png")
+
+    # epochs = 10
+
+    # times = []
+
+    # for i in range(epochs):
+    # start = time.time()
+
+    # chart = CandleSticks(df.loc[(df.index >= s) & (df.index <= e)])
+    # chart.plot("test.png")
+
+    # end = time.time()
+    # times.append(end - start)
+
+    # print(sum(times) / float(epochs))
 
     assert original.eq(df).all(axis=1).all()

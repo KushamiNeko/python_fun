@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ from fun.data.source import DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY
 
 class Ticker(metaclass=ABCMeta):
     @abstractmethod
-    def ticks(self) -> Dict[float, str]:
+    def ticks(self) -> Tuple[List[float], List[str]]:
         raise NotImplementedError
 
 
@@ -19,7 +18,7 @@ class TimeTicker(Ticker):
     def __init__(self, quotes: pd.DataFrame) -> None:
         self._quotes = quotes
 
-    def ticks(self) -> Dict[float, str]:
+    def ticks(self) -> Tuple[List[float], List[str]]:
         frequency: FREQUENCY
 
         start = self._quotes.index[0]
@@ -37,7 +36,7 @@ class TimeTicker(Ticker):
 
         assert frequency is not None
 
-        loc: List[int] = []
+        loc: List[float] = []
         labels: List[str] = []
 
         if frequency == DAILY:
@@ -60,7 +59,10 @@ class TimeTicker(Ticker):
             labels = np.unique(dates)
             loc = [np.argwhere(dates == l).min() for l in labels]
 
-        return {k: v for k, v in zip(loc, labels)}
+        else:
+            raise NotImplementedError
+
+        return loc, labels
 
 
 class StepTicker(Ticker):
@@ -80,8 +82,8 @@ class StepTicker(Ticker):
 
         self._decimals = decimals
 
-    def ticks(self) -> Dict[float, str]:
+    def ticks(self) -> Tuple[List[float], List[str]]:
         locator = ticker.MaxNLocator(nbins=self._nbins, steps=self._steps)
         values = locator.tick_values(self._min, self._max)
 
-        return {v: f"{v:.{self._decimals}f}" for v in values}
+        return values, [f"{v:.{self._decimals}f}" for v in values]

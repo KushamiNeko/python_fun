@@ -178,10 +178,11 @@ class BaseChart(metaclass=ABCMeta):
                 cb(col, f"bb{ci}", "bb")
 
     @abstractmethod
-    def futures_price(
+    def plot(
         self,
         output: Union[str, io.BytesIO],
         records: Optional[List[FuturesTransaction]] = None,
+        show_quote: bool = True,
         interactive: bool = False,
     ) -> None:
         raise NotImplementedError
