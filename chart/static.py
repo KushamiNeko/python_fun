@@ -1,5 +1,4 @@
 import io
-from datetime import datetime
 from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -10,9 +9,6 @@ from matplotlib import axes, figure
 from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART, BaseChart
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
-from fun.data.source import DAILY, WEEKLY
-from fun.futures.continuous import ContinuousContract
-from fun.futures.rolling import RATIO, LastNTradingDays
 from fun.trading.transaction import FuturesTransaction
 
 
@@ -255,13 +251,20 @@ class CandleSticks(BaseChart):
         xs = np.arange(length)
 
         self._plot_indicators(
-            lambda col, cl, al: ax.plot(
+            lambda ys, cl, al: ax.plot(
                 xs,
-                self._quotes.loc[:, col],
+                ys,
                 color=self._theme.get_color(cl),
                 alpha=self._theme.get_alpha(al),
                 linewidth=self._linewidth(),
             )
+            # lambda col, cl, al: ax.plot(
+                # xs,
+                # self._quotes.loc[:, col],
+                # color=self._theme.get_color(cl),
+                # alpha=self._theme.get_alpha(al),
+                # linewidth=self._linewidth(),
+            # )
         )
 
         if show_quote:
@@ -303,6 +306,10 @@ class CandleSticks(BaseChart):
 
 if __name__ == "__main__":
     import time
+    from datetime import datetime
+    from fun.data.source import DAILY, WEEKLY
+    from fun.futures.continuous import ContinuousContract
+    from fun.futures.rolling import RATIO, LastNTradingDays
 
     c = ContinuousContract()
 

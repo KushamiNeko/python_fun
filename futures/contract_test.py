@@ -669,6 +669,7 @@ class TestContract(unittest.TestCase):
                 "months": FINANCIAL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "esh20,esz19,esu19,esm19,esh19,esz18",
+                "error": None,
             },
             {
                 "start": "19990201",
@@ -677,6 +678,7 @@ class TestContract(unittest.TestCase):
                 "months": FINANCIAL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "esh00,esz99,esu99,esm99,esh99,esz98",
+                "error": None,
             },
             {
                 "start": "20070905",
@@ -685,6 +687,7 @@ class TestContract(unittest.TestCase):
                 "months": FINANCIAL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "esh09,esz08,esu08,esm08,esh08,esz07,esu07,esm07",
+                "error": None,
             },
             {
                 "start": "19980101",
@@ -693,6 +696,7 @@ class TestContract(unittest.TestCase):
                 "months": FINANCIAL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "esh99,esz98,esu98,esm98,esh98",
+                "error": None,
             },
             {
                 "start": "20171231",
@@ -701,6 +705,7 @@ class TestContract(unittest.TestCase):
                 "months": EVEN_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "gcj19,gcg19,gcz18,gcv18,gcq18,gcm18,gcj18,gcg18,gcz17,gcv17",
+                "error": None,
             },
             {
                 "start": "19970101",
@@ -709,6 +714,7 @@ class TestContract(unittest.TestCase):
                 "months": EVEN_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "gcj98,gcg98,gcz97,gcv97,gcq97,gcm97,gcj97,gcg97",
+                "error": None,
             },
             {
                 "start": "20171231",
@@ -717,6 +723,7 @@ class TestContract(unittest.TestCase):
                 "months": ALL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "clj19,clh19,clg19,clf19,clz18,clx18,clv18,clu18,clq18,cln18,clm18,clk18,clj18,clh18,clg18,clf18,clz17,clx17",
+                "error": None,
             },
             {
                 "start": "19970101",
@@ -725,19 +732,85 @@ class TestContract(unittest.TestCase):
                 "months": ALL_CONTRACT_MONTHS,
                 "fmt": BARCHART,
                 "expect_list": "clj98,clh98,clg98,clf98,clz97,clx97,clv97,clu97,clq97,cln97,clm97,clk97,clj97,clh97,clg97,clf97",
+                "error": None,
+            },
+            {
+                "start": "19970101",
+                "end": "19980101",
+                "symbol": "es",
+                "months": FINANCIAL_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "esh98",
+                "error": None,
+            },
+            {
+                "start": "19960101",
+                "end": "19970101",
+                "symbol": "cl",
+                "months": ALL_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "clj97,clh97,clg97,clf97",
+                "error": None,
+            },
+            {
+                "start": "19960101",
+                "end": "19970101",
+                "symbol": "gc",
+                "months": EVEN_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "gcj97,gcg97",
+                "error": None,
+            },
+            {
+                "start": "19960101",
+                "end": "19970101",
+                "symbol": "es",
+                "months": FINANCIAL_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "",
+                "error": ValueError,
+            },
+            {
+                "start": "19950101",
+                "end": "19960101",
+                "symbol": "cl",
+                "months": ALL_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "",
+                "error": ValueError,
+            },
+            {
+                "start": "19950101",
+                "end": "19960101",
+                "symbol": "gc",
+                "months": EVEN_CONTRACT_MONTHS,
+                "fmt": BARCHART,
+                "expect_list": "",
+                "error": ValueError,
             },
         ]
     )
-    def test_contract_list(self, start, end, symbol, months, fmt, expect_list):
-        cs = contract_list(
-            start=datetime.strptime(start, "%Y%m%d"),
-            end=datetime.strptime(end, "%Y%m%d"),
-            symbol=symbol,
-            months=months,
-            fmt=fmt,
-            read_data=True,
-        )
-        self.assertListEqual([c.code() for c in cs], expect_list.split(","))
+    def test_contract_list(self, start, end, symbol, months, fmt, expect_list, error):
+        if error is None:
+            cs = contract_list(
+                start=datetime.strptime(start, "%Y%m%d"),
+                end=datetime.strptime(end, "%Y%m%d"),
+                symbol=symbol,
+                months=months,
+                fmt=fmt,
+                read_data=True,
+            )
+            self.assertListEqual([c.code() for c in cs], expect_list.split(","))
+        else:
+            with self.assertRaises(error):
+                contract_list(
+                    start=datetime.strptime(start, "%Y%m%d"),
+                    end=datetime.strptime(end, "%Y%m%d"),
+                    symbol=symbol,
+                    months=months,
+                    fmt=fmt,
+                    read_data=True,
+                )
 
 
 if __name__ == "__main__":

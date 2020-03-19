@@ -264,9 +264,14 @@ def contract_list(
     read_data: bool = True,
 ) -> List[Contract]:
 
-    cur = Contract.front_month(
-        symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
-    )
+    try:
+        cur = Contract.front_month(
+            symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
+        )
+    except FileNotFoundError:
+        msg = "empty contract list"
+        pretty.color_print(colors.PAPER_AMBER_300, msg)
+        raise ValueError(msg)
 
     contracts = [cur]
     while not (

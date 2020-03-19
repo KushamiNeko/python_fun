@@ -1,6 +1,7 @@
 *png
 *html
-*cache*
+*_cache*
+*pycache*
 .vscode
 env
 .pytype

@@ -53,6 +53,12 @@ class ContinuousContract:
         )
 
         cs_length = len(cs)
+
+        if cs_length == 0:
+            raise ValueError("empty contract list")
+        elif cs_length == 1:
+            return cs[0].dataframe()
+
         rolling_date = rolling_method.rolling_date(cs[1], cs[0])
 
         link: pd.DataFrame
