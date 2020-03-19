@@ -81,38 +81,39 @@ class CandleSticks(BaseChart):
         else:
             raise ValueError("invalid chart size")
 
-    def _tick_fontsize(self) -> str:
+    def _tick_fontsize(self) -> float:
         if self._chart_size == SMALL_CHART:
-            return "6.0"
+            return 6.0
         elif self._chart_size == MEDIUM_CHART:
-            return "7.2"
+            return 7.2
         elif self._chart_size == LARGE_CHART:
-            return "14.0"
+            return 15.0
         else:
             raise ValueError("invalid chart size")
 
-    def _text_fontsize(self) -> str:
+    def _text_fontsize(self) -> float:
         if self._chart_size == SMALL_CHART:
-            return "5.0"
+            return 5.0
         elif self._chart_size == MEDIUM_CHART:
-            return "6.0"
+            return 6.0
         elif self._chart_size == LARGE_CHART:
-            return "10.0"
+            return 10.0
         else:
             raise ValueError("invalid chart size")
-
-    def _text_fontweigth(self) -> str:
-        return "bold"
 
     def _setup_xticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
         ax.set_xticks(loc)
-        ax.set_xticklabels(labels)
+        ax.set_xticklabels(
+            labels, fontproperties=self._theme.get_font(self._tick_fontsize())
+        )
 
     def _setup_yticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
         ax.set_yticks(loc)
-        ax.set_yticklabels(labels)
+        ax.set_yticklabels(
+            labels, fontproperties=self._theme.get_font(self._tick_fontsize())
+        )
 
     def _setup_general(self, fig: figure.Figure, ax: axes.Axes) -> None:
         ax.spines["top"].set_visible(False)
@@ -161,7 +162,7 @@ class CandleSticks(BaseChart):
             y,
             text,
             color=self._theme.get_color("text"),
-            fontsize=f"{float(self._text_fontsize())*1.75}",
+            fontproperties=self._theme.get_font(self._text_fontsize() * 1.75),
             ha="left",
             va=va,
         )
@@ -258,26 +259,19 @@ class CandleSticks(BaseChart):
                 alpha=self._theme.get_alpha(al),
                 linewidth=self._linewidth(),
             )
-            # lambda col, cl, al: ax.plot(
-                # xs,
-                # self._quotes.loc[:, col],
-                # color=self._theme.get_color(cl),
-                # alpha=self._theme.get_alpha(al),
-                # linewidth=self._linewidth(),
-            # )
         )
 
         if show_quote:
             quote = self._quotes.iloc[-1]
             self._plot_text_info(
                 ax,
-                f"DATE:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
-                f"OPEN:  {quote.loc['open']:,.2f}\n"
-                f"HIGH: {quote.loc['high']:,.2f}\n"
-                f"LOW: {quote.loc['low']:,.2f}\n"
-                f"CLOSE:  {quote.loc['close']:,.2f}\n"
-                f"VOLUME:  {int(quote.get('volume', 0)):,}\n"
-                f"INTEREST:  {int(quote.get('open interest', 0)):,}\n",
+                f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
+                f"Open:  {quote.loc['open']:,.2f}\n"
+                f"High: {quote.loc['high']:,.2f}\n"
+                f"Low: {quote.loc['low']:,.2f}\n"
+                f"Close:  {quote.loc['close']:,.2f}\n"
+                f"Volume:  {int(quote.get('volume', 0)):,}\n"
+                f"Interest:  {int(quote.get('open interest', 0)):,}\n",
             )
 
         plt.tight_layout()

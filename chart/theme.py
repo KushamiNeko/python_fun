@@ -1,14 +1,32 @@
+from __future__ import annotations
+
+import os
 from typing import Dict
 
-from matplotlib import rcParams
+from matplotlib import font_manager as fm
 
-from fun.utils import colors
+from fun.utils import colors, pretty
 
-# rcParams["font.family"] = "Source Code Pro"
+# from matplotlib import rcParams
+
+
+# rcParams["font.family"] = "Droid Sans"
+_FONTS = sorted(fm.findSystemFonts(fontpaths=None), key=lambda x: os.path.basename(x))
+
+_FONT_FILE = "Roboto-Regular"
+
+_FONT_SRC = None
+for font in _FONTS:
+    if _FONT_FILE in font:
+        _FONT_SRC = font
+        break
+
+assert _FONT_SRC is not None
+pretty.color_print(colors.GOOGLE_GREEN_300, f"font source: {_FONT_SRC}")
 
 
 class Theme:
-    def __init__(self):
+    def __init__(self) -> None:
         self._colors: Dict[str, str] = {}
         self._alpha: Dict[str, float] = {}
 
@@ -47,6 +65,9 @@ class Theme:
 
     def get_alpha(self, key: str) -> float:
         return self._alpha[key]
+
+    def get_font(self, font_size: float) -> fm.FontProperties:
+        return fm.FontProperties(fname=_FONT_SRC, size=font_size)
 
 
 class InteractiveTheme(Theme):

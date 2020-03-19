@@ -1,6 +1,7 @@
 import unittest
 import io
 from datetime import datetime
+import pandas as pd
 
 from fun.chart.cache import QuotesCache
 from fun.chart.base import MEDIUM_CHART
@@ -23,9 +24,58 @@ class TestQuotesCache(unittest.TestCase):
                 "frequency": DAILY,
                 "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
+            {
+                # forward None
+                "exstart": "20180101",
+                "exend": "20200101",
+                "start": "20190101",
+                "end": datetime.now().strftime("%Y%m%d"),
+                "symbol": "es",
+                "frequency": DAILY,
+                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+            },
+            {
+                # backward None
+                "exstart": "20180101",
+                "exend": "20200101",
+                "start": "20170101",
+                "end": "20200101",
+                "symbol": "es",
+                "frequency": DAILY,
+                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+            },
+            {
+                "exstart": "20020101",
+                "exend": "20080101",
+                "start": "20030101",
+                "end": "20070101",
+                "symbol": "es",
+                "frequency": WEEKLY,
+                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+            },
+            {
+                # forward None
+                "exstart": "20150101",
+                "exend": "20200101",
+                "start": "20160101",
+                "end": datetime.now().strftime("%Y%m%d"),
+                "symbol": "es",
+                "frequency": WEEKLY,
+                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+            },
+            {
+                # backward None
+                "exstart": "20150101",
+                "exend": "20200101",
+                "start": "20140101",
+                "end": "20180101",
+                "symbol": "es",
+                "frequency": WEEKLY,
+                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+            },
         ]
     )
-    def test(self, exstart, exend, start, end, symbol, frequency, rolling):
+    def test_in_range(self, exstart, exend, start, end, symbol, frequency, rolling):
         c = ContinuousContract()
 
         exs = datetime.strptime(exstart, "%Y%m%d")
@@ -47,54 +97,86 @@ class TestQuotesCache(unittest.TestCase):
         self.assertGreaterEqual(cache.stime(), s)
         self.assertLessEqual(cache.etime(), e)
 
+        self.assertGreaterEqual(cache.sindex(), df.index.get_loc(cache.stime()))
+        self.assertLessEqual(cache.eindex(), df.index.get_loc(cache.etime()))
+
         self.assertTrue(original.eq(df.loc[:, columns]).all(axis=1).all())
 
-    # def slice(self) -> pd.DataFrame:
-    # return self._quotes.loc[self._stime : self._etime]
+        ################################
 
-    # def chart(self) -> CandleSticks:
-    # return self._chart
+        cexs = cache.exstime()
+        cexe = cache.exetime()
 
-    # def time_slice(self, stime: datetime, etime: datetime) -> None:
-    # s = self._quotes.loc[stime:etime]
+        cs = cache.stime()
+        ce = cache.etime()
 
-    # self._sindex = self._quotes.index.get_loc(s.index[0])
-    # self._eindex = self._quotes.index.get_loc(s.index[-1])
+        csi = cache.sindex()
+        cei = cache.eindex()
 
-    # self._index_time()
+        cache.forward()
 
-    # def _make_chart(self) -> None:
-    # # self._chart = StaticChart(self.slice, chart_size="m")
-    # self._chart = CandleSticks(self.slice, chart_size=MEDIUM_CHART)
+        self.assertEqual(cache.exstime(), cexs)
+        self.assertEqual(cache.exetime(), cexe)
 
-    # def _index_time(self) -> None:
-    # self._stime = self._quotes.index[self._sindex]
-    # self._etime = self._quotes.index[self._eindex]
+        if ce < cexe and cs < ce:
+            self.assertGreater(cache.stime(), cs)
+            self.assertGreater(cache.etime(), ce)
 
-    # def forward(self) -> Optional[CandleSticks]:
-    # # if self._eindex + 1 >= len(self._quotes.index) or self._sindex + 1 >= self._eindex:
-    # if self._eindex + 1 >= len(self._quotes) or self._sindex + 1 >= self._eindex:
-    # return None
+            self.assertGreater(cache.sindex(), csi)
+            self.assertGreater(cache.eindex(), cei)
+        else:
+            self.assertEqual(cache.stime(), cs)
+            self.assertEqual(cache.etime(), ce)
 
-    # self._sindex += 1
-    # self._eindex += 1
+            self.assertEqual(cache.sindex(), csi)
+            self.assertEqual(cache.eindex(), cei)
 
-    # self._index_time()
-    # self._make_chart()
+        self.assertTrue(original.eq(df.loc[:, columns]).all(axis=1).all())
 
-    # return self.chart()
+        # ################################
+        if ce < cexe and cs < ce:
+            cache.backward()
 
-    # def backward(self) -> Optional[CandleSticks]:
-    # if self._sindex - 1 <= 0 or self._eindex - 1 <= self._sindex:
-    # return None
+            self.assertEqual(cache.exstime(), cexs)
+            self.assertEqual(cache.exetime(), cexe)
 
-    # self._sindex -= 1
-    # self._eindex -= 1
+            self.assertEqual(cache.stime(), cs)
+            self.assertEqual(cache.etime(), ce)
 
-    # self._index_time()
-    # self._make_chart()
+            self.assertEqual(cache.sindex(), csi)
+            self.assertEqual(cache.eindex(), cei)
 
-    # return self.chart()
+            self.assertTrue(original.eq(df.loc[:, columns]).all(axis=1).all())
+        # ################################
+
+        cexs = cache.exstime()
+        cexe = cache.exetime()
+
+        cs = cache.stime()
+        ce = cache.etime()
+
+        csi = cache.sindex()
+        cei = cache.eindex()
+
+        cache.backward()
+
+        self.assertEqual(cache.exstime(), cexs)
+        self.assertEqual(cache.exetime(), cexe)
+
+        if cs > cexs and ce > cs:
+            self.assertLess(cache.stime(), cs)
+            self.assertLess(cache.etime(), ce)
+
+            self.assertLess(cache.sindex(), csi)
+            self.assertLess(cache.eindex(), cei)
+        else:
+            self.assertEqual(cache.stime(), cs)
+            self.assertEqual(cache.etime(), ce)
+
+            self.assertEqual(cache.sindex(), csi)
+            self.assertEqual(cache.eindex(), cei)
+
+        self.assertTrue(original.eq(df.loc[:, columns]).all(axis=1).all())
 
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 import io
-import re
 from abc import ABCMeta, abstractmethod
-from typing import Any, Callable, List, NewType, Optional, Tuple, Union, cast
+from typing import Any, Callable, List, NewType, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -26,9 +25,6 @@ class BaseChart(metaclass=ABCMeta):
         self._quotes = quotes
         self._chart_size = chart_size
 
-        # self._simple_moving_averages()
-        # self._bollinger_bands()
-
     def _minimum_body_height(self) -> float:
         mn, mx = self._ylim_from_price_range()
         r = mx - mn
@@ -47,20 +43,6 @@ class BaseChart(metaclass=ABCMeta):
             mn - (r / extend_ratio),
             mx + (r / extend_ratio),
         )
-
-    #def _simple_moving_averages(self) -> None:
-    #    self._quotes = simple_moving_average(self._quotes, 5)
-    #    self._quotes = simple_moving_average(self._quotes, 20)
-
-    #def _simple_moving_averages_extend(self) -> None:
-    #    self._quotes = simple_moving_average(self._quotes, 50)
-    #    self._quotes = simple_moving_average(self._quotes, 200)
-
-    #def _bollinger_bands(self) -> None:
-    #    self._quotes = bollinger_band(self._quotes, 20, 1.5)
-    #    self._quotes = bollinger_band(self._quotes, 20, 2.0)
-    #    self._quotes = bollinger_band(self._quotes, 20, 2.5)
-    #    self._quotes = bollinger_band(self._quotes, 20, 3.0)
 
     def _plot_trading_records(
         self,
@@ -147,8 +129,9 @@ class BaseChart(metaclass=ABCMeta):
 
         # cb(x, y, t, ha, va)
 
-    # def _plot_indicators(self, cb: Callable[[str, str, str], Any]) -> None:
-    def _plot_indicators(self, callback: Callable[[pd.DataFrame, str, str], Any]) -> None:
+    def _plot_indicators(
+        self, callback: Callable[[pd.DataFrame, str, str], Any]
+    ) -> None:
         callback(simple_moving_average(self._quotes.loc[:, "close"], 5), "sma0", "sma")
         callback(simple_moving_average(self._quotes.loc[:, "close"], 20), "sma1", "sma")
 
@@ -158,36 +141,6 @@ class BaseChart(metaclass=ABCMeta):
 
             callback(up, f"bb{i}", "bb")
             callback(down, f"bb{i}", "bb")
-
-
-        # smas = [col for col in self._quotes.columns if "sma" in col]
-        # bbs = [col for col in self._quotes.columns if "bb" in col]
-
-        # if len(smas) > 0:
-            # smas.sort(key=lambda x: int(x.replace("sma", "")))
-
-            # for i, col in enumerate(smas):
-                # cb(col, f"sma{i}", "sma")
-
-        # if len(bbs) > 0:
-            # bbs.sort(
-                # key=lambda x: (
-                    # float(cast(re.Match, re.match(r"bb\d+[+-]([0-9.]+)", x)).group(1))
-                # )
-            # )
-
-            # last = 0.0
-            # ci = -1
-            # for col in bbs:
-
-                # m = re.match(r"bb\d+[+-]([0-9.]+)", col)
-                # assert m is not None
-                # c = abs(float(m.group(1)))
-                # if c != last:
-                    # ci += 1
-                    # last = c
-
-                # cb(col, f"bb{ci}", "bb")
 
     @abstractmethod
     def plot(
