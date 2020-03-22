@@ -10,8 +10,7 @@ class Agent:
 
     _DB_ADMIN = "admin"
     _DB_TRADING_BOOK = "trading_books"
-    _DB_PAPER_TRADING = "paper_trading"
-    _DB_LIVE_TRADING = "live_trading"
+    _DB_TRADING_RECORDS = "succeed"
 
     _COL_USER = "user"
 
@@ -19,7 +18,10 @@ class Agent:
         home = os.getenv("HOME")
         assert home is not None
 
-        self._db = JsonDB(os.path.join(home, "Documents/database/json/market_wizards"))
+        path = os.path.join(home, "Documents/database/market_wizards")
+        assert os.path.exists(path)
+
+        self._db = JsonDB(path)
 
         self._uid = self._login(user_name)
 
@@ -31,7 +33,7 @@ class Agent:
         )
 
         if users is not None and len(users) == 1:
-            uid = users[0].get("uid", "")
+            uid = users[0].get("uid", None)
             assert uid is not None
             return uid
         else:
@@ -42,25 +44,27 @@ class Agent:
             database=self._DB_TRADING_BOOK, collection=self._uid, query=None
         )
 
-        if books is not None:
+        if books is not None and len(books) > 0:
             bs = [TradingBook.from_entity(b) for b in books]
-            bs.sort(key=lambda b: b.time.year)
+            bs.sort(key=lambda b: b.last_modified())
             return bs
         else:
             return None
 
-    def read_records(
-        self, symbol: str, year: int, version: str
-    ) -> Optional[List[FuturesTransaction]]:
-        assert symbol != ""
+    def read_records(self, title: str) -> Optional[List[FuturesTransaction]]:
+        assert title != ""
 
         books = self.books()
         if books is None or len(books) == 0:
             return None
 
+        books.sort(key=lambda b: b.last_modified())
+
         for b in books:
-            if b.symbol == symbol and b.time.year == year and b.version == version:
-                entities = self._db.find(f"{b.book_type}_trading", b.index, query=None)
+            if b.title() == title:
+                entities = self._db.find(
+                    f"{self._DB_TRADING_RECORDS}", b.index(), query=None
+                )
                 if entities is None or len(entities) == 0:
                     continue
                 else:
@@ -68,22 +72,21 @@ class Agent:
 
         return None
 
-    def read_all_records(
-        self, symbol: str, version: str
-    ) -> Optional[List[FuturesTransaction]]:
-
-        assert symbol != ""
+    def read_all_records(self) -> Optional[List[FuturesTransaction]]:
 
         books = self.books()
         if books is None or len(books) == 0:
             return None
 
-        ts = []
+        books.sort(key=lambda b: b.last_modified())
+
+        ts: List[FuturesTransaction] = []
         for b in books:
-            if b.symbol == symbol and b.version == version:
-                entities = self._db.find(f"{b.book_type}_trading", b.index, query=None)
-                if entities is None or len(entities) == 0:
-                    continue
+            entities = self._db.find(
+                f"{self._DB_TRADING_RECORDS}", b.index(), query=None
+            )
+            if entities is None or len(entities) == 0:
+                continue
 
                 ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 

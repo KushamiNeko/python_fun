@@ -3,14 +3,14 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
+
 from bokeh.core.properties import value
 from bokeh.embed import file_html
 from bokeh.layouts import column
 from bokeh.models.tools import CrosshairTool, HoverTool, SaveTool
 from bokeh.plotting import ColumnDataSource, figure, output_file, save, show
 from bokeh.resources import CDN
-
-from fun.chart.base import BaseChart, CHART_SIZE, SMALL_CHART, MEDIUM_CHART, LARGE_CHART
+from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART, BaseChart
 from fun.chart.theme import InteractiveTheme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
 from fun.trading.transaction import FuturesTransaction
@@ -75,23 +75,23 @@ class InteractiveChart(BaseChart):
     def _text_fontweigth(self) -> str:
         return "bold"
 
-    def _setup_xticks(self, p: figure, ticker: Ticker) -> None:
+    def _setup_xticks(self, p: figure.Figure, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
 
         p.xaxis.ticker = loc
-        p.xaxis.major_label_overrides = {k:v for k, v in zip(loc, labels)}
+        p.xaxis.major_label_overrides = {k: v for k, v in zip(loc, labels)}
 
         p.xgrid.ticker = loc
 
-    def _setup_yticks(self, p: figure, ticker: Ticker) -> None:
+    def _setup_yticks(self, p: figure.Figure, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
 
         p.yaxis.ticker = loc
-        p.yaxis.major_label_overrides = {k:v for k, v in zip(loc, labels)}
+        p.yaxis.major_label_overrides = {k: v for k, v in zip(loc, labels)}
 
         p.ygrid.ticker = loc
 
-    def _setup_general(self, p: figure) -> None:
+    def _setup_general(self, p: figure.Figure) -> None:
         p.outline_line_color = None
 
         p.axis.major_label_text_color = self._theme.get_color("ticks")
@@ -100,7 +100,7 @@ class InteractiveChart(BaseChart):
         p.grid.grid_line_color = self._theme.get_color("grid")
         p.grid.grid_line_alpha = self._theme.get_alpha("grid")
 
-    def _calculate_candlesticks_body_top_bottom(self) -> Tuple[np.array, np.array]:
+    def _calculate_candlesticks_body_top_bottom(self) -> Tuple[np.ndarray, np.ndarray]:
         dec = self._quotes.loc[:, "open"] > self._quotes.loc[:, "close"]
 
         r = np.abs(self._quotes.loc[:, "open"] - self._quotes.loc[:, "close"])
@@ -111,7 +111,7 @@ class InteractiveChart(BaseChart):
         top = np.copy(self._quotes.loc[:, "close"])
         bottom = np.copy(self._quotes.loc[:, "open"])
 
-        top[dec] = self._quotes.loc[dec,"open"]
+        top[dec] = self._quotes.loc[dec, "open"]
         bottom[dec] = self._quotes.loc[dec, "close"]
 
         top[mini] = avg[mini] + (self._minimum_body_height() / 2.0)
@@ -119,9 +119,7 @@ class InteractiveChart(BaseChart):
 
         return (top, bottom)
 
-    def _plot_candlesticks(
-        self, p: figure, 
-    ) -> None:
+    def _plot_candlesticks(self, p: figure.Figure) -> None:
         source = ColumnDataSource(
             data=dict(
                 x=np.arange(len(self._quotes)),
@@ -243,13 +241,12 @@ class InteractiveChart(BaseChart):
             line_color=self._theme.get_color("unchanged"),
         )
 
-
     # def futures_price(
     def plot(
         self,
         output: Union[str, io.BytesIO, io.StringIO],
         records: Optional[List[FuturesTransaction]] = None,
-        show_quote: bool=True,
+        show_quote: bool = True,
         interactive: bool = False,
     ) -> None:
         p = figure(
@@ -307,75 +304,75 @@ class InteractiveChart(BaseChart):
                 save(p)
 
     # def stocks_price(
-        # self,
-        # output: Union[str, io.BytesIO, io.StringIO],
-        # records: Optional[List[FuturesTransaction]] = None,
-        # interactive: bool = False,
+    # self,
+    # output: Union[str, io.BytesIO, io.StringIO],
+    # records: Optional[List[FuturesTransaction]] = None,
+    # interactive: bool = False,
     # ) -> None:
-        # indicator_range = (np.amin(self._quotes["rs"]), np.amax(self._quotes["rs"]))
+    # indicator_range = (np.amin(self._quotes["rs"]), np.amax(self._quotes["rs"]))
 
-        # p_indicator = figure(
-            # tools=[],
-            # plot_width=int(self._figsize[0]),
-            # plot_height=int(self._figsize[1] * 2.0 / 12.0),
-            # x_range=(
-                # 0 - self._body_width,
-                # (len(self._quotes.index) - 1) + self._body_width,
-            # ),
-            # y_range=indicator_range,
-            # background_fill_color="#000000",
-            # border_fill_color="#000000",
-        # )
+    # p_indicator = figure(
+    # tools=[],
+    # plot_width=int(self._figsize[0]),
+    # plot_height=int(self._figsize[1] * 2.0 / 12.0),
+    # x_range=(
+    # 0 - self._body_width,
+    # (len(self._quotes.index) - 1) + self._body_width,
+    # ),
+    # y_range=indicator_range,
+    # background_fill_color="#000000",
+    # border_fill_color="#000000",
+    # )
 
-        # self._setup_general(p_indicator)
-        # self._setup_xticks(p_indicator, TimeTicker(self._quotes.index))
-        # self._setup_yticks(
-            # p_indicator,
-            # StepTicker(indicator_range[0], indicator_range[1], nbins=5, steps=None),
-        # )
+    # self._setup_general(p_indicator)
+    # self._setup_xticks(p_indicator, TimeTicker(self._quotes.index))
+    # self._setup_yticks(
+    # p_indicator,
+    # StepTicker(indicator_range[0], indicator_range[1], nbins=5, steps=None),
+    # )
 
-        # p_indicator.line(
-            # np.arange(len(self._quotes.index)),
-            # self._quotes["rs"],
-            # line_width=self._linewidth,
-            # line_color=self._theme.get_color("in0"),
-        # )
+    # p_indicator.line(
+    # np.arange(len(self._quotes.index)),
+    # self._quotes["rs"],
+    # line_width=self._linewidth,
+    # line_color=self._theme.get_color("in0"),
+    # )
 
-        # p_price = figure(
-            # tools=[],
-            # plot_width=int(self._figsize[0]),
-            # plot_height=int(self._figsize[1] * 10.0 / 12.0),
-            # y_axis_type="log",
-            # x_range=(
-                # 0 - self._body_width,
-                # (len(self._quotes.index) - 1) + self._body_width,
-            # ),
-            # y_range=self._ylim_from_price_range(),
-            # background_fill_color="#000000",
-            # border_fill_color="#000000",
-        # )
+    # p_price = figure(
+    # tools=[],
+    # plot_width=int(self._figsize[0]),
+    # plot_height=int(self._figsize[1] * 10.0 / 12.0),
+    # y_axis_type="log",
+    # x_range=(
+    # 0 - self._body_width,
+    # (len(self._quotes.index) - 1) + self._body_width,
+    # ),
+    # y_range=self._ylim_from_price_range(),
+    # background_fill_color="#000000",
+    # border_fill_color="#000000",
+    # )
 
-        # self._plot_candlesticks(p_price, records=records)
-        # self._plot_indicators(
-            # lambda col, cl, al: p_price.line(
-                # np.arange(len(self._quotes.index)),
-                # self._quotes[col],
-                # line_width=self._linewidth,
-                # line_color=self._theme.get_color(cl),
-                # line_alpha=self._theme.get_alpha(al),
-            # )
-        # )
+    # self._plot_candlesticks(p_price, records=records)
+    # self._plot_indicators(
+    # lambda col, cl, al: p_price.line(
+    # np.arange(len(self._quotes.index)),
+    # self._quotes[col],
+    # line_width=self._linewidth,
+    # line_color=self._theme.get_color(cl),
+    # line_alpha=self._theme.get_alpha(al),
+    # )
+    # )
 
-        # if interactive:
-            # show(column(p_indicator, p_price))
-        # else:
-            # assert type(output) in (str, io.BytesIO, io.StringIO)
-            # if type(output) is io.BytesIO:
-                # html = file_html(column(p_indicator, p_price), CDN, "stocks price")
-                # cast(io.BytesIO, output).write(html.encode("utf-8"))
-            # elif type(output) is io.StringIO:
-                # html = file_html(column(p_indicator, p_price), CDN, "stocks price")
-                # cast(io.StringIO, output).write(html)
-            # elif type(output) is str:
-                # output_file(output)
-                # save(column(p_indicator, p_price))
+    # if interactive:
+    # show(column(p_indicator, p_price))
+    # else:
+    # assert type(output) in (str, io.BytesIO, io.StringIO)
+    # if type(output) is io.BytesIO:
+    # html = file_html(column(p_indicator, p_price), CDN, "stocks price")
+    # cast(io.BytesIO, output).write(html.encode("utf-8"))
+    # elif type(output) is io.StringIO:
+    # html = file_html(column(p_indicator, p_price), CDN, "stocks price")
+    # cast(io.StringIO, output).write(html)
+    # elif type(output) is str:
+    # output_file(output)
+    # save(column(p_indicator, p_price))

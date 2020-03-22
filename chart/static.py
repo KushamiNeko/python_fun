@@ -39,16 +39,6 @@ class CandleSticks(BaseChart):
         self._figure: Optional[figure.Figure] = None
         self._ax: Optional[axes.Axes] = None
 
-    # def _size_multiplier(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 1.0
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 1.2
-    # elif self._chart_size == LARGE_CHART:
-    # return 2.0
-    # else:
-    # raise ValueError(f"invalid chart size: {self._chart_size}")
-
     # candlesticks settings
     def _shadow_width(self) -> float:
         if self._chart_size == SMALL_CHART:
@@ -296,43 +286,3 @@ class CandleSticks(BaseChart):
         ny = min(max(ny, min_y), max_y)
 
         return (nx, ny)
-
-
-if __name__ == "__main__":
-    import time
-    from datetime import datetime
-    from fun.data.source import DAILY, WEEKLY
-    from fun.futures.continuous import ContinuousContract
-    from fun.futures.rolling import RATIO, LastNTradingDays
-
-    c = ContinuousContract()
-
-    s = datetime.strptime("20190101", "%Y%m%d")
-    # s = datetime.strptime("20160101", "%Y%m%d")
-    e = datetime.strptime("20200101", "%Y%m%d")
-
-    df = c.read(s, e, "es", DAILY, LastNTradingDays(offset=4, adjustment_method=RATIO))
-    # df = c.read(s, e, "es", WEEKLY, LastNTradingDays(offset=4, adjustment_method=RATIO))
-    df = df.loc[(df.index >= s) & (df.index <= e)]
-
-    original = df.copy()
-
-    chart = CandleSticks(df.loc[(df.index >= s) & (df.index <= e)])
-    chart.plot("test.png")
-
-    # epochs = 10
-
-    # times = []
-
-    # for i in range(epochs):
-    # start = time.time()
-
-    # chart = CandleSticks(df.loc[(df.index >= s) & (df.index <= e)])
-    # chart.plot("test.png")
-
-    # end = time.time()
-    # times.append(end - start)
-
-    # print(sum(times) / float(epochs))
-
-    assert original.eq(df).all(axis=1).all()
