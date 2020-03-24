@@ -1,7 +1,5 @@
 import unittest
-import io
 from datetime import datetime
-import pandas as pd
 
 from fun.chart.cache import QuotesCache
 from fun.chart.base import MEDIUM_CHART
@@ -89,7 +87,12 @@ class TestQuotesCache(unittest.TestCase):
 
         original = df.copy()
 
-        cache = QuotesCache(df, s, e)
+        cache = QuotesCache(
+            df,
+            s,
+            e,
+            chart_factory=lambda quotes: CandleSticks(quotes, chart_size=MEDIUM_CHART),
+        )
 
         self.assertLessEqual(cache.exstime(), exs)
         self.assertGreaterEqual(cache.exetime(), exe)

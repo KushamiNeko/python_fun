@@ -1,18 +1,22 @@
 import io
 from typing import List, Optional, Tuple, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib import axes, figure
 
-from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART, BaseChart
+from fun.chart import base
+from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
 from fun.trading.transaction import FuturesTransaction
 
+matplotlib.use("agg")
 
-class CandleSticks(BaseChart):
+
+class CandleSticks(base.CandleSticks):
     def __init__(
         self,
         quotes: pd.DataFrame,
@@ -220,6 +224,7 @@ class CandleSticks(BaseChart):
         show_quote: bool = True,
         interactive: bool = False,
     ) -> None:
+
         fig, ax = plt.subplots(
             figsize=self._figsize,
             facecolor=self._theme.get_color("background"),
@@ -250,6 +255,9 @@ class CandleSticks(BaseChart):
                 linewidth=self._linewidth(),
             )
         )
+
+        if records is not None:
+            pass
 
         if show_quote:
             quote = self._quotes.iloc[-1]

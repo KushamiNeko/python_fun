@@ -3,20 +3,22 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
-
 from bokeh.core.properties import value
 from bokeh.embed import file_html
-from bokeh.layouts import column
+
+# from bokeh.layouts import column
 from bokeh.models.tools import CrosshairTool, HoverTool, SaveTool
 from bokeh.plotting import ColumnDataSource, figure, output_file, save, show
 from bokeh.resources import CDN
-from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART, BaseChart
+
+from fun.chart import base
+from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART  # SMALL_CHART,
 from fun.chart.theme import InteractiveTheme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
 from fun.trading.transaction import FuturesTransaction
 
 
-class InteractiveChart(BaseChart):
+class CandleSticks(base.CandleSticks):
     def __init__(
         self,
         quotes: pd.DataFrame,

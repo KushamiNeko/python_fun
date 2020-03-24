@@ -14,7 +14,7 @@ MEDIUM_CHART = CHART_SIZE(1)
 SMALL_CHART = CHART_SIZE(2)
 
 
-class BaseChart(metaclass=ABCMeta):
+class ChartFactory(metaclass=ABCMeta):
     def __init__(
         self, quotes: pd.DataFrame, chart_size: CHART_SIZE = LARGE_CHART
     ) -> None:
@@ -25,11 +25,11 @@ class BaseChart(metaclass=ABCMeta):
         self._quotes = quotes
         self._chart_size = chart_size
 
-    def _minimum_body_height(self) -> float:
-        mn, mx = self._ylim_from_price_range()
-        r = mx - mn
+    # def _minimum_body_height(self) -> float:
+        # mn, mx = self._ylim_from_price_range()
+        # r = mx - mn
 
-        return r * 0.0025
+        # return r * 0.0025
 
     def _ylim_from_price_range(self) -> Tuple[float, float]:
         extend_ratio = 25.0
@@ -151,3 +151,16 @@ class BaseChart(metaclass=ABCMeta):
         interactive: bool = False,
     ) -> None:
         raise NotImplementedError
+
+
+class CandleSticks(ChartFactory):
+    def __init__(
+        self, quotes: pd.DataFrame, chart_size: CHART_SIZE = LARGE_CHART
+    ) -> None:
+        super().__init__(quotes, chart_size)
+
+    def _minimum_body_height(self) -> float:
+        mn, mx = self._ylim_from_price_range()
+        r = mx - mn
+
+        return r * 0.0025
