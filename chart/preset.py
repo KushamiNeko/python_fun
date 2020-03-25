@@ -1,7 +1,7 @@
 import io
 import re
 from datetime import datetime, timedelta
-from typing import List, Optional, cast, Tuple
+from typing import Dict, List, Optional, Tuple, cast, Any
 
 import pandas as pd
 
@@ -133,6 +133,18 @@ class ChartPreset:
     def _read_records(self) -> Optional[List[FuturesTransaction]]:
         return None
 
+    def quote(self) -> Dict[str, Any]:
+        df = self._cache.quotes().iloc[-1]
+        return {
+            "date": self._cache.quotes().index[-1].strftime("%Y%m%d"),
+            "open": df.get("open"),
+            "high": df.get("high"),
+            "low": df.get("low"),
+            "close": df.get("close"),
+            "volume": df.get("volume", 0),
+            "interest": df.get("open interest", 0),
+        }
+
     # def time_slice(self, stime: datetime, etime: datetime) -> None:
     def time_slice(self, dtime: datetime) -> None:
         stime, etime = self._time_range(dtime)
@@ -172,3 +184,59 @@ class ChartPreset:
         buf.seek(0)
 
         return buf
+
+    # def inspect(self, x: float, y: float, decimals: int=2) -> Optional[Tuple[datetime, float]]:
+    def inspect(
+        self,
+        x: float,
+        y: float,
+        ax: Optional[float] = None,
+        ay: Optional[float] = None,
+        decimals: int = 2,
+    ) -> Optional[Dict[str, str]]:
+        n = self._cache.chart().to_data_coordinates(x, y)
+        if n is None:
+            return None
+
+        nx, ny = n
+
+        df = self._cache.quotes()
+
+        info = {
+            "date": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
+            "price": f"{ny:,.{decimals}f}",
+            "open": f"{df.iloc[nx].get('open'):,.{decimals}f}",
+            "high": f"{df.iloc[nx].get('high'):,.{decimals}f}",
+            "low": f"{df.iloc[nx].get('low'):,.{decimals}f}",
+            "close": f"{df.iloc[nx].get('close'):,.{decimals}f}",
+            "volume": f"{df.iloc[nx].get('volume', 0):,.0f}",
+            "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
+        }
+
+        if ax is None or ay is None:
+            if nx != 0:
+                base = self._cache.quotes().iloc[nx - 1].get("close")
+                info["diff($)"] = f"{df.iloc[nx].get('close') - base:,.{decimals}f}"
+
+                info[
+                    "diff(%)"
+                ] = f"{((df.iloc[nx].get('close') - base) / base) * 100.0:,.{decimals}f}"
+
+        else:
+            an = self._cache.chart().to_data_coordinates(ax, ay)
+            assert an is not None
+
+            ax, ay = an
+
+            base_date = self._cache.quotes().index[ax]
+
+            print(ax, ay)
+            print(base_date)
+            print(df.index[nx])
+
+            info["diff(d)"] = f"{(df.index[nx] - base_date).days}"
+            info["diff(w)"] = f"{(df.index[nx] - base_date).days // 7}"
+            info["diff($)"] = f"{ny - ay:,.{decimals}f}"
+            info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{decimals}f}"
+
+        return info

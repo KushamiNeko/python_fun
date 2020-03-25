@@ -26,10 +26,10 @@ class ChartFactory(metaclass=ABCMeta):
         self._chart_size = chart_size
 
     # def _minimum_body_height(self) -> float:
-        # mn, mx = self._ylim_from_price_range()
-        # r = mx - mn
+    # mn, mx = self._ylim_from_price_range()
+    # r = mx - mn
 
-        # return r * 0.0025
+    # return r * 0.0025
 
     def _ylim_from_price_range(self) -> Tuple[float, float]:
         extend_ratio = 25.0
@@ -150,6 +150,10 @@ class ChartFactory(metaclass=ABCMeta):
         show_quote: bool = True,
         interactive: bool = False,
     ) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         raise NotImplementedError
 
 
