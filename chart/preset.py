@@ -116,7 +116,6 @@ class ChartPreset:
                 frequency=self._frequency,
                 rolling_method=LastNTradingDays(offset=4, adjustment_method=RATIO),
             )
-            print(df)
         else:
             df = src.read(
                 start=self._exstime,
@@ -148,7 +147,19 @@ class ChartPreset:
     # def time_slice(self, stime: datetime, etime: datetime) -> None:
     def time_slice(self, dtime: datetime) -> None:
         stime, etime = self._time_range(dtime)
-        self._cache.time_slice(stime, etime)
+
+        if (
+            stime <= self._exstime
+            or stime >= self._exetime
+            or etime <= self._exstime
+            or etime >= self._exetime
+        ):
+            self._stime = stime
+            self._etime = etime
+            self._exstime, self._exetime = self._extime_range()
+            self._cache = self._read_chart_data()
+        else:
+            self._cache.time_slice(stime, etime)
 
     def stime(self) -> datetime:
         return cast(datetime, self._cache.stime().to_pydatetime())
@@ -179,6 +190,7 @@ class ChartPreset:
             return True
 
     def render(self) -> io.BytesIO:
+
         buf = io.BytesIO()
         self._cache.chart().plot(buf, records=self._read_records())
         buf.seek(0)
@@ -229,10 +241,6 @@ class ChartPreset:
             ax, ay = an
 
             base_date = self._cache.quotes().index[ax]
-
-            print(ax, ay)
-            print(base_date)
-            print(df.index[nx])
 
             info["diff(d)"] = f"{(df.index[nx] - base_date).days}"
             info["diff(w)"] = f"{(df.index[nx] - base_date).days // 7}"

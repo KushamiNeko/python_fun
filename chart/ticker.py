@@ -62,7 +62,10 @@ class TimeTicker(Ticker):
         else:
             raise NotImplementedError
 
-        return loc, labels
+        aloc = np.array(loc)
+        condition = aloc >= 4
+
+        return np.extract(condition, aloc), np.extract(condition, labels)
 
 
 class StepTicker(Ticker):

@@ -72,6 +72,8 @@ class QuotesCache:
         self._sindex = self._quotes.index.get_loc(s.index[0])
         self._eindex = self._quotes.index.get_loc(s.index[-1])
 
+        self._make_chart()
+
         # self._index_time()
 
     # def _index_time(self) -> None:
