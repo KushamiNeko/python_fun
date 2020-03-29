@@ -1,125 +1,292 @@
 import os
 import unittest
+from typing import cast
 
 from fun.utils.jsondb import JsonDB
+from fun.utils.testing import parameterized
 
 
 class TestJsonDB(unittest.TestCase):
 
-    database = None
-    test_root = ""
-    test_database = "test"
-    test_collection = "test"
+    test_root = os.path.join(
+        cast(str, os.getenv("HOME")), "Documents", "database", "json", "testing"
+    )
 
-    @classmethod
-    def setUpClass(cls):
-        assert os.getenv("HOME")
+    def _check_database(self, database, db, col, entities, queries, expected):
+        for i, q in enumerate(queries):
+            results = database.find(db, col, q)
+            e = expected[i]
 
-        cls.test_root = os.path.join(
-            os.getenv("HOME"), "Documents", "database", "json", "testing"
-        )
+            if results is None:
+                self.assertEqual(len(e), 0)
+                continue
 
-        assert os.path.exists(cls.test_root)
+            self.assertEqual(len(results), len(expected[i]))
 
-        cls.database = JsonDB(database_root=cls.test_root)
+            if len(e) == 0:
+                self.assertIsNone(results)
+            else:
+                for j, r in enumerate(results):
+                    for k in r.keys():
+                        rk = r.get(k, None)
+                        ek = e[j].get(k, None)
+                        if rk is None:
+                            self.assertIsNone(ek)
+                        else:
+                            self.assertEqual(rk, ek)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.database.drop_collection(cls.test_database, cls.test_collection)
-
-        assert not os.path.exists(
-            os.path.join(
-                cls.test_root, f"{cls.test_database}_{cls.test_collection}.json"
-            )
-        )
+        for entity in entities:
+            database.delete(db, col, entity)
+            result = database.find(db, col, entity)
+            self.assertIsNone(result)
 
     def setUp(self):
-        self.assertIsNotNone(self.database)
         self.assertTrue(os.path.exists(self.test_root))
 
-    def test_insert_find_delete_succeed(self):
-        entity = {"a": "1", "b": "2"}
+    @parameterized(
+        [
+            {
+                "entities": [
+                    ##
+                    {"a": "1", "b": "2"},
+                ],
+                "queries": [
+                    ##
+                    {"a": "1"},
+                    {"b": "2"},
+                    {"c": "3"},
+                    {"a": "1", "b": "2"},
+                    {"a": "1", "b": "2", "c": "3"},
+                ],
+                "expected": [
+                    ##
+                    [
+                        ##
+                        {"a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                    ],
+                    [
+                        ##
+                        {"a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                    ],
+                ],
+                "new_entities": [],
+                "new_queries": [],
+                "new_expected": [
+                    ##
+                    [],
+                ],
+            },
+            {
+                "entities": [
+                    ##
+                    {"s": "0", "a": "1", "b": "2"},
+                    {"s": "0", "c": "3", "d": "4"},
+                ],
+                "queries": [
+                    ##
+                    {"s": "0"},
+                    {"a": "1"},
+                    {"b": "2"},
+                    {"c": "3"},
+                    {"d": "4"},
+                    {"e": "7"},
+                    {"c": "3", "d": "4"},
+                    {"s": "0", "d": "4"},
+                    {"s": "0", "b": "2"},
+                    {"s": "0", "a": "1", "b": "2"},
+                    {"s": "0", "c": "3", "d": "4"},
+                ],
+                "expected": [
+                    ##
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                ],
+                "new_entities": [],
+                "new_queries": [],
+                "new_expected": [
+                    ##
+                    [],
+                ],
+            },
+            {
+                "entities": [
+                    ##
+                    {"s": "0", "a": "1", "b": "2"},
+                    {"s": "0", "c": "3", "d": "4"},
+                    {"hello": "world"},
+                ],
+                "queries": [
+                    ##
+                    {"s": "0"},
+                    {"a": "1"},
+                    {"c": "3"},
+                    {"c": "3", "d": "4"},
+                    {"e": "7"},
+                ],
+                "expected": [
+                    ##
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "1", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "c": "3", "d": "4"},
+                    ],
+                    [
+                        ##
+                    ],
+                ],
+                "new_entities": [
+                    ##
+                    {"s": "0", "a": "10", "b": "2"},
+                    {"s": "5", "c": "3", "d": "4", "b": "2"},
+                    {"hello": "world"},
+                ],
+                "new_queries": [
+                    ##
+                    {"s": "0"},
+                    {"s": "5"},
+                    {"a": "1"},
+                    {"a": "10"},
+                    {"b": "2"},
+                    {"c": "3"},
+                    {"c": "3", "d": "4"},
+                    {"hello": "world"},
+                ],
+                "new_expected": [
+                    ##
+                    [
+                        ##
+                        {"s": "0", "a": "10", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "5", "c": "3", "d": "4", "b": "2"},
+                    ],
+                    [
+                        ##
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "10", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "0", "a": "10", "b": "2"},
+                        {"s": "5", "c": "3", "d": "4", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "5", "c": "3", "d": "4", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"s": "5", "c": "3", "d": "4", "b": "2"},
+                    ],
+                    [
+                        ##
+                        {"hello": "world"},
+                    ],
+                ],
+            },
+        ]
+    )
+    def test_db(
+        self, entities, queries, expected, new_entities, new_queries, new_expected
+    ):
+        db = "test"
+        col = "test"
 
-        self.database.insert(self.test_database, self.test_collection, entity)
+        database = JsonDB(database_root=self.test_root)
 
-        result = self.database.find(self.test_database, self.test_collection, entity)
+        if os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json")):
+            database.drop_collection(db, col)
+            self.assertFalse(
+                os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
+            )
 
-        self.assertEqual(len(result), 1)
+        database.insert(db, col, *entities)
 
-        self.assertEqual(result[0]["a"], entity["a"])
-        self.assertEqual(result[0]["b"], entity["b"])
+        self._check_database(database, db, col, entities, queries, expected)
 
-        self.database.delete(self.test_database, self.test_collection, entity)
+        if len(new_entities) != 0 and len(new_queries) != 0:
+            self.assertEqual(len(entities), len(new_entities))
 
-        result = self.database.find(self.test_database, self.test_collection, entity)
+            database.insert(db, col, *entities)
 
-        self.assertIsNone(result)
+            for i, e in enumerate(entities):
+                database.replace(db, col, e, new_entities[i])
 
-    def test_insert_find_delete_multiple_succeed(self):
-        entity_1 = {"s": "0", "a": "1", "b": "2"}
+            self._check_database(
+                database, db, col, new_entities, new_queries, new_expected
+            )
 
-        entity_2 = {"s": "0", "c": "3", "d": "4"}
-
-        query = {"s": "0"}
-
-        self.database.insert(
-            self.test_database, self.test_collection, entity_1, entity_2
+        database.drop_collection(db, col)
+        self.assertFalse(
+            os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
         )
-
-        results = self.database.find(self.test_database, self.test_collection, query)
-
-        self.assertEqual(len(results), 2)
-
-        for result in results:
-            if "a" in result:
-
-                self.assertEqual(result["s"], entity_1["s"])
-                self.assertEqual(result["a"], entity_1["a"])
-                self.assertEqual(result["b"], entity_1["b"])
-
-            if "c" in result:
-
-                self.assertEqual(result["s"], entity_2["s"])
-                self.assertEqual(result["c"], entity_2["c"])
-                self.assertEqual(result["d"], entity_2["d"])
-
-        self.database.delete(self.test_database, self.test_collection, query)
-        results = self.database.find(self.test_database, self.test_collection, query)
-
-        self.assertEqual(len(results), 1)
-
-        self.database.delete(self.test_database, self.test_collection, query)
-        results = self.database.find(self.test_database, self.test_collection, query)
-
-        self.assertIsNone(results)
-
-    def test_replace_succeed(self):
-        entity = {"a": "1", "b": "2"}
-
-        new_entity = {"a": "0", "b": "2"}
-
-        query = {"b": "2"}
-
-        self.database.insert(self.test_database, self.test_collection, entity)
-
-        self.database.replace(
-            self.test_database, self.test_collection, query, new_entity
-        )
-
-        result = self.database.find(self.test_database, self.test_collection, query)
-
-        self.assertIsNotNone(result)
-
-        self.assertEqual(len(result), 1)
-
-        self.assertEqual(result[0]["a"], new_entity["a"])
-        self.assertEqual(result[0]["b"], new_entity["b"])
-
-        self.database.delete(self.test_database, self.test_collection, query)
-
-        result = self.database.find(self.test_database, self.test_collection, entity)
-
-        self.assertIsNone(result)
 
 
 if __name__ == "__main__":

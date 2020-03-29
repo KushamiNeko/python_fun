@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Dict, List, Optional
+from fun.utils import pretty, colors
 
 
 class JsonDB:
@@ -31,6 +32,8 @@ class JsonDB:
     def _write(self, database: str, collection: str) -> None:
         path = self._path(database, collection)
 
+        pretty.color_print(colors.PAPER_YELLOW_400, f"writing database to {path}")
+
         with open(path, "w") as f:
             json.dump(self._database, f, indent=2)
 
@@ -55,9 +58,8 @@ class JsonDB:
 
         self._read(database, collection)
 
-        found = True
-
         for i, entity in enumerate(self._database):
+            found = True
             for k, v in query.items():
                 found = found and (entity.get(k, None) == v)
             if found:
@@ -112,4 +114,6 @@ class JsonDB:
 
     def drop_collection(self, database: str, collection: str) -> None:
         path = self._path(database, collection)
+        pretty.color_print(colors.PAPER_YELLOW_400, f"deleting database at {path}")
+
         os.remove(path)

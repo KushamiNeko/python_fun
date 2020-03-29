@@ -20,6 +20,7 @@ class CandleSticks(base.CandleSticks):
     def __init__(
         self,
         quotes: pd.DataFrame,
+        extended_quotes: Optional[pd.DataFrame] = None,
         chart_size: CHART_SIZE = LARGE_CHART,
         figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
@@ -27,7 +28,7 @@ class CandleSticks(base.CandleSticks):
         assert quotes is not None
         assert chart_size in (LARGE_CHART, MEDIUM_CHART, SMALL_CHART)
 
-        super().__init__(quotes, chart_size)
+        super().__init__(quotes, extended_quotes, chart_size)
 
         if self._chart_size == SMALL_CHART:
             self._figsize = (figsize[0] * 1.0, figsize[1] * 1.0)
@@ -259,8 +260,10 @@ class CandleSticks(base.CandleSticks):
         if records is not None:
             pass
 
-        if show_quote:
+        if show_quote and len(self._quotes) > 1:
             quote = self._quotes.iloc[-1]
+            prev_quote = self._quotes.iloc[-2]
+
             self._plot_text_info(
                 ax,
                 f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
@@ -269,7 +272,9 @@ class CandleSticks(base.CandleSticks):
                 f"Low: {quote.loc['low']:,.2f}\n"
                 f"Close:  {quote.loc['close']:,.2f}\n"
                 f"Volume:  {int(quote.get('volume', 0)):,}\n"
-                f"Interest:  {int(quote.get('open interest', 0)):,}\n",
+                f"Interest:  {int(quote.get('open interest', 0)):,}\n"
+                f"Diff($):  {quote.loc['close'] - prev_quote.loc['close']:,.2f}\n"
+                f"Diff(%):  {((quote.loc['close'] - prev_quote.loc['close'])/prev_quote.loc['close']) * 100.0:,.2f}\n",
             )
 
         plt.tight_layout()

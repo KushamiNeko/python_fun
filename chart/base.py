@@ -16,20 +16,22 @@ SMALL_CHART = CHART_SIZE(2)
 
 class ChartFactory(metaclass=ABCMeta):
     def __init__(
-        self, quotes: pd.DataFrame, chart_size: CHART_SIZE = LARGE_CHART
+        self,
+        quotes: pd.DataFrame,
+        extended_quotes: Optional[pd.DataFrame] = None,
+        chart_size: CHART_SIZE = LARGE_CHART,
     ) -> None:
 
         assert quotes is not None
         assert chart_size in (LARGE_CHART, MEDIUM_CHART, SMALL_CHART)
 
         self._quotes = quotes
+        if extended_quotes is None:
+            self._extended_quotes = self._quotes
+        else:
+            self._extended_quotes = extended_quotes
+
         self._chart_size = chart_size
-
-    # def _minimum_body_height(self) -> float:
-    # mn, mx = self._ylim_from_price_range()
-    # r = mx - mn
-
-    # return r * 0.0025
 
     def _ylim_from_price_range(self) -> Tuple[float, float]:
         extend_ratio = 25.0
@@ -132,15 +134,28 @@ class ChartFactory(metaclass=ABCMeta):
     def _plot_indicators(
         self, callback: Callable[[pd.DataFrame, str, str], Any]
     ) -> None:
-        callback(simple_moving_average(self._quotes.loc[:, "close"], 5), "sma0", "sma")
-        callback(simple_moving_average(self._quotes.loc[:, "close"], 20), "sma1", "sma")
+
+        s = self._quotes.index[0]
+        e = self._quotes.index[-1]
+
+        callback(
+            simple_moving_average(self._extended_quotes.loc[:, "close"], 5).loc[s:e],
+            "sma0",
+            "sma",
+        )
+
+        callback(
+            simple_moving_average(self._extended_quotes.loc[:, "close"], 20).loc[s:e],
+            "sma1",
+            "sma",
+        )
 
         bbs = (1.5, 2.0, 2.5, 3.0)
         for i, m in enumerate(bbs):
-            up, down = bollinger_band(self._quotes.loc[:, "close"], 20, m)
+            up, down = bollinger_band(self._extended_quotes.loc[:, "close"], 20, m)
 
-            callback(up, f"bb{i}", "bb")
-            callback(down, f"bb{i}", "bb")
+            callback(up.loc[s:e], f"bb{i}", "bb")
+            callback(down.loc[s:e], f"bb{i}", "bb")
 
     @abstractmethod
     def plot(
@@ -159,9 +174,12 @@ class ChartFactory(metaclass=ABCMeta):
 
 class CandleSticks(ChartFactory):
     def __init__(
-        self, quotes: pd.DataFrame, chart_size: CHART_SIZE = LARGE_CHART
+        self,
+        quotes: pd.DataFrame,
+        extended_quotes: Optional[pd.DataFrame] = None,
+        chart_size: CHART_SIZE = LARGE_CHART,
     ) -> None:
-        super().__init__(quotes, chart_size)
+        super().__init__(quotes, extended_quotes, chart_size)
 
     def _minimum_body_height(self) -> float:
         mn, mx = self._ylim_from_price_range()

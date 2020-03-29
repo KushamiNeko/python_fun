@@ -1,7 +1,7 @@
 import io
 import re
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, cast, Any
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import pandas as pd
 
@@ -14,6 +14,7 @@ from fun.data.source import (
     HOURLY,
     MONTHLY,
     WEEKLY,
+    AlphaVantage,
     DataSource,
     InvestingCom,
     StockCharts,
@@ -73,8 +74,9 @@ class ChartPreset:
         print("network")
 
         src: Optional[DataSource] = None
-        # factory = lambda quotes: CandleSticks(quotes, chart_size=SMALL_CHART)
-        factory = lambda quotes: CandleSticks(quotes, chart_size=MEDIUM_CHART)
+        factory = lambda quotes, extended_quotes: CandleSticks(
+            quotes=quotes, extended_quotes=extended_quotes, chart_size=MEDIUM_CHART
+        )
 
         if self._symbol in ("vix", "vxn", "sml", "ovx", "gvz"):
             src = Yahoo()
@@ -102,7 +104,7 @@ class ChartPreset:
             "reet",
             "rem",
         ):
-            src = InvestingCom()
+            src = AlphaVantage()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
@@ -144,7 +146,6 @@ class ChartPreset:
             "interest": df.get("open interest", 0),
         }
 
-    # def time_slice(self, stime: datetime, etime: datetime) -> None:
     def time_slice(self, dtime: datetime) -> None:
         stime, etime = self._time_range(dtime)
 
@@ -168,11 +169,9 @@ class ChartPreset:
         return cast(datetime, self._cache.etime().to_pydatetime())
 
     def exstime(self) -> datetime:
-        # return cast(pd.Timestamp, self._quotes.index[0])
         return cast(datetime, self._cache.exstime().to_pydatetime())
 
     def exetime(self) -> datetime:
-        # return cast(pd.Timestamp, self._quotes.index[-1])
         return cast(datetime, self._cache.exetime().to_pydatetime())
 
     def forward(self) -> bool:
@@ -190,14 +189,12 @@ class ChartPreset:
             return True
 
     def render(self) -> io.BytesIO:
-
         buf = io.BytesIO()
         self._cache.chart().plot(buf, records=self._read_records())
         buf.seek(0)
 
         return buf
 
-    # def inspect(self, x: float, y: float, decimals: int=2) -> Optional[Tuple[datetime, float]]:
     def inspect(
         self,
         x: float,
