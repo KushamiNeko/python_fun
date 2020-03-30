@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import cast
 
 import pandas as pd
+from fun.utils import pretty, colors
 
 from fun.data.source import DAILY, FREQUENCY, WEEKLY, daily_to_weekly
 from fun.futures.contract import (
@@ -51,6 +52,20 @@ class ContinuousContract:
             fmt=BARCHART,
             read_data=True,
         )
+
+        last_index = 0
+        last_dtime = cs[0].dataframe().index[-1]
+        for i, c in enumerate(cs):
+            if c.dataframe().index[-1] != last_dtime:
+                last_index = i
+                break
+
+        if last_index > 1:
+            pretty.color_print(
+                colors.PAPER_AMBER_300,
+                f"removing back months contracts: {', '.join([c.code() for c in cs[:last_index-1]])}",
+            )
+            cs = cs[last_index - 1 :]
 
         cs_length = len(cs)
 

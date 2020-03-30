@@ -74,9 +74,7 @@ class Agent:
                 uid = random_string()
 
                 self._db.insert(
-                    database=self._DB_ADMIN,
-                    collection=self._COL_USER,
-                    entities={"name": user_name, "uid": uid},
+                    self._DB_ADMIN, self._COL_USER, {"name": user_name, "uid": uid},
                 )
 
                 return uid
@@ -114,9 +112,7 @@ class Agent:
             if new_book:
                 book = TradingBook(title=title)
                 self._db.insert(
-                    database=self._DB_TRADING_BOOKS,
-                    collection=self._uid,
-                    entities=book.to_entity(),
+                    self._DB_TRADING_BOOKS, self._uid, book.to_entity(),
                 )
             else:
                 raise ValueError(f"book {title} does not exist")

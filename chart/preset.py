@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 import pandas as pd
 
-from fun.chart.base import MEDIUM_CHART, SMALL_CHART
+from fun.chart.base import MEDIUM_CHART
 from fun.chart.cache import QuotesCache
 from fun.chart.static import CandleSticks
 from fun.data.source import (
@@ -21,7 +21,12 @@ from fun.data.source import (
     Yahoo,
 )
 from fun.futures.continuous import ContinuousContract
-from fun.futures.rolling import RATIO, LastNTradingDays, VolumeAndOpenInterest
+from fun.futures.rolling import (
+    RATIO,
+    RollingMethod,
+    LastNTradingDays,
+    VolumeAndOpenInterest,
+)
 from fun.trading.transaction import FuturesTransaction
 
 
@@ -111,12 +116,21 @@ class ChartPreset:
 
         df: pd.DataFrame
         if src is None:
+            rolling_method: RollingMethod
+            if self._symbol in ("cl", "gc"):
+                rolling_method = VolumeAndOpenInterest(
+                    backup=LastNTradingDays(offset=4, adjustment_method=RATIO),
+                    adjustment_method=RATIO,
+                )
+            else:
+                rolling_method = LastNTradingDays(offset=4, adjustment_method=RATIO)
+
             df = ContinuousContract().read(
                 start=self._exstime,
                 end=self._exetime,
                 symbol=self._symbol,
                 frequency=self._frequency,
-                rolling_method=LastNTradingDays(offset=4, adjustment_method=RATIO),
+                rolling_method=rolling_method,
             )
         else:
             df = src.read(

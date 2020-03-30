@@ -80,7 +80,7 @@ class CandleSticks(base.CandleSticks):
         if self._chart_size == SMALL_CHART:
             return 6.0
         elif self._chart_size == MEDIUM_CHART:
-            return 7.2
+            return 9.0
         elif self._chart_size == LARGE_CHART:
             return 15.0
         else:

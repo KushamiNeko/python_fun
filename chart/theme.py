@@ -7,13 +7,10 @@ from matplotlib import font_manager as fm
 
 from fun.utils import colors, pretty
 
-# from matplotlib import rcParams
 
-
-# rcParams["font.family"] = "Droid Sans"
 _FONTS = sorted(fm.findSystemFonts(fontpaths=None), key=lambda x: os.path.basename(x))
 
-_FONT_FILE = "Roboto-Regular"
+_FONT_FILE = "Roboto-Bold"
 
 _FONT_SRC = None
 for font in _FONTS:
