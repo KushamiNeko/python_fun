@@ -131,7 +131,7 @@ class TestStaticCandleSticks(unittest.TestCase):
                 df.loc[(df.index >= s) & (df.index <= e)], chart_size=MEDIUM_CHART
             )
 
-            chart.plot(buf)
+            chart.render(buf)
 
             self.assertTrue(original.eq(df).all(axis=1).all())
 

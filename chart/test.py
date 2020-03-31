@@ -19,10 +19,8 @@ if __name__ == "__main__":
         exs, exe, "es", DAILY, LastNTradingDays(offset=4, adjustment_method=RATIO)
     )
 
-    large = CandleSticks(df.loc[s:e], df)
-    medium = CandleSticks(df.loc[s:e], df, chart_size=MEDIUM_CHART)
-    # small = CandleSticks(df.loc[s:e], df, chart_size=SMALL_CHART)
+    large = CandleSticks(df.loc[s:e])
+    medium = CandleSticks(df.loc[s:e], chart_size=MEDIUM_CHART)
 
-    large.plot("large.png")
-    medium.plot("medium.png")
-    # small.plot("small.png")
+    large.render("large.png")
+    medium.render("medium.png")

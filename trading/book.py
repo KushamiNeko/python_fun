@@ -20,7 +20,7 @@ class TradingBook:
             self._last_modified = last_modified
 
         if index is None or index == "":
-            self._index = helper.random_string(length=16)
+            self._index = helper.random_string()
         else:
             if not re.match(r"^[0-9a-zA-Z]+$", index):
                 raise ValueError("invalid book index")

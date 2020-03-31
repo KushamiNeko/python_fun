@@ -1,15 +1,14 @@
 import io
-from typing import Callable, List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from matplotlib import axes, figure
 
 from fun.chart import base
 from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART
-from fun.chart.setting import CandleSticksSetting, Setting
+from fun.chart.setting import CandleSticksSetting
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
 from fun.plotter.plotter import Plotter
@@ -21,15 +20,13 @@ class CandleSticks(base.CandleSticks):
     def __init__(
         self,
         quotes: pd.DataFrame,
-        extended_quotes: Optional[pd.DataFrame] = None,
         chart_size: CHART_SIZE = LARGE_CHART,
         figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
 
         assert quotes is not None
-        assert chart_size in (LARGE_CHART, MEDIUM_CHART, SMALL_CHART)
+        assert chart_size in (LARGE_CHART, MEDIUM_CHART)
 
-        # super().__init__(quotes, extended_quotes, chart_size)
         super().__init__(quotes)
 
         if chart_size == SMALL_CHART:
@@ -46,65 +43,6 @@ class CandleSticks(base.CandleSticks):
 
         self._figure: Optional[figure.Figure] = None
         self._ax: Optional[axes.Axes] = None
-
-    # candlesticks settings
-    # def _shadow_width(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 0.72
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 1.2
-    # elif self._chart_size == LARGE_CHART:
-    # return 2
-    # else:
-    # raise ValueError("invalid chart size")
-
-    # def _body_width(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 2.34
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 3.9
-    # elif self._chart_size == LARGE_CHART:
-    # return 6.5
-    # else:
-    # raise ValueError("invalid chart size")
-
-    # # general chart settings
-    # def _linewidth(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 1.0
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 1.2
-    # elif self._chart_size == LARGE_CHART:
-    # return 2.0
-    # else:
-    # raise ValueError("invalid chart size")
-
-    # def _tick_fontsize(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 6.0
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 9.0
-    # elif self._chart_size == LARGE_CHART:
-    # return 15.0
-    # else:
-    # raise ValueError("invalid chart size")
-
-    # def _text_fontsize(self) -> float:
-    # if self._chart_size == SMALL_CHART:
-    # return 5.0
-    # elif self._chart_size == MEDIUM_CHART:
-    # return 6.0
-    # elif self._chart_size == LARGE_CHART:
-    # return 10.0
-    # else:
-    # raise ValueError("invalid chart size")
-
-    # def _minimum_body_height(self) -> float:
-    # ratio = 0.0025
-    # mn, mx = self.quotes_range()
-    # r = mx - mn
-
-    # return r * ratio
 
     def _setup_xticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
@@ -146,36 +84,7 @@ class CandleSticks(base.CandleSticks):
 
         ax.yaxis.tick_right()
 
-    # def _plot_text_info(self, ax: axes.Axes, text: str, posx: int = 3) -> None:
-    # ymin, ymax = self._ylim_from_price_range()
-    # mid = (ymin + ymax) / 2.0
-
-    # y: float
-    # va: str
-    # if (
-    # np.amax(self._quotes.iloc[: int(len(self._quotes) / 6.0)].loc[:, "high"])
-    # > mid
-    # ):
-    # y = np.amin(self._quotes.loc[:, "low"])
-    # va = "bottom"
-    # else:
-    # y = np.amax(self._quotes.loc[:, "high"])
-    # va = "top"
-
-    # ax.text(
-    # posx,
-    # y,
-    # text,
-    # color=self._theme.get_color("text"),
-    # fontproperties=self._theme.get_font(self._text_fontsize() * 1.75),
-    # ha="left",
-    # va=va,
-    # )
-
     def _plot_candlesticks(self, ax: axes.Axes) -> None:
-
-        # length = len(self._quotes)
-        # ax.set_xlim(-0.5, (length - 1) + 0.5)
         ax.set_xlim(*self.chart_xrange())
         ax.set_ylim(*self.chart_yrange())
 
@@ -229,12 +138,6 @@ class CandleSticks(base.CandleSticks):
 
         ax.autoscale_view()
 
-    def theme(self) -> Theme:
-        return self._theme
-
-    def setting(self) -> Setting:
-        return self._setting
-
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:
             return None
@@ -251,11 +154,9 @@ class CandleSticks(base.CandleSticks):
 
     def render(
         self,
-        output: Union[str, io.BytesIO],
-        # records: Optional[List[FuturesTransaction]] = None,
-        # show_quote: bool = True,
-        interactive: bool = False,
+        output: Optional[Union[str, io.BytesIO]] = None,
         plotters: Optional[List[Plotter]] = None,
+        interactive: bool = False,
     ) -> None:
 
         fig, ax = plt.subplots(
@@ -275,50 +176,16 @@ class CandleSticks(base.CandleSticks):
 
         self._plot_candlesticks(ax)
 
-        # length = len(self._quotes)
-
-        # xs = np.arange(length)
-
-        # self._plot_indicators(
-        # lambda ys, cl, al: ax.plot(
-        # xs,
-        # ys,
-        # color=self._theme.get_color(cl),
-        # alpha=self._theme.get_alpha(al),
-        # linewidth=self._linewidth(),
-        # )
-        # )
-
         if plotters is not None and len(plotters) > 0:
-            # map(cast(Callable, lambda p: p.plot(ax)), plotters)
             for p in plotters:
                 p.plot(ax)
-
-        # if records is not None:
-        # pass
-
-        # if show_quote and len(self._quotes) > 1:
-        # quote = self._quotes.iloc[-1]
-        # prev_quote = self._quotes.iloc[-2]
-
-        # self._plot_text_info(
-        # ax,
-        # f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d')}\n"
-        # f"Open:  {quote.loc['open']:,.2f}\n"
-        # f"High: {quote.loc['high']:,.2f}\n"
-        # f"Low: {quote.loc['low']:,.2f}\n"
-        # f"Close:  {quote.loc['close']:,.2f}\n"
-        # f"Volume:  {int(quote.get('volume', 0)):,}\n"
-        # f"Interest:  {int(quote.get('open interest', 0)):,}\n"
-        # f"Diff($):  {quote.loc['close'] - prev_quote.loc['close']:,.2f}\n"
-        # f"Diff(%):  {((quote.loc['close'] - prev_quote.loc['close'])/prev_quote.loc['close']) * 100.0:,.2f}\n",
-        # )
 
         plt.tight_layout()
 
         if interactive:
             plt.show()
         else:
+            assert output is not None
             plt.savefig(output, dpi=100, facecolor=self._theme.get_color("background"))
 
         plt.close(fig)

@@ -59,17 +59,6 @@ class Indicator(LinePlotter):
         else:
             raise ValueError("invalid return type from calculate")
 
-            # if self._slice_start is not None and self._slice_end is not None:
-            # ys = ys.loc[self._slice_start : self._slice_end]
-
-            # ax.plot(
-            # xs,
-            # ys,
-            # color=self._line_color,
-            # alpha=self._line_alpha,
-            # linewidth=self._line_width,
-            # )
-
 
 class SimpleMovingAverage(Indicator):
     def __init__(

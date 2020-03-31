@@ -13,7 +13,7 @@ class QuotesCache:
         quotes: pd.DataFrame,
         stime: datetime,
         etime: datetime,
-        chart_factory: Callable[[pd.DataFrame, pd.DataFrame], ChartFactory],
+        chart_factory: Callable[[pd.DataFrame], ChartFactory],
     ):
 
         assert quotes is not None
@@ -55,7 +55,7 @@ class QuotesCache:
         return self._chart
 
     def _make_chart(self) -> None:
-        self._chart = self._chart_factory(self.quotes(), self._quotes)
+        self._chart = self._chart_factory(self.quotes())
 
     def time_slice(self, stime: datetime, etime: datetime) -> None:
         s = self._quotes.loc[stime:etime]

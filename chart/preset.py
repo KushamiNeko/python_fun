@@ -5,13 +5,11 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 import pandas as pd
 
-from fun.chart.base import MEDIUM_CHART
+from fun.chart.base import CHART_SIZE, MEDIUM_CHART
 from fun.chart.cache import QuotesCache
-
-# from fun.chart.setting import Setting
+from fun.chart.setting import Setting
 from fun.chart.static import CandleSticks
-
-# from fun.chart.theme import Theme
+from fun.chart.theme import Theme
 from fun.data.source import (
     DAILY,
     FREQUENCY,
@@ -31,14 +29,21 @@ from fun.futures.rolling import (
     RollingMethod,
     VolumeAndOpenInterest,
 )
+from fun.plotter.indicator import BollinggerBand, SimpleMovingAverage
+from fun.plotter.records import LeverageRecords
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
-
-from fun.plotter.indicator import SimpleMovingAverage, BollinggerBand
+from fun.trading.transaction import FuturesTransaction
 
 
 class ChartPreset:
-    def __init__(self, dtime: datetime, symbol: str, frequency: FREQUENCY) -> None:
+    def __init__(
+        self,
+        dtime: datetime,
+        symbol: str,
+        frequency: FREQUENCY,
+        chart_size: CHART_SIZE = MEDIUM_CHART,
+    ) -> None:
         assert re.match(r"^[a-zA-Z0-9]+$", symbol) is not None
 
         self._symbol = symbol
@@ -52,10 +57,13 @@ class ChartPreset:
 
         self._frequency = frequency
 
+        self._chart_size = chart_size
         self._cache = self._read_chart_data()
 
-        self._theme = self._cache.chart().theme()
-        self._setting = self._cache.chart().setting()
+        self._theme = Theme()
+        self._setting = Setting(chart_size=chart_size)
+
+        self._records: Optional[List[FuturesTransaction]] = None
 
     def _time_range(self, dtime: datetime) -> Tuple[datetime, datetime]:
 
@@ -89,8 +97,8 @@ class ChartPreset:
         print("network")
 
         src: Optional[DataSource] = None
-        factory = lambda quotes, extended_quotes: CandleSticks(
-            quotes=quotes, extended_quotes=extended_quotes, chart_size=MEDIUM_CHART
+        factory = lambda quotes: CandleSticks(
+            quotes=quotes, chart_size=self._chart_size
         )
 
         if self._symbol in ("vix", "vxn", "sml", "ovx", "gvz"):
@@ -224,15 +232,31 @@ class ChartPreset:
                 quotes=self._cache.quotes(),
                 font_color=self._theme.get_color("text"),
                 font_properties=self._theme.get_font(
-                    self._setting.text_fontsize(multiplier=1.75)
+                    self._setting.text_fontsize(multiplier=1.5)
                 ),
             ),
         ]
+
+        if self._records is not None:
+            ps.append(
+                LeverageRecords(
+                    quotes=self._cache.quotes(),
+                    records=self._records,
+                    font_color=self._theme.get_color("text"),
+                    font_properties=self._theme.get_font(self._setting.text_fontsize()),
+                )
+            )
 
         if plotters is not None:
             ps.extend(plotters)
 
         return ps
+
+    def show_records(self, records: Optional[List[FuturesTransaction]] = None) -> None:
+        if records is not None and len(records) > 0:
+            self._records = records
+        else:
+            self._records = None
 
     def quote(self) -> Dict[str, Any]:
         df = self._cache.quotes().iloc[-1]

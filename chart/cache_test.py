@@ -91,7 +91,7 @@ class TestQuotesCache(unittest.TestCase):
             df,
             s,
             e,
-            chart_factory=lambda quotes, extended_quotes: CandleSticks(quotes, extended_quotes, chart_size=MEDIUM_CHART),
+            chart_factory=lambda quotes: CandleSticks(quotes, chart_size=MEDIUM_CHART),
         )
 
         self.assertLessEqual(cache.exstime(), exs)

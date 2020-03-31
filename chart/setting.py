@@ -27,11 +27,11 @@ class Setting:
 
     def text_fontsize(self, multiplier: float = 1.0) -> float:
         if self._chart_size == SMALL_CHART:
-            return 4.32 * multiplier
+            return 5.4 * multiplier
         elif self._chart_size == MEDIUM_CHART:
-            return 7.2 * multiplier
+            return 9 * multiplier
         elif self._chart_size == LARGE_CHART:
-            return 12.0 * multiplier
+            return 15.0 * multiplier
         else:
             raise ValueError("invalid chart size")
 

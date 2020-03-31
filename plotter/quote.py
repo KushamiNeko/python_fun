@@ -38,7 +38,6 @@ class LastQuote(TextPlotter):
             self._ymin, self._ymax = yrange
 
     def plot(self, ax: axes.Axes) -> None:
-        print("quote")
         if len(self._quotes) > 1:
             quote = self._quotes.iloc[-1]
             prev_quote = self._quotes.iloc[-2]
@@ -57,7 +56,6 @@ class LastQuote(TextPlotter):
                 ]
             )
 
-
             mid = (self._ymin + self._ymax) / 2.0
 
             y: float
@@ -74,11 +72,8 @@ class LastQuote(TextPlotter):
                 y = np.amax(self._quotes.loc[:, "high"])
                 va = "top"
 
-            print(y)
-
             ax.text(
-                # self._xoffset,
-                0,
+                self._xoffset,
                 y,
                 text,
                 color=self._font_color,
