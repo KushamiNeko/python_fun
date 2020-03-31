@@ -262,7 +262,7 @@ class TestJsonDB(unittest.TestCase):
         database = JsonDB(database_root=self.test_root)
 
         if os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json")):
-            database.drop_collection(db, col)
+            database.drop(db, col)
             self.assertFalse(
                 os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
             )
@@ -283,7 +283,7 @@ class TestJsonDB(unittest.TestCase):
                 database, db, col, new_entities, new_queries, new_expected
             )
 
-        database.drop_collection(db, col)
+        database.drop(db, col)
         self.assertFalse(
             os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
         )

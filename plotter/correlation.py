@@ -1,28 +1,31 @@
+from typing import Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
+from matplotlib import axes
 from matplotlib import font_manager as fm
 
 
-def label_simplify(label, length_limit=50):
+def label_simplify(label: str, length_limit: int = 50) -> str:
     if len(label) > length_limit:
         return f"{label[: int(length_limit / 2.0)]}.....{label[-int(length_limit / 2.0) :]}"
     else:
         return label
 
 
-def plot_correlation(
-    xs,
-    ys,
-    ax=None,
-    xlabel=None,
-    ylabel=None,
-    labelsize=14,
-    label_length_limit=50,
-    pointsize=50,
-    linewidth=2,
-    font_src=None,
-):
+def correlation(
+    xs: np.ndarray,
+    ys: np.ndarray,
+    ax: Optional[axes.Axes] = None,
+    xlabel: Optional[str] = None,
+    ylabel: Optional[str] = None,
+    labelsize: int = 14,
+    label_length_limit: int = 50,
+    pointsize: int = 50,
+    linewidth: int = 2,
+    font_src: Optional[str] = None,
+) -> None:
 
     if font_src is not None:
         prop = fm.FontProperties(fname=font_src, size=labelsize)
@@ -37,11 +40,7 @@ def plot_correlation(
 
     mask = ~np.isnan(xs.reset_index(drop=True)) & ~np.isnan(ys.reset_index(drop=True))
 
-    tau, p = stats.kendalltau(
-        # xs.astype(np.float), ys.astype(np.float), nan_policy="omit"
-        xs[mask].astype(np.float),
-        ys[mask].astype(np.float),
-    )
+    tau, p = stats.kendalltau(xs[mask].astype(np.float), ys[mask].astype(np.float),)
 
     s, i, _, _, _ = stats.linregress(xs[mask], ys[mask])
     xl = np.linspace(xs.min(), xs.max())

@@ -131,32 +131,6 @@ class ChartFactory(metaclass=ABCMeta):
 
         # cb(x, y, t, ha, va)
 
-    def _plot_indicators(
-        self, callback: Callable[[pd.DataFrame, str, str], Any]
-    ) -> None:
-
-        s = self._quotes.index[0]
-        e = self._quotes.index[-1]
-
-        callback(
-            simple_moving_average(self._extended_quotes.loc[:, "close"], 5).loc[s:e],
-            "sma0",
-            "sma",
-        )
-
-        callback(
-            simple_moving_average(self._extended_quotes.loc[:, "close"], 20).loc[s:e],
-            "sma1",
-            "sma",
-        )
-
-        bbs = (1.5, 2.0, 2.5, 3.0)
-        for i, m in enumerate(bbs):
-            up, down = bollinger_band(self._extended_quotes.loc[:, "close"], 20, m)
-
-            callback(up.loc[s:e], f"bb{i}", "bb")
-            callback(down.loc[s:e], f"bb{i}", "bb")
-
     @abstractmethod
     def plot(
         self,
@@ -186,3 +160,29 @@ class CandleSticks(ChartFactory):
         r = mx - mn
 
         return r * 0.0025
+
+    def _plot_indicators(
+        self, callback: Callable[[pd.DataFrame, str, str], Any]
+    ) -> None:
+
+        s = self._quotes.index[0]
+        e = self._quotes.index[-1]
+
+        callback(
+            simple_moving_average(self._extended_quotes.loc[:, "close"], 5).loc[s:e],
+            "sma0",
+            "sma",
+        )
+
+        callback(
+            simple_moving_average(self._extended_quotes.loc[:, "close"], 20).loc[s:e],
+            "sma1",
+            "sma",
+        )
+
+        bbs = (1.5, 2.0, 2.5, 3.0)
+        for i, m in enumerate(bbs):
+            up, down = bollinger_band(self._extended_quotes.loc[:, "close"], 20, m)
+
+            callback(up.loc[s:e], f"bb{i}", "bb")
+            callback(down.loc[s:e], f"bb{i}", "bb")

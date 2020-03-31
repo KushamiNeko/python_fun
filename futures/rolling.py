@@ -147,4 +147,13 @@ class VolumeAndOpenInterest(RollingMethod):
 
         selector = (fdf.index.isin(bdf.index)) & ((fdf.index[-1] - fdf.index).days < 90)
 
-        return cast(datetime, fdf.loc[selector].loc[union].index[0].to_pydatetime(),)
+        cross = fdf.loc[selector].loc[union]
+        if len(cross) == 0:
+            pretty.color_print(
+                colors.PAPER_AMBER_300,
+                f"no valid intersection in contracts {front.code().upper()} and {back.code().upper()}"
+                ", use backup rolling method instead",
+            )
+            return cast(datetime, self._backup.rolling_date(front, back))
+
+        return cast(datetime, cross.index[0].to_pydatetime(),)

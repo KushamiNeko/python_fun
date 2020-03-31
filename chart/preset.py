@@ -50,8 +50,8 @@ class ChartPreset:
     def _time_range(self, dtime: datetime) -> Tuple[datetime, datetime]:
 
         etime = dtime
-        stime: datetime
 
+        stime: datetime
         if self._frequency == HOURLY:
             stime = etime - timedelta(days=15)
         elif self._frequency == DAILY:
@@ -117,9 +117,14 @@ class ChartPreset:
         df: pd.DataFrame
         if src is None:
             rolling_method: RollingMethod
-            if self._symbol in ("cl", "gc"):
+            if self._symbol == "cl":
                 rolling_method = VolumeAndOpenInterest(
-                    backup=LastNTradingDays(offset=4, adjustment_method=RATIO),
+                    backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
+                    adjustment_method=RATIO,
+                )
+            elif self._symbol == "gc":
+                rolling_method = VolumeAndOpenInterest(
+                    backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
                     adjustment_method=RATIO,
                 )
             else:

@@ -112,7 +112,7 @@ class JsonDB:
 
         self._write(database, collection)
 
-    def drop_collection(self, database: str, collection: str) -> None:
+    def drop(self, database: str, collection: str) -> None:
         path = self._path(database, collection)
         pretty.color_print(colors.PAPER_YELLOW_400, f"deleting database at {path}")
 

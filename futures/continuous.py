@@ -20,9 +20,9 @@ from fun.futures.rolling import RollingMethod
 class ContinuousContract:
     def _contract_months(self, symbol: str) -> CONTRACT_MONTHS:
         months: CONTRACT_MONTHS
-        if symbol in ["cl"]:
+        if symbol == "cl":
             months = ALL_CONTRACT_MONTHS
-        elif symbol in ["gc"]:
+        elif symbol == "gc":
             months = EVEN_CONTRACT_MONTHS
         else:
             months = FINANCIAL_CONTRACT_MONTHS
@@ -52,20 +52,6 @@ class ContinuousContract:
             fmt=BARCHART,
             read_data=True,
         )
-
-        last_index = 0
-        last_dtime = cs[0].dataframe().index[-1]
-        for i, c in enumerate(cs):
-            if c.dataframe().index[-1] != last_dtime:
-                last_index = i
-                break
-
-        if last_index > 1:
-            pretty.color_print(
-                colors.PAPER_AMBER_300,
-                f"removing back months contracts: {', '.join([c.code() for c in cs[:last_index-1]])}",
-            )
-            cs = cs[last_index - 1 :]
 
         cs_length = len(cs)
 

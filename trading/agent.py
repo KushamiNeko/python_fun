@@ -9,7 +9,7 @@ from fun.utils.helper import random_string
 from fun.utils.jsondb import JsonDB
 
 
-class Agent:
+class TradingAgent:
 
     _DB_ADMIN = "admin"
 
@@ -27,7 +27,11 @@ class Agent:
         cls._ORDERS.append(o)
 
     @classmethod
-    def _check_order(cls, stop_price: float) -> Optional[List[TransactionOrder]]:
+    def _edit_order(cls, old_entity: Dict[str, str], new_entiry: Dict[str, str]) -> None:
+        pass
+
+    @classmethod
+    def _check_orders(cls, stop_price: float) -> Optional[List[TransactionOrder]]:
         orders = []
 
         for order in cls._ORDERS:
@@ -126,7 +130,7 @@ class Agent:
         self._new_order(entity)
 
     def check_orders(self, title: str, dtime: datetime, stop_price: float) -> None:
-        orders = self._check_order(stop_price)
+        orders = self._check_orders(stop_price)
         if orders is None:
             return
         else:
