@@ -53,6 +53,10 @@ class TestTradingAgent(unittest.TestCase):
         ]
     )
     def test_init(self, user_name, new_user, error):
+        if os.path.exists(os.path.join(self._root, "admin_user.json")):
+            jsonDB = JsonDB(self._root)
+            jsonDB.drop("admin", "user")
+
         if error is not None:
             with self.assertRaises(ValueError):
                 TradingAgent(

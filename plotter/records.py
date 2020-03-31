@@ -6,33 +6,34 @@ import pandas as pd
 from matplotlib import axes
 from matplotlib import font_manager as fm
 
-from fun.plotter.plotter import Plotter
+from fun.plotter.plotter import TextPlotter
 from fun.trading.transaction import FuturesTransaction
 
 
-class LeverageRecords(Plotter):
+class LeverageRecords(TextPlotter):
     def __init__(
         self,
         quotes: pd.DataFrame,
         records: List[FuturesTransaction],
         offset: float = 0.01,
-        color: str = "k",
+        font_color: str = "k",
         font_size: float = 10.0,
+        font_src: Optional[str] = None,
         font_properties: Optional[fm.FontProperties] = None,
     ) -> None:
         assert quotes is not None
+
+        super().__init__(
+            font_color=font_color,
+            font_size=font_size,
+            font_src=font_src,
+            font_properties=font_properties,
+        )
 
         self._quotes = quotes
         self._records = records
 
         self._offset = offset
-
-        self._color = color
-
-        if font_properties is None:
-            self._font_properties = fm.FontProperties(size=font_size)
-        else:
-            self._font_properties = font_properties
 
     def plot(self, ax: axes.Axes) -> None:
         if len(self._quotes) == 0 or len(self._records) == 0:
@@ -71,7 +72,7 @@ class LeverageRecords(Plotter):
                 x,
                 y,
                 text,
-                color=self._color,
+                color=self._font_color,
                 fontproperties=self._font_properties,
                 ha="left",
                 va=va,

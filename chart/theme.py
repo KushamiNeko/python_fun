@@ -7,7 +7,6 @@ from matplotlib import font_manager as fm
 
 from fun.utils import colors, pretty
 
-
 _FONTS = sorted(fm.findSystemFonts(fontpaths=None), key=lambda x: os.path.basename(x))
 
 _FONT_FILE = "Roboto-Bold"

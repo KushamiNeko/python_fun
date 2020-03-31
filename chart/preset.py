@@ -7,7 +7,11 @@ import pandas as pd
 
 from fun.chart.base import MEDIUM_CHART
 from fun.chart.cache import QuotesCache
+
+# from fun.chart.setting import Setting
 from fun.chart.static import CandleSticks
+
+# from fun.chart.theme import Theme
 from fun.data.source import (
     DAILY,
     FREQUENCY,
@@ -23,11 +27,14 @@ from fun.data.source import (
 from fun.futures.continuous import ContinuousContract
 from fun.futures.rolling import (
     RATIO,
-    RollingMethod,
     LastNTradingDays,
+    RollingMethod,
     VolumeAndOpenInterest,
 )
-from fun.trading.transaction import FuturesTransaction
+from fun.plotter.plotter import Plotter
+from fun.plotter.quote import LastQuote
+
+from fun.plotter.indicator import SimpleMovingAverage, BollinggerBand
 
 
 class ChartPreset:
@@ -46,6 +53,9 @@ class ChartPreset:
         self._frequency = frequency
 
         self._cache = self._read_chart_data()
+
+        self._theme = self._cache.chart().theme()
+        self._setting = self._cache.chart().setting()
 
     def _time_range(self, dtime: datetime) -> Tuple[datetime, datetime]:
 
@@ -150,8 +160,79 @@ class ChartPreset:
         cache = QuotesCache(df, self._stime, self._etime, chart_factory=factory)
         return cache
 
-    def _read_records(self) -> Optional[List[FuturesTransaction]]:
-        return None
+    def _make_plotters(self, plotters: Optional[List[Plotter]] = None) -> List[Plotter]:
+        ps: List[Plotter] = [
+            SimpleMovingAverage(
+                n=5,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("sma0"),
+                line_alpha=self._theme.get_alpha("sma"),
+                line_width=self._setting.linewidth(),
+            ),
+            SimpleMovingAverage(
+                n=20,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("sma1"),
+                line_alpha=self._theme.get_alpha("sma"),
+                line_width=self._setting.linewidth(),
+            ),
+            BollinggerBand(
+                n=20,
+                m=1.5,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("bb0"),
+                line_alpha=self._theme.get_alpha("bb"),
+                line_width=self._setting.linewidth(),
+            ),
+            BollinggerBand(
+                n=20,
+                m=2.0,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("bb1"),
+                line_alpha=self._theme.get_alpha("bb"),
+                line_width=self._setting.linewidth(),
+            ),
+            BollinggerBand(
+                n=20,
+                m=2.5,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("bb2"),
+                line_alpha=self._theme.get_alpha("bb"),
+                line_width=self._setting.linewidth(),
+            ),
+            BollinggerBand(
+                n=20,
+                m=3.0,
+                quotes=self._cache.full_quotes(),
+                slice_start=self._cache.quotes().index[0],
+                slice_end=self._cache.quotes().index[-1],
+                line_color=self._theme.get_color("bb3"),
+                line_alpha=self._theme.get_alpha("bb"),
+                line_width=self._setting.linewidth(),
+            ),
+            LastQuote(
+                quotes=self._cache.quotes(),
+                font_color=self._theme.get_color("text"),
+                font_properties=self._theme.get_font(
+                    self._setting.text_fontsize(multiplier=1.75)
+                ),
+            ),
+        ]
+
+        if plotters is not None:
+            ps.extend(plotters)
+
+        return ps
 
     def quote(self) -> Dict[str, Any]:
         df = self._cache.quotes().iloc[-1]
@@ -207,9 +288,9 @@ class ChartPreset:
         else:
             return True
 
-    def render(self) -> io.BytesIO:
+    def render(self, plotters: Optional[List[Plotter]] = None) -> io.BytesIO:
         buf = io.BytesIO()
-        self._cache.chart().plot(buf, records=self._read_records())
+        self._cache.chart().render(buf, plotters=self._make_plotters(plotters=plotters))
         buf.seek(0)
 
         return buf
