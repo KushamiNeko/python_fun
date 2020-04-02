@@ -11,6 +11,7 @@ from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART
 from fun.chart.setting import CandleSticksSetting
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
+from fun.plotter.candlesticks import CandleSticks as CandleSticksPlotter
 from fun.plotter.plotter import Plotter
 
 matplotlib.use("agg")
@@ -84,59 +85,59 @@ class CandleSticks(base.CandleSticks):
 
         ax.yaxis.tick_right()
 
-    def _plot_candlesticks(self, ax: axes.Axes) -> None:
-        ax.set_xlim(*self.chart_xrange())
-        ax.set_ylim(*self.chart_yrange())
+    # def _plot_candlesticks(self, ax: axes.Axes) -> None:
+    # ax.set_xlim(*self.chart_xrange())
+    # ax.set_ylim(*self.chart_yrange())
 
-        for index, df in enumerate(self._quotes.itertuples()):
+    # for index, df in enumerate(self._quotes.itertuples()):
 
-            p_open = df.open
-            p_high = df.high
-            p_low = df.low
-            p_close = df.close
+    # p_open = df.open
+    # p_high = df.high
+    # p_low = df.low
+    # p_close = df.close
 
-            p_body_top: float
-            p_body_bottom: float
+    # p_body_top: float
+    # p_body_bottom: float
 
-            if p_open > p_close:
-                p_body_top = p_open
-                p_body_bottom = p_close
-            else:
-                p_body_top = p_close
-                p_body_bottom = p_open
+    # if p_open > p_close:
+    # p_body_top = p_open
+    # p_body_bottom = p_close
+    # else:
+    # p_body_top = p_close
+    # p_body_bottom = p_open
 
-            assert p_body_top is not None
-            assert p_body_bottom is not None
+    # assert p_body_top is not None
+    # assert p_body_bottom is not None
 
-            if abs(p_open - p_close) < self._minimum_body_height():
-                mid = (p_open + p_close) / 2.0
-                mid_height = self._minimum_body_height() / 2.0
-                p_body_top = mid + mid_height
-                p_body_bottom = mid - mid_height
+    # if abs(p_open - p_close) < self._minimum_height():
+    # mid = (p_open + p_close) / 2.0
+    # mid_height = self._minimum_height() / 2.0
+    # p_body_top = mid + mid_height
+    # p_body_bottom = mid - mid_height
 
-            color = self._theme.get_color("unchanged")
+    # color = self._theme.get_color("unchanged")
 
-            if p_close > p_open:
-                color = self._theme.get_color("up")
-            elif p_close < p_open:
-                color = self._theme.get_color("down")
+    # if p_close > p_open:
+    # color = self._theme.get_color("up")
+    # elif p_close < p_open:
+    # color = self._theme.get_color("down")
 
-            ax.plot(
-                [index, index],
-                [p_high, p_low],
-                linewidth=self._setting.shadow_width(),
-                color=color,
-                zorder=5,
-            )
-            ax.plot(
-                [index, index],
-                [p_body_top, p_body_bottom],
-                linewidth=self._setting.body_width(),
-                color=color,
-                zorder=5,
-            )
+    # ax.plot(
+    # [index, index],
+    # [p_high, p_low],
+    # linewidth=self._setting.shadow_width(),
+    # color=color,
+    # zorder=5,
+    # )
+    # ax.plot(
+    # [index, index],
+    # [p_body_top, p_body_bottom],
+    # linewidth=self._setting.body_width(),
+    # color=color,
+    # zorder=5,
+    # )
 
-        ax.autoscale_view()
+    # ax.autoscale_view()
 
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:
@@ -174,7 +175,22 @@ class CandleSticks(base.CandleSticks):
         self._figure = fig
         self._ax = ax
 
-        self._plot_candlesticks(ax)
+        ax.set_xlim(*self.chart_xrange())
+        ax.set_ylim(*self.chart_yrange())
+
+        # self._plot_candlesticks(ax)
+
+        CandleSticksPlotter(
+            quotes=self._quotes,
+            shadow_width=self._setting.shadow_width(),
+            body_width=self._setting.body_width(),
+            minimum_height=self._minimum_height(),
+            color_up=self._theme.get_color("up"),
+            color_down=self._theme.get_color("down"),
+            color_unchanged=self._theme.get_color("unchanged"),
+        ).plot(ax)
+
+        ax.autoscale_view()
 
         if plotters is not None and len(plotters) > 0:
             for p in plotters:

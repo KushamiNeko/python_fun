@@ -71,7 +71,6 @@ class SimpleMovingAverage(Indicator):
         line_alpha: float = 1.0,
         line_width: float = 10.0,
     ) -> None:
-        assert quotes is not None
 
         super().__init__(
             quotes=quotes,
@@ -83,11 +82,10 @@ class SimpleMovingAverage(Indicator):
         )
 
         self._n = n
+        # self._quotes = quotes
 
     def _calculate(self) -> pd.Series:
         return self._quotes.loc[:, "close"].rolling(self._n).mean()
-
-    # simple_moving_average(self._extended_quotes.loc[:, "close"], 5).loc[s:e],
 
 
 class BollinggerBand(Indicator):
@@ -102,7 +100,6 @@ class BollinggerBand(Indicator):
         line_alpha: float = 1.0,
         line_width: float = 10.0,
     ) -> None:
-        assert quotes is not None
 
         super().__init__(
             quotes=quotes,
@@ -115,6 +112,7 @@ class BollinggerBand(Indicator):
 
         self._n = n
         self._m = m
+        # self._quotes = quotes
 
     def _calculate(self,) -> List[pd.DataFrame]:
         mean = self._quotes.loc[:, "close"].rolling(self._n).mean()
@@ -125,5 +123,32 @@ class BollinggerBand(Indicator):
         ]
 
 
-# def relative_strength(df: pd.DataFrame, rdf: pd.DataFrame,) -> pd.DataFrame:
-# return df / rdf
+class RelativeStrength(Indicator):
+    def __init__(
+        self,
+        quotes: pd.DataFrame,
+        quotes_b: pd.DataFrame,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
+    ) -> None:
+
+        super().__init__(
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
+        )
+
+        # self._quotes_a = quotes_a
+        self._quotes_b = quotes_b
+
+    def _calculate(self,) -> pd.Series:
+        a = self._quotes.loc[:, "close"]
+        b = self._quotes_b.loc[:, "close"]
+
+        return a / b

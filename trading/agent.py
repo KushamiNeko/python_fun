@@ -30,20 +30,32 @@ class TradingAgent:
         cls._ORDERS.append(o)
 
     @classmethod
-    def _delete_order(cls, index: int,) -> None:
+    def _delete_order(cls, index: int) -> None:
         del cls._ORDERS[index]
 
     @classmethod
-    def _check_orders(cls, stop_price: float) -> Optional[List[TransactionOrder]]:
+    def _delete_all_orders(cls) -> None:
+        cls._ORDERS = []
+
+    @classmethod
+    def _check_orders(cls, price: float) -> Optional[List[TransactionOrder]]:
+        indexes = []
         orders = []
 
-        for order in cls._ORDERS:
+        for i, order in enumerate(cls._ORDERS):
             if order.operation() == "+":
-                if order.price() >= stop_price:
+                if order.price() <= price:
                     orders.append(order)
+                    indexes.append(i)
             elif order.operation() == "-":
-                if order.price() <= stop_price:
+                if order.price() >= price:
                     orders.append(order)
+                    indexes.append(i)
+            else:
+                raise ValueError("invalid operation")
+
+        for i in indexes:
+            del cls._ORDERS[i]
 
         if len(orders) == 0:
             return None
@@ -115,19 +127,24 @@ class TradingAgent:
     def delete_order(self, index: int) -> None:
         self._delete_order(index)
 
+    def delete_all_orders(self) -> None:
+        self._delete_all_orders()
+
     def read_orders(self) -> List[TransactionOrder]:
         return self._ORDERS
 
-    def check_orders(self, title: str, dtime: datetime, stop_price: float) -> None:
-        orders = self._check_orders(stop_price)
-        if orders is None:
+    def check_orders(
+        self, title: str, dtime: datetime, price: float, new_book: bool = False
+    ) -> None:
+        orders = self._check_orders(price)
+        if orders is None or len(orders) == 0:
             return
         else:
             for order in orders:
                 entity = order.to_entity()
-                entity["datetime"] = dtime.strftime("%Y%m%b")
+                entity["datetime"] = dtime.strftime("%Y%m%d")
 
-                self.new_record(title, entity)
+                self.new_record(title, entity, new_book=new_book)
 
     def new_record(
         self, title: str, entity: Dict[str, str], new_book: bool = False
@@ -176,7 +193,7 @@ class TradingAgent:
             )
             if entities is None or len(entities) == 0:
                 continue
-
+            else:
                 ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 
         return ts

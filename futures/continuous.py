@@ -1,24 +1,30 @@
 import re
 from datetime import datetime
-from typing import cast
+from typing import Optional
 
 import pandas as pd
-from fun.utils import pretty, colors
 
 from fun.data.source import DAILY, FREQUENCY, WEEKLY, daily_to_weekly
 from fun.futures.contract import (
     ALL_CONTRACT_MONTHS,
     BARCHART,
+    CONTRACT_MONTHS,
     EVEN_CONTRACT_MONTHS,
     FINANCIAL_CONTRACT_MONTHS,
     contract_list,
-    CONTRACT_MONTHS,
 )
-from fun.futures.rolling import RollingMethod
+from fun.futures.rolling import (
+    RATIO,
+    LastNTradingDays,
+    RollingMethod,
+    VolumeAndOpenInterest,
+)
+from fun.utils import colors, pretty
 
 
 class ContinuousContract:
-    def _contract_months(self, symbol: str) -> CONTRACT_MONTHS:
+    @classmethod
+    def _default_contract_months(cls, symbol: str) -> CONTRACT_MONTHS:
         months: CONTRACT_MONTHS
         if symbol == "cl":
             months = ALL_CONTRACT_MONTHS
@@ -31,24 +37,45 @@ class ContinuousContract:
 
         return months
 
+    @classmethod
+    def _default_rolling_method(cls, symbol: str) -> RollingMethod:
+        if symbol == "cl":
+            return VolumeAndOpenInterest(
+                backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
+        elif symbol == "gc":
+            return VolumeAndOpenInterest(
+                backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
+        else:
+            return LastNTradingDays(offset=4, adjustment_method=RATIO)
+
     def read(
         self,
         start: datetime,
         end: datetime,
         symbol: str,
         frequency: FREQUENCY,
-        rolling_method: RollingMethod,
+        contract_months: Optional[CONTRACT_MONTHS] = None,
+        rolling_method: Optional[RollingMethod] = None,
     ) -> pd.DataFrame:
 
         assert re.match(r"^\w+$", symbol) is not None
         assert frequency in (DAILY, WEEKLY)
-        assert rolling_method is not None
+
+        if contract_months is None:
+            contract_months = self._default_contract_months(symbol)
+
+        if rolling_method is None:
+            rolling_method = self._default_rolling_method(symbol)
 
         cs = contract_list(
             start=start,
             end=end,
             symbol=symbol,
-            months=self._contract_months(symbol),
+            months=contract_months,
             fmt=BARCHART,
             read_data=True,
         )

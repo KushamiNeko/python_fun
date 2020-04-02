@@ -20,7 +20,7 @@ class TestQuotesCache(unittest.TestCase):
                 "end": "20190601",
                 "symbol": "es",
                 "frequency": DAILY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
             {
                 # forward None
@@ -30,7 +30,7 @@ class TestQuotesCache(unittest.TestCase):
                 "end": datetime.now().strftime("%Y%m%d"),
                 "symbol": "es",
                 "frequency": DAILY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
             {
                 # backward None
@@ -40,7 +40,7 @@ class TestQuotesCache(unittest.TestCase):
                 "end": "20200101",
                 "symbol": "es",
                 "frequency": DAILY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
             {
                 "exstart": "20020101",
@@ -49,7 +49,7 @@ class TestQuotesCache(unittest.TestCase):
                 "end": "20070101",
                 "symbol": "es",
                 "frequency": WEEKLY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
             {
                 # forward None
@@ -59,7 +59,7 @@ class TestQuotesCache(unittest.TestCase):
                 "end": datetime.now().strftime("%Y%m%d"),
                 "symbol": "es",
                 "frequency": WEEKLY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
             {
                 # backward None
@@ -69,11 +69,11 @@ class TestQuotesCache(unittest.TestCase):
                 "end": "20180101",
                 "symbol": "es",
                 "frequency": WEEKLY,
-                "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
+                # "rolling": LastNTradingDays(offset=4, adjustment_method=RATIO),
             },
         ]
     )
-    def test_in_range(self, exstart, exend, start, end, symbol, frequency, rolling):
+    def test_in_range(self, exstart, exend, start, end, symbol, frequency):
         c = ContinuousContract()
 
         exs = datetime.strptime(exstart, "%Y%m%d")
@@ -82,7 +82,7 @@ class TestQuotesCache(unittest.TestCase):
         s = datetime.strptime(start, "%Y%m%d")
         e = datetime.strptime(end, "%Y%m%d")
 
-        df = c.read(exs, exe, symbol, frequency, rolling)
+        df = c.read(exs, exe, symbol, frequency)
         columns = df.columns
 
         original = df.copy()
