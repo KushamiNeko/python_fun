@@ -114,7 +114,6 @@ class Statistic:
         days = 0
         for t in trades:
             days += (t.close_time() - t.open_time()).days
-            print(days)
 
         return float(days) / float(length)
 

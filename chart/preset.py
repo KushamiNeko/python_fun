@@ -23,16 +23,10 @@ from fun.data.source import (
     Yahoo,
 )
 from fun.futures.continuous import ContinuousContract
-# from fun.futures.rolling import (
-    # RATIO,
-    # LastNTradingDays,
-    # RollingMethod,
-    # VolumeAndOpenInterest,
-# )
 from fun.plotter.indicator import BollinggerBand, SimpleMovingAverage
-from fun.plotter.records import LeverageRecords
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
+from fun.plotter.records import LeverageRecords
 from fun.trading.transaction import FuturesTransaction
 
 
@@ -134,26 +128,11 @@ class ChartPreset:
 
         df: pd.DataFrame
         if src is None:
-            # rolling_method: RollingMethod
-            # if self._symbol == "cl":
-                # rolling_method = VolumeAndOpenInterest(
-                    # backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
-                    # adjustment_method=RATIO,
-                # )
-            # elif self._symbol == "gc":
-                # rolling_method = VolumeAndOpenInterest(
-                    # backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
-                    # adjustment_method=RATIO,
-                # )
-            # else:
-                # rolling_method = LastNTradingDays(offset=4, adjustment_method=RATIO)
-
             df = ContinuousContract().read(
                 start=self._exstime,
                 end=self._exetime,
                 symbol=self._symbol,
                 frequency=self._frequency,
-                # rolling_method=rolling_method,
             )
         else:
             df = src.read(

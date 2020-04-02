@@ -4,13 +4,35 @@ from typing import cast
 
 from fun.utils.jsondb import JsonDB
 from fun.utils.testing import parameterized
+from fun.utils import pretty, colors
 
 
 class TestJsonDB(unittest.TestCase):
+    def _check_root(self, root):
+        if not os.path.exists(root):
+            os.makedirs(root)
+        else:
+            for f in os.listdir(root):
+                pretty.color_print(
+                    colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+                )
+                os.remove(os.path.join(root, f))
 
-    test_root = os.path.join(
-        cast(str, os.getenv("HOME")), "Documents", "database", "json", "testing"
-    )
+        self.assertTrue(os.path.exists(root))
+
+    def _clean_root(self, root):
+        for f in os.listdir(root):
+            pretty.color_print(
+                colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+            )
+            os.remove(os.path.join(root, f))
+
+            self.assertFalse(os.path.exists(os.path.join(root, f)))
+
+        pretty.color_print(colors.PAPER_RED_500, f"removing dir {root}")
+        os.rmdir(root)
+
+        self.assertFalse(os.path.exists(root))
 
     def _check_database(self, database, db, col, entities, queries, expected):
         for i, q in enumerate(queries):
@@ -39,9 +61,6 @@ class TestJsonDB(unittest.TestCase):
             database.delete(db, col, entity)
             result = database.find(db, col, entity)
             self.assertIsNone(result)
-
-    def setUp(self):
-        self.assertTrue(os.path.exists(self.test_root))
 
     @parameterized(
         [
@@ -256,16 +275,26 @@ class TestJsonDB(unittest.TestCase):
     def test_db(
         self, entities, queries, expected, new_entities, new_queries, new_expected
     ):
+
+        root = os.path.join(
+            cast(str, os.getenv("HOME")),
+            "Documents",
+            "database",
+            "json",
+            "testing",
+            "db",
+        )
+
+        self._check_root(root)
+
         db = "test"
         col = "test"
 
-        database = JsonDB(database_root=self.test_root)
+        database = JsonDB(database_root=root)
 
-        if os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json")):
+        if os.path.exists(os.path.join(root, f"{db}_{col}.json")):
             database.drop(db, col)
-            self.assertFalse(
-                os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
-            )
+            self.assertFalse(os.path.exists(os.path.join(root, f"{db}_{col}.json")))
 
         database.insert(db, col, *entities)
 
@@ -284,9 +313,9 @@ class TestJsonDB(unittest.TestCase):
             )
 
         database.drop(db, col)
-        self.assertFalse(
-            os.path.exists(os.path.join(self.test_root, f"{db}_{col}.json"))
-        )
+        self.assertFalse(os.path.exists(os.path.join(root, f"{db}_{col}.json")))
+
+        self._clean_root(root)
 
 
 if __name__ == "__main__":

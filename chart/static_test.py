@@ -18,7 +18,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "20200101",
                 "symbol": "es",
                 "freqneucy": DAILY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -27,7 +26,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19990101",
                 "symbol": "es",
                 "freqneucy": DAILY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -36,7 +34,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19980101",
                 "symbol": "es",
                 "freqneucy": DAILY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -45,7 +42,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19970101",
                 "symbol": "es",
                 "freqneucy": DAILY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": ValueError,
             },
@@ -54,7 +50,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19960101",
                 "symbol": "es",
                 "freqneucy": DAILY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": ValueError,
             },
@@ -63,7 +58,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "20200101",
                 "symbol": "es",
                 "freqneucy": WEEKLY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -72,7 +66,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19990101",
                 "symbol": "es",
                 "freqneucy": WEEKLY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -81,7 +74,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19980101",
                 "symbol": "es",
                 "freqneucy": WEEKLY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": None,
             },
@@ -90,7 +82,6 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19970101",
                 "symbol": "es",
                 "freqneucy": WEEKLY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": ValueError,
             },
@@ -99,15 +90,12 @@ class TestStaticCandleSticks(unittest.TestCase):
                 "end": "19960101",
                 "symbol": "es",
                 "freqneucy": WEEKLY,
-                # "rolling_method": LastNTradingDays(offset=4, adjustment_method=RATIO),
                 "make_slice": True,
                 "error": ValueError,
             },
         ]
     )
-    def test_plot(
-        self, start, end, symbol, freqneucy, make_slice, error
-    ):
+    def test_plot(self, start, end, symbol, freqneucy, make_slice, error):
         c = ContinuousContract()
 
         s = datetime.strptime(start, "%Y%m%d")

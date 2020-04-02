@@ -24,8 +24,6 @@ class CandleSticks(Plotter):
         self._color_unchanged = color_unchanged
 
     def plot(self, ax: axes.Axes) -> None:
-        # ax.set_xlim(*self.chart_xrange())
-        # ax.set_ylim(*self.chart_yrange())
 
         for index, df in enumerate(self._quotes.itertuples()):
 
@@ -83,5 +81,3 @@ class CandleSticks(Plotter):
                 color=color,
                 zorder=5,
             )
-
-        # ax.autoscale_view()

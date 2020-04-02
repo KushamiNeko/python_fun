@@ -85,60 +85,6 @@ class CandleSticks(base.CandleSticks):
 
         ax.yaxis.tick_right()
 
-    # def _plot_candlesticks(self, ax: axes.Axes) -> None:
-    # ax.set_xlim(*self.chart_xrange())
-    # ax.set_ylim(*self.chart_yrange())
-
-    # for index, df in enumerate(self._quotes.itertuples()):
-
-    # p_open = df.open
-    # p_high = df.high
-    # p_low = df.low
-    # p_close = df.close
-
-    # p_body_top: float
-    # p_body_bottom: float
-
-    # if p_open > p_close:
-    # p_body_top = p_open
-    # p_body_bottom = p_close
-    # else:
-    # p_body_top = p_close
-    # p_body_bottom = p_open
-
-    # assert p_body_top is not None
-    # assert p_body_bottom is not None
-
-    # if abs(p_open - p_close) < self._minimum_height():
-    # mid = (p_open + p_close) / 2.0
-    # mid_height = self._minimum_height() / 2.0
-    # p_body_top = mid + mid_height
-    # p_body_bottom = mid - mid_height
-
-    # color = self._theme.get_color("unchanged")
-
-    # if p_close > p_open:
-    # color = self._theme.get_color("up")
-    # elif p_close < p_open:
-    # color = self._theme.get_color("down")
-
-    # ax.plot(
-    # [index, index],
-    # [p_high, p_low],
-    # linewidth=self._setting.shadow_width(),
-    # color=color,
-    # zorder=5,
-    # )
-    # ax.plot(
-    # [index, index],
-    # [p_body_top, p_body_bottom],
-    # linewidth=self._setting.body_width(),
-    # color=color,
-    # zorder=5,
-    # )
-
-    # ax.autoscale_view()
-
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:
             return None
@@ -177,8 +123,6 @@ class CandleSticks(base.CandleSticks):
 
         ax.set_xlim(*self.chart_xrange())
         ax.set_ylim(*self.chart_yrange())
-
-        # self._plot_candlesticks(ax)
 
         CandleSticksPlotter(
             quotes=self._quotes,

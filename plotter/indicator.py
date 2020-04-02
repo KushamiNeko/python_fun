@@ -82,7 +82,6 @@ class SimpleMovingAverage(Indicator):
         )
 
         self._n = n
-        # self._quotes = quotes
 
     def _calculate(self) -> pd.Series:
         return self._quotes.loc[:, "close"].rolling(self._n).mean()
@@ -112,7 +111,6 @@ class BollinggerBand(Indicator):
 
         self._n = n
         self._m = m
-        # self._quotes = quotes
 
     def _calculate(self,) -> List[pd.DataFrame]:
         mean = self._quotes.loc[:, "close"].rolling(self._n).mean()
@@ -144,7 +142,6 @@ class RelativeStrength(Indicator):
             line_width=line_width,
         )
 
-        # self._quotes_a = quotes_a
         self._quotes_b = quotes_b
 
     def _calculate(self,) -> pd.Series:
