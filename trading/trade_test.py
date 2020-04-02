@@ -306,8 +306,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10000,
                     "average_close": 10100,
-                    "nominal_profit": 0.01,
-                    "leveraged_profit": 0.01,
+                    "nominal_pl": 0.01,
+                    "leveraged_pl": 0.01,
                 },
             },
             {
@@ -335,8 +335,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10000,
                     "average_close": 10100,
-                    "nominal_profit": 0.01,
-                    "leveraged_profit": 0.02,
+                    "nominal_pl": 0.01,
+                    "leveraged_pl": 0.02,
                 },
             },
             {
@@ -378,8 +378,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": -2732.375,
                     "average_close": 2776.625,
-                    "nominal_profit": 0.01619470241,
-                    "leveraged_profit": 0.03238940482,
+                    "nominal_pl": 0.01619470241,
+                    "leveraged_pl": 0.03238940482,
                 },
             },
             {
@@ -421,8 +421,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": -2735.583333333,
                     "average_close": 2776.75,
-                    "nominal_profit": 0.01504858805,
-                    "leveraged_profit": 0.04514576415,
+                    "nominal_pl": 0.01504858805,
+                    "leveraged_pl": 0.04514576415,
                 },
             },
             {
@@ -457,8 +457,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10025,
                     "average_close": 10100,
-                    "nominal_profit": 0.007481297,
-                    "leveraged_profit": 0.014962594,
+                    "nominal_pl": 0.007481297,
+                    "leveraged_pl": 0.014962594,
                 },
             },
             {
@@ -486,8 +486,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10000,
                     "average_close": 9900,
-                    "nominal_profit": -0.01,
-                    "leveraged_profit": -0.01,
+                    "nominal_pl": -0.01,
+                    "leveraged_pl": -0.01,
                 },
             },
             {
@@ -515,8 +515,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10000,
                     "average_close": 9900,
-                    "nominal_profit": -0.01,
-                    "leveraged_profit": -0.02,
+                    "nominal_pl": -0.01,
+                    "leveraged_pl": -0.02,
                 },
             },
             {
@@ -558,8 +558,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": -2732.375,
                     "average_close": 2723.75,
-                    "nominal_profit": -0.00315659454,
-                    "leveraged_profit": -0.00631319,
+                    "nominal_pl": -0.00315659454,
+                    "leveraged_pl": -0.00631319,
                 },
             },
             {
@@ -601,8 +601,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": -2735.583333333,
                     "average_close": 2723.166666667,
-                    "nominal_profit": -0.0045389466,
-                    "leveraged_profit": -0.0136168398,
+                    "nominal_pl": -0.0045389466,
+                    "leveraged_pl": -0.0136168398,
                 },
             },
             {
@@ -637,8 +637,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": -10025,
                     "average_close": 9925,
-                    "nominal_profit": -0.00997506234,
-                    "leveraged_profit": -0.01995012468,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012468,
                 },
             },
             {
@@ -666,8 +666,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 74.4,
                     "average_close": -73.05,
-                    "nominal_profit": 0.01814516129,
-                    "leveraged_profit": 0.01814516129,
+                    "nominal_pl": 0.01814516129,
+                    "leveraged_pl": 0.01814516129,
                 },
             },
             {
@@ -695,8 +695,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 74.4,
                     "average_close": -73.05,
-                    "nominal_profit": 0.01814516129,
-                    "leveraged_profit": 0.03629032258,
+                    "nominal_pl": 0.01814516129,
+                    "leveraged_pl": 0.03629032258,
                 },
             },
             {
@@ -738,8 +738,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": 73.725,
                     "average_close": -50.17,
-                    "nominal_profit": 0.31949813496,
-                    "leveraged_profit": 0.63899626992,
+                    "nominal_pl": 0.31949813496,
+                    "leveraged_pl": 0.63899626992,
                 },
             },
             {
@@ -781,8 +781,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": 73.5,
                     "average_close": -48.956666667,
-                    "nominal_profit": 0.33392290249,
-                    "leveraged_profit": 1.00176870748,
+                    "nominal_pl": 0.33392290249,
+                    "leveraged_pl": 1.00176870748,
                 },
             },
             {
@@ -817,8 +817,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 10025,
                     "average_close": -8020,
-                    "nominal_profit": 0.20,
-                    "leveraged_profit": 0.40,
+                    "nominal_pl": 0.20,
+                    "leveraged_pl": 0.40,
                 },
             },
             {
@@ -846,8 +846,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 74.4,
                     "average_close": -75.15,
-                    "nominal_profit": -0.01008064516,
-                    "leveraged_profit": -0.01008064516,
+                    "nominal_pl": -0.01008064516,
+                    "leveraged_pl": -0.01008064516,
                 },
             },
             {
@@ -875,8 +875,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 74.4,
                     "average_close": -75.15,
-                    "nominal_profit": -0.01008064516,
-                    "leveraged_profit": -0.02016129,
+                    "nominal_pl": -0.01008064516,
+                    "leveraged_pl": -0.02016129,
                 },
             },
             {
@@ -918,8 +918,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": 73.725,
                     "average_close": -74.45,
-                    "nominal_profit": -0.00983384198,
-                    "leveraged_profit": -0.01966768396,
+                    "nominal_pl": -0.00983384198,
+                    "leveraged_pl": -0.01966768396,
                 },
             },
             {
@@ -961,8 +961,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190318",
                     "average_open": 73.5,
                     "average_close": -74.233333333,
-                    "nominal_profit": -0.00997732426,
-                    "leveraged_profit": -0.02993197279,
+                    "nominal_pl": -0.00997732426,
+                    "leveraged_pl": -0.02993197279,
                 },
             },
             {
@@ -997,8 +997,8 @@ class TestFuturesTrade(unittest.TestCase):
                     "close_time": "20190315",
                     "average_open": 10025,
                     "average_close": -10125,
-                    "nominal_profit": -0.00997506234,
-                    "leveraged_profit": -0.01995012469,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
                 },
             },
         ]
@@ -1020,9 +1020,9 @@ class TestFuturesTrade(unittest.TestCase):
         self.assertAlmostEqual(trade.average_open(), expected["average_open"])
         self.assertAlmostEqual(trade.average_close(), expected["average_close"])
 
-        self.assertAlmostEqual(trade.nominal_profit(), expected["nominal_profit"])
+        self.assertAlmostEqual(trade.nominal_pl(), expected["nominal_pl"])
         self.assertAlmostEqual(
-            trade.leveraged_profit(), expected["leveraged_profit"], places=6
+            trade.leveraged_pl(), expected["leveraged_pl"], places=6
         )
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List
 
 from fun.trading.transaction import FuturesTransaction
@@ -15,7 +15,9 @@ class FuturesTrade:
 
         assert orders is not None and len(orders) > 0
 
-        self._orders = sorted(orders, key=lambda o: o.time_stamp())
+        self._orders = sorted(
+            orders, key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+        )
 
         self._open_orders: List[FuturesTransaction]
         self._close_orders: List[FuturesTransaction]
@@ -105,15 +107,11 @@ class FuturesTrade:
 
         return average_close
 
-    def nominal_profit(self) -> float:
-        # return (
-        # (self.average_close() + self.average_open()) / abs(self.average_open())
-        # ) * 100.0
-
+    def nominal_pl(self) -> float:
         return (self.average_close() + self.average_open()) / abs(self.average_open())
 
-    def leveraged_profit(self) -> float:
-        return self.nominal_profit() * self.leverage()
+    def leveraged_pl(self) -> float:
+        return self.nominal_pl() * self.leverage()
 
     def to_entity(self) -> Dict[str, str]:
         return {
@@ -124,6 +122,6 @@ class FuturesTrade:
             "close_time": self.close_time().strftime("%y%m%d"),
             "average_open": f"{self.average_open()}",
             "average_close": f"{self.average_close()}",
-            "nominal_profit": f"{self.nominal_profit()*100.0:.{self._float_decimals}f}%",
-            "leveraged_profit": f"{self.leveraged_profit()*100.0:.{self._float_decimals}f}%",
+            "nominal_pl": f"{self.nominal_pl()*100.0:.{self._float_decimals}f}%",
+            "leveraged_pl": f"{self.leveraged_pl()*100.0:.{self._float_decimals}f}%",
         }

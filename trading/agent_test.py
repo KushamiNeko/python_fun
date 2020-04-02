@@ -46,28 +46,36 @@ class TestTradingAgent(unittest.TestCase):
         if remove_db:
             jsonDB.drop(db, col)
 
-    @parameterized(
-        [
-            {"user_name": "new", "new_user": True, "error": None,},
-            {"user_name": "nonexist", "new_user": False, "error": ValueError,},
-        ]
-    )
-    def test_init(self, user_name, new_user, error):
-        if os.path.exists(os.path.join(self._root, "admin_user.json")):
-            jsonDB = JsonDB(self._root)
-            jsonDB.drop("admin", "user")
+    # @parameterized(
+    #     [
+    #         {"user_name": "new", "new_user": True, "error": None,},
+    #         {"user_name": "nonexist", "new_user": False, "error": ValueError,},
+    #     ]
+    # )
+    # def test_init(self, user_name, new_user, error):
+    #     if os.path.exists(os.path.join(self._root, "admin_user.json")):
+    #         jsonDB = JsonDB(self._root)
+    #         jsonDB.drop("admin", "user")
 
-        if error is not None:
-            with self.assertRaises(ValueError):
-                TradingAgent(
-                    self._root, user_name=user_name, new_user=new_user,
-                )
-        else:
-            TradingAgent(
-                self._root, user_name=user_name, new_user=new_user,
-            )
+    #     if error is not None:
+    #         with self.assertRaises(ValueError):
+    #             TradingAgent(
+    #                 self._root, user_name=user_name, new_user=new_user,
+    #             )
+    #     else:
+    #         TradingAgent(
+    #             self._root, user_name=user_name, new_user=new_user,
+    #         )
 
-            self._check_database("admin", "user", [{"name": "new", "uid": ""}])
+    #         self._check_database("admin", "user", [{"name": "new", "uid": ""}])
+
+    # def test_read_trades(self):
+    #     agent = TradingAgent(
+    #         self._root,
+    #     )
+
+    #     agent.read_trades("")
+
 
     def test_new_order(self):
         pass

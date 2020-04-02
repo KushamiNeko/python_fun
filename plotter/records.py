@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib import axes
@@ -59,16 +58,13 @@ class LeverageRecords(TextPlotter):
             ops == 0,
             "X",
             np.vectorize(lambda v: f"{v[0].strip()}\n{v[1:].strip()}")(
-                np.vectorize(lambda v: f"L{v:.0f}" if v > 0 else f"S{v:.0f}")(ops)
+                np.vectorize(lambda v: f"L{abs(v):.0f}" if v > 0 else f"S{abs(v):.0f}")(ops)
             ),
         )
 
         highs = self._quotes.loc[:, "high"]
         lows = self._quotes.loc[:, "low"]
         middle = (highs.max() + lows.min()) / 2.0
-
-        # if ax is None:
-        #     ax = plt.gca()
 
         for i, x in enumerate(unique):
             h = highs.iloc[x]
@@ -78,7 +74,7 @@ class LeverageRecords(TextPlotter):
             y = l * (1 - self._offset) if m > middle else h * (1 + self._offset)
             va = "top" if m > middle else "bottom"
 
-            text = "".join([labels[j] for j in np.argwhere(loc == x).flatten()])
+            text = "\n".join([labels[j] for j in np.argwhere(loc == x).flatten()])
 
             ax.text(
                 x,

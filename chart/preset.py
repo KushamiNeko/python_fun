@@ -75,7 +75,7 @@ class ChartPreset:
         elif self._frequency == DAILY:
             stime = etime - timedelta(days=365)
         elif self._frequency == WEEKLY:
-            stime = etime - timedelta(days=365 * 4)
+            stime = etime - timedelta(days=365 * 5)
         elif self._frequency == MONTHLY:
             stime = etime - timedelta(days=368 * 18)
         else:

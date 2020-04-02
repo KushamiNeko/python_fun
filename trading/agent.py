@@ -1,10 +1,13 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+import numpy as np
 
 from fun.trading.book import TradingBook
 from fun.trading.order import TransactionOrder
 from fun.trading.transaction import FuturesTransaction
+from fun.trading.statistic import Statistic
+from fun.trading.trade import FuturesTrade
 from fun.utils.helper import random_string
 from fun.utils.jsondb import JsonDB
 
@@ -27,8 +30,8 @@ class TradingAgent:
         cls._ORDERS.append(o)
 
     @classmethod
-    def _edit_order(cls, old_entity: Dict[str, str], new_entiry: Dict[str, str]) -> None:
-        pass
+    def _delete_order(cls, index: int,) -> None:
+        del cls._ORDERS[index]
 
     @classmethod
     def _check_orders(cls, stop_price: float) -> Optional[List[TransactionOrder]]:
@@ -106,6 +109,26 @@ class TradingAgent:
         else:
             return None
 
+    def new_order(self, entity: Dict[str, str]) -> None:
+        self._new_order(entity)
+
+    def delete_order(self, index: int) -> None:
+        self._delete_order(index)
+
+    def read_orders(self) -> List[TransactionOrder]:
+        return self._ORDERS
+
+    def check_orders(self, title: str, dtime: datetime, stop_price: float) -> None:
+        orders = self._check_orders(stop_price)
+        if orders is None:
+            return
+        else:
+            for order in orders:
+                entity = order.to_entity()
+                entity["datetime"] = dtime.strftime("%Y%m%b")
+
+                self.new_record(title, entity)
+
     def new_record(
         self, title: str, entity: Dict[str, str], new_book: bool = False
     ) -> FuturesTransaction:
@@ -126,20 +149,6 @@ class TradingAgent:
 
         return t
 
-    def new_order(self, entity: Dict[str, str]) -> None:
-        self._new_order(entity)
-
-    def check_orders(self, title: str, dtime: datetime, stop_price: float) -> None:
-        orders = self._check_orders(stop_price)
-        if orders is None:
-            return
-        else:
-            for order in orders:
-                entity = order.to_entity()
-                entity["datetime"] = dtime.strftime("%Y%m%b")
-
-                self.new_record(title, entity)
-
     def read_records(self, title: str) -> Optional[List[FuturesTransaction]]:
         assert title != ""
 
@@ -147,7 +156,10 @@ class TradingAgent:
         if book is not None:
             entities = self._db.find(self._DB_TRADING_RECORDS, book.index(), query=None)
             if entities is not None and len(entities) != 0:
-                return [FuturesTransaction.from_entity(e) for e in entities]
+                return sorted(
+                    [FuturesTransaction.from_entity(e) for e in entities],
+                    key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+                )
 
         return None
 
@@ -168,3 +180,47 @@ class TradingAgent:
                 ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 
         return ts
+
+    def read_trades(self, title: str) -> Optional[List[FuturesTrade]]:
+        ts = self.read_records(title)
+        if ts is None:
+            return None
+        else:
+            return self._process_trades(ts)
+
+    def read_statistic(self, titles: List[str]) -> Dict[str, str]:
+        trades = []
+
+        for title in titles:
+            ts = self.read_trades(title)
+            if ts is not None and len(ts) > 0:
+                trades.extend(ts)
+
+        if len(trades) > 0:
+            return Statistic(trades).to_entity()
+        else:
+            return {}
+
+    def _process_trades(
+        self, transactions: List[FuturesTransaction]
+    ) -> List[FuturesTrade]:
+
+        transactions.sort(
+            key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+        )
+
+        ops = np.add.accumulate(
+            [float(f"{t.operation()}{t.leverage()}") for t in transactions]
+        )
+
+        where = np.argwhere(ops == 0).flatten()
+
+        trades: List[FuturesTrade] = []
+
+        for i, w in enumerate(where):
+            s = 0 if i == 0 else where[i - 1] + 1
+            e = w + 1
+
+            trades.append(FuturesTrade(transactions[s:e]))
+
+        return trades
