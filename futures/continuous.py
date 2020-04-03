@@ -118,4 +118,19 @@ class ContinuousContract:
         if frequency == WEEKLY:
             link = daily_to_weekly(link)
 
+        length = len(link)
+
+        na = link.isna().any(axis=1)
+        if na.any():
+            pretty.color_print(
+                colors.PAPER_AMBER_300,
+                f"dropping {len(link.loc[na])} rows containing nan from {symbol.upper()}",
+            )
+
+            dropped_length = len(link.loc[na])
+
+            link = link.dropna()
+
+            assert length == len(link) + dropped_length
+
         return link

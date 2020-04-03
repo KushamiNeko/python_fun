@@ -118,6 +118,11 @@ class DataSource(metaclass=ABCMeta):
 
         df = df.sort_index()
 
+        if frequency == WEEKLY:
+            df = daily_to_weekly(df)
+
+        length = len(df)
+
         na = df.isna().any(axis=1)
         if na.any():
             pretty.color_print(
@@ -125,10 +130,11 @@ class DataSource(metaclass=ABCMeta):
                 f"dropping {len(df.loc[na])} rows containing nan from {symbol.upper()}",
             )
 
+            dropped_length = len(df.loc[na])
+
             df = df.dropna()
 
-        if frequency == WEEKLY:
-            df = daily_to_weekly(df)
+            assert length == len(df) + dropped_length
 
         return df.astype(np.float)
 

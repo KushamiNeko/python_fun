@@ -82,7 +82,23 @@ class TestStatistic(unittest.TestCase):
                     "leveraged_adjusted_win_loss_ratio_long": 5,
                     "leveraged_adjusted_win_loss_ratio_short": math.nan,
                     "nominal_expected_value": 0.02,
+                    "nominal_expected_value_long": 0.02,
+                    "nominal_expected_value_short": math.nan,
                     "leveraged_expected_value": 0.02,
+                    "leveraged_expected_value_long": 0.02,
+                    "leveraged_expected_value_short": math.nan,
+                    "winners_nominal_pl_mean": 0.05,
+                    "winners_nominal_pl_mean_long": 0.05,
+                    "winners_nominal_pl_mean_short": math.nan,
+                    "winners_leveraged_pl_mean": 0.05,
+                    "winners_leveraged_pl_mean_long": 0.05,
+                    "winners_leveraged_pl_mean_short": math.nan,
+                    "losers_nominal_pl_mean": -0.01,
+                    "losers_nominal_pl_mean_long": -0.01,
+                    "losers_nominal_pl_mean_short": math.nan,
+                    "losers_leveraged_pl_mean": -0.01,
+                    "losers_leveraged_pl_mean_long": -0.01,
+                    "losers_leveraged_pl_mean_short": math.nan,
                 },
             },
             {
@@ -152,7 +168,23 @@ class TestStatistic(unittest.TestCase):
                     "leveraged_adjusted_win_loss_ratio_long": 5,
                     "leveraged_adjusted_win_loss_ratio_short": math.nan,
                     "nominal_expected_value": 0.02,
+                    "nominal_expected_value_long": 0.02,
+                    "nominal_expected_value_short": math.nan,
                     "leveraged_expected_value": 0.04,
+                    "leveraged_expected_value_long": 0.04,
+                    "leveraged_expected_value_short": math.nan,
+                    "winners_nominal_pl_mean": 0.05,
+                    "winners_nominal_pl_mean_long": 0.05,
+                    "winners_nominal_pl_mean_short": math.nan,
+                    "winners_leveraged_pl_mean": 0.1,
+                    "winners_leveraged_pl_mean_long": 0.1,
+                    "winners_leveraged_pl_mean_short": math.nan,
+                    "losers_nominal_pl_mean": -0.01,
+                    "losers_nominal_pl_mean_long": -0.01,
+                    "losers_nominal_pl_mean_short": math.nan,
+                    "losers_leveraged_pl_mean": -0.02,
+                    "losers_leveraged_pl_mean_long": -0.02,
+                    "losers_leveraged_pl_mean_short": math.nan,
                 },
             },
             {
@@ -188,6 +220,7 @@ class TestStatistic(unittest.TestCase):
                             "price": 106.5,
                         },
                     ],
+                    # 0.04950495
                     [
                         # 21 days
                         {
@@ -212,6 +245,7 @@ class TestStatistic(unittest.TestCase):
                             "price": 98,
                         },
                     ],
+                    # -0.015
                 ],
                 "expect": {
                     "statistic_start": "20190914",
@@ -237,9 +271,29 @@ class TestStatistic(unittest.TestCase):
                     "leveraged_win_loss_ratio_long": 4.950495,
                     "leveraged_win_loss_ratio_short": math.nan,
                     "nominal_adjusted_win_loss_ratio": 3.300330033,
+                    "nominal_adjusted_win_loss_ratio_long": 3.300330033,
+                    "nominal_adjusted_win_loss_ratio_short": math.nan,
                     "leveraged_adjusted_win_loss_ratio": 4.950495,
+                    "leveraged_adjusted_win_loss_ratio_long": 4.950495,
+                    "leveraged_adjusted_win_loss_ratio_short": math.nan,
                     "nominal_expected_value": 0.017252475,
+                    "nominal_expected_value_long": 0.017252475,
+                    "nominal_expected_value_short": math.nan,
                     "leveraged_expected_value": 0.059257425,
+                    "leveraged_expected_value_long": 0.059257425,
+                    "leveraged_expected_value_short": math.nan,
+                    "winners_nominal_pl_mean": 0.04950495,
+                    "winners_nominal_pl_mean_long": 0.04950495,
+                    "winners_nominal_pl_mean_short": math.nan,
+                    "winners_leveraged_pl_mean": 0.14851485,
+                    "winners_leveraged_pl_mean_long": 0.14851485,
+                    "winners_leveraged_pl_mean_short": math.nan,
+                    "losers_nominal_pl_mean": -0.015,
+                    "losers_nominal_pl_mean_long": -0.015,
+                    "losers_nominal_pl_mean_short": math.nan,
+                    "losers_leveraged_pl_mean": -0.03,
+                    "losers_leveraged_pl_mean_long": -0.03,
+                    "losers_leveraged_pl_mean_short": math.nan,
                 },
             },
             {
@@ -402,9 +456,29 @@ class TestStatistic(unittest.TestCase):
                     "leveraged_win_loss_ratio_long": 4.950495,
                     "leveraged_win_loss_ratio_short": 16,
                     "nominal_adjusted_win_loss_ratio": 8.380198,
+                    "nominal_adjusted_win_loss_ratio_long": 3.30033,
+                    "nominal_adjusted_win_loss_ratio_short": 16.000000008,
                     "leveraged_adjusted_win_loss_ratio": 11.71287125,
+                    "leveraged_adjusted_win_loss_ratio_long": 4.950495,
+                    "leveraged_adjusted_win_loss_ratio_short": 32.000000016,
                     "nominal_expected_value": 0.03690099,
+                    "nominal_expected_value_long": 0.017252475,
+                    "nominal_expected_value_short": 0.05,
                     "leveraged_expected_value": 0.08570297,
+                    "leveraged_expected_value_long": 0.059257425,
+                    "leveraged_expected_value_short": 0.103333333,
+                    "winners_nominal_pl_mean": 0.069834983,
+                    "winners_nominal_pl_mean_long": 0.04950495,
+                    "winners_nominal_pl_mean_short": 0.08,
+                    "winners_leveraged_pl_mean": 0.156171617,
+                    "winners_leveraged_pl_mean_long": 0.14851485,
+                    "winners_leveraged_pl_mean_short": 0.16,
+                    "losers_nominal_pl_mean": -0.0125,
+                    "losers_nominal_pl_mean_long": -0.015,
+                    "losers_nominal_pl_mean_short": -0.01,
+                    "losers_leveraged_pl_mean": -0.02,
+                    "losers_leveraged_pl_mean_long": -0.03,
+                    "losers_leveraged_pl_mean_short": -0.01,
                 },
             },
         ]
@@ -483,51 +557,94 @@ class TestStatistic(unittest.TestCase):
             stat.nominal_adjusted_win_loss_ratio(),
             expect["nominal_adjusted_win_loss_ratio"],
         )
+        self._assert_with_nan(
+            stat.nominal_adjusted_win_loss_ratio_long(),
+            expect["nominal_adjusted_win_loss_ratio_long"],
+        )
+        self._assert_with_nan(
+            stat.nominal_adjusted_win_loss_ratio_short(),
+            expect["nominal_adjusted_win_loss_ratio_short"],
+        )
 
         self._assert_with_nan(
             stat.leveraged_adjusted_win_loss_ratio(),
             expect["leveraged_adjusted_win_loss_ratio"],
         )
+        self._assert_with_nan(
+            stat.leveraged_adjusted_win_loss_ratio_long(),
+            expect["leveraged_adjusted_win_loss_ratio_long"],
+        )
+        self._assert_with_nan(
+            stat.leveraged_adjusted_win_loss_ratio_short(),
+            expect["leveraged_adjusted_win_loss_ratio_short"],
+        )
 
         self._assert_with_nan(
             stat.nominal_expected_value(), expect["nominal_expected_value"]
+        )
+        self._assert_with_nan(
+            stat.nominal_expected_value_long(), expect["nominal_expected_value_long"]
+        )
+        self._assert_with_nan(
+            stat.nominal_expected_value_short(), expect["nominal_expected_value_short"]
         )
 
         self._assert_with_nan(
             stat.leveraged_expected_value(), expect["leveraged_expected_value"]
         )
+        self._assert_with_nan(
+            stat.leveraged_expected_value_long(),
+            expect["leveraged_expected_value_long"],
+        )
+        self._assert_with_nan(
+            stat.leveraged_expected_value_short(),
+            expect["leveraged_expected_value_short"],
+        )
 
-        # "nominal_adjusted_win_loss_ratio": f"{self.nominal_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-        # "nominal_adjusted_win_loss_ratio_long": f"{self.nominal_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
-        # "nominal_adjusted_win_loss_ratio_short": f"{self.nominal_adjusted_win_loss_ratio_short():.{self._float_decimals}f}",
+        self._assert_with_nan(
+            stat.winners_nominal_pl_mean(), expect["winners_nominal_pl_mean"],
+        )
+        self._assert_with_nan(
+            stat.winners_nominal_pl_mean_long(), expect["winners_nominal_pl_mean_long"],
+        )
+        self._assert_with_nan(
+            stat.winners_nominal_pl_mean_short(),
+            expect["winners_nominal_pl_mean_short"],
+        )
 
-        # "leveraged_adjusted_win_loss_ratio": f"{self.leveraged_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-        # "leveraged_adjusted_win_loss_ratio_long": f"{self.leveraged_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
-        # "leveraged_adjusted_win_loss_ratio_short": f"{self.leveraged_adjusted_win_loss_ratio_short():.{self._float_decimals}f}",
+        self._assert_with_nan(
+            stat.winners_leveraged_pl_mean(), expect["winners_leveraged_pl_mean"],
+        )
+        self._assert_with_nan(
+            stat.winners_leveraged_pl_mean_long(),
+            expect["winners_leveraged_pl_mean_long"],
+        )
+        self._assert_with_nan(
+            stat.winners_leveraged_pl_mean_short(),
+            expect["winners_leveraged_pl_mean_short"],
+        )
 
-        # "nominal_expected_value": f"{self.nominal_expected_value()*100.0:.{self._float_decimals}f}%",
-        # "nominal_expected_value_long": f"{self.nominal_expected_value_long()*100.0:.{self._float_decimals}f}%",
-        # "nominal_expected_value_short": f"{self.nominal_expected_value_short()*100.0:.{self._float_decimals}f}%",
+        self._assert_with_nan(
+            stat.losers_nominal_pl_mean(), expect["losers_nominal_pl_mean"],
+        )
+        self._assert_with_nan(
+            stat.losers_nominal_pl_mean_long(), expect["losers_nominal_pl_mean_long"],
+        )
+        self._assert_with_nan(
+            stat.losers_nominal_pl_mean_short(), expect["losers_nominal_pl_mean_short"],
+        )
 
-        # "leveraged_expected_value": f"{self.leveraged_expected_value()*100.0:.{self._float_decimals}f}%",
-        # "leveraged_expected_value_long": f"{self.leveraged_expected_value_long()*100.0:.{self._float_decimals}f}%",
-        # "leveraged_expected_value_short": f"{self.leveraged_expected_value_short()*100.0:.{self._float_decimals}f}%",
-
-        # "winners_nominal_pl_mean": f"{self.winners_nominal_pl_mean()*100.0:.{self._float_decimals}f}%",
-        # "winners_nominal_pl_mean_long": f"{self.winners_nominal_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-        # "winners_nominal_pl_mean_short": f"{self.winners_nominal_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-
-        # "winners_leveraged_pl_mean": f"{self.winners_leveraged_pl_mean()*100.0:.{self._float_decimals}f}%",
-        # "winners_leveraged_pl_mean_long": f"{self.winners_leveraged_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-        # "winners_leveraged_pl_mean_short": f"{self.winners_leveraged_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-
-        # "losers_nominal_pl_mean": f"{self.losers_nominal_pl_mean()*100.0:.{self._float_decimals}f}%",
-        # "losers_nominal_pl_mean_long": f"{self.losers_nominal_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-        # "losers_nominal_pl_mean_short": f"{self.losers_nominal_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-
-        # "losers_leveraged_pl_mean": f"{self.losers_leveraged_pl_mean()*100.0:.{self._float_decimals}f}%",
-        # "losers_leveraged_pl_mean_long": f"{self.losers_leveraged_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-        # "losers_leveraged_pl_mean_short": f"{self.losers_leveraged_pl_mean_short()*100.0:.{self._float_decimals}f}%",
+        self._assert_with_nan(
+            stat.losers_leveraged_pl_mean(), expect["losers_leveraged_pl_mean"],
+        )
+        self._assert_with_nan(
+            stat.losers_leveraged_pl_mean_long(),
+            expect["losers_leveraged_pl_mean_long"],
+        )
+        self._assert_with_nan(
+            stat.losers_leveraged_pl_mean_short(),
+            expect["losers_leveraged_pl_mean_short"],
+        )
 
 
 if __name__ == "__main__":
