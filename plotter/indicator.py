@@ -1,6 +1,6 @@
+from abc import abstractmethod
 from datetime import datetime
-from typing import Optional, List, Union
-from abc import ABCMeta, abstractmethod
+from typing import List, NewType, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -149,3 +149,55 @@ class RelativeStrength(Indicator):
         b = self._quotes_b.loc[:, "close"]
 
         return a / b
+
+
+RANGE_SRC = NewType("RANGE_SRC", int)
+BODY_RANGE = RANGE_SRC(0)
+SHADOW_RANGE = RANGE_SRC(1)
+
+
+class CandleRange(Indicator):
+    def __init__(
+        self,
+        quotes: pd.DataFrame,
+        moving_average: int = 0,
+        range_type: RANGE_SRC = BODY_RANGE,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
+    ) -> None:
+
+        super().__init__(
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
+        )
+
+        assert moving_average >= 0
+        assert range_type in (BODY_RANGE, SHADOW_RANGE)
+
+        self._moving_average = moving_average
+        self._range_type = range_type
+
+    def _calculate(self,) -> pd.Series:
+        height: pd.Series
+
+        if self._range_type == BODY_RANGE:
+            height = self._quotes.loc[:, "open"] - self._quotes.loc[:, "close"]
+            height = height.abs()
+
+        elif self._range_type == SHADOW_RANGE:
+            height = self._quotes.loc[:, "high"] - self._quotes.loc[:, "low"]
+
+        else:
+            raise ValueError("invalid range type")
+
+        if self._moving_average != 0:
+            height = height.rolling(self._moving_average).mean()
+
+        return height
