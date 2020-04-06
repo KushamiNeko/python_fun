@@ -16,10 +16,10 @@ class VolatilityZone(Plotter):
         long_tolerant_extended_ratio: float = 1.5,
         short_tolerant: float = 0.05,
         short_tolerant_extended_ratio: float = 2.0,
-        tolerant_color: str = "b",
-        tolerant_extended_color: str = "r",
-        tolerant_alpha: float = 0.35,
-        tolerant_extended_alpha: float = 0.15,
+        tolerant_color: str = "w",
+        tolerant_extended_color: str = "w",
+        tolerant_alpha: float = 0.3,
+        tolerant_extended_alpha: float = 0.2,
     ) -> None:
         assert quotes is not None
 
@@ -56,10 +56,19 @@ class VolatilityZone(Plotter):
             alpha=self._tolerant_alpha,
         )
 
+        # ax.barh(
+        # h,
+        # width=len(self._quotes),
+        # height=le - h,
+        # align="edge",
+        # color=self._tolerant_extended_color,
+        # alpha=self._tolerant_extended_alpha,
+        # )
+
         ax.barh(
-            h,
+            l,
             width=len(self._quotes),
-            height=le - h,
+            height=le - l,
             align="edge",
             color=self._tolerant_extended_color,
             alpha=self._tolerant_extended_alpha,
@@ -81,10 +90,19 @@ class VolatilityZone(Plotter):
             alpha=self._tolerant_alpha,
         )
 
+        # ax.barh(
+        # l,
+        # width=len(self._quotes),
+        # height=he - l,
+        # align="edge",
+        # color=self._tolerant_extended_color,
+        # alpha=self._tolerant_extended_alpha,
+        # )
+
         ax.barh(
-            l,
+            h,
             width=len(self._quotes),
-            height=he - l,
+            height=he - h,
             align="edge",
             color=self._tolerant_extended_color,
             alpha=self._tolerant_extended_alpha,
