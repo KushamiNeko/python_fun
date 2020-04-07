@@ -60,12 +60,7 @@ class LastQuote(TextPlotter):
 
             y: float
             va: str
-            if (
-                np.amax(
-                    self._quotes.iloc[: int(len(self._quotes) / 6.0)].loc[:, "high"]
-                )
-                > mid
-            ):
+            if np.amax(self._quotes.iloc[:30].loc[:, "high"]) > mid:
                 y = np.amin(self._quotes.loc[:, "low"])
                 va = "bottom"
             else:

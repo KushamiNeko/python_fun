@@ -55,7 +55,8 @@ class ChartFactory(metaclass=ABCMeta):
 
 class CandleSticks(ChartFactory):
     def _minimum_height(self) -> float:
-        ratio = 0.0025
+        # ratio = 0.00025
+        ratio = 0.00075
         mn, mx = self.quotes_range()
         r = mx - mn
 
