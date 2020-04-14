@@ -134,7 +134,7 @@ class CandleSticksPreset:
         elif self._frequency == DAILY:
             stime = etime - timedelta(days=365)
         elif self._frequency == WEEKLY:
-            stime = etime - timedelta(days=365 * 5)
+            stime = etime - timedelta(days=365 * 4)
         elif self._frequency == MONTHLY:
             stime = etime - timedelta(days=368 * 18)
         else:
@@ -285,6 +285,7 @@ class CandleSticksPreset:
             ps.append(
                 LeverageRecords(
                     quotes=self._cache.quotes(),
+                    frequency=self._frequency,
                     records=self._records,
                     font_color=self._theme.get_color("text"),
                     font_properties=self._theme.get_font(self._setting.text_fontsize()),

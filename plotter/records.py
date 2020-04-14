@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import List, Optional
 
 import numpy as np
@@ -5,6 +6,7 @@ import pandas as pd
 from matplotlib import axes
 from matplotlib import font_manager as fm
 
+from fun.data.source import FREQUENCY, WEEKLY
 from fun.plotter.plotter import TextPlotter
 from fun.trading.transaction import FuturesTransaction
 
@@ -13,8 +15,9 @@ class LeverageRecords(TextPlotter):
     def __init__(
         self,
         quotes: pd.DataFrame,
+        frequency: FREQUENCY,
         records: List[FuturesTransaction],
-        offset: float = 0.0025,
+        offset: float = 0.001,
         font_color: str = "k",
         font_size: float = 10.0,
         font_src: Optional[str] = None,
@@ -30,6 +33,8 @@ class LeverageRecords(TextPlotter):
         )
 
         self._quotes = quotes
+        self._frequency = frequency
+
         self._records = records
 
         self._offset = offset
@@ -47,7 +52,11 @@ class LeverageRecords(TextPlotter):
 
         loc = []
         for r in self._records:
-            where = np.argwhere(dates == r.datetime()).flatten()
+            tar = r.datetime()
+            if self._frequency == WEEKLY:
+                tar = tar - timedelta(days=tar.weekday())
+
+            where = np.argwhere(dates == tar).flatten()
             if where.size != 0:
                 loc.append(where.min())
 
@@ -58,7 +67,9 @@ class LeverageRecords(TextPlotter):
             ops == 0,
             "X",
             np.vectorize(lambda v: f"{v[0].strip()}\n{v[1:].strip()}")(
-                np.vectorize(lambda v: f"L{abs(v):.0f}" if v > 0 else f"S{abs(v):.0f}")(ops)
+                np.vectorize(lambda v: f"L{abs(v):.0f}" if v > 0 else f"S{abs(v):.0f}")(
+                    ops
+                )
             ),
         )
 
