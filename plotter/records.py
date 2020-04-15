@@ -50,15 +50,29 @@ class LeverageRecords(TextPlotter):
             [float(f"{r.operation()}{r.leverage()}") for r in self._records]
         )
 
+        ops_s = -1
+        ops_e = -1
+
         loc = []
-        for r in self._records:
+        for i, r in enumerate(self._records):
             tar = r.datetime()
+            if ops_s == -1 and tar >= dates[0]:
+                ops_s = i
+            if ops_e == -1 and tar > dates[-1]:
+                ops_e = i
+
             if self._frequency == WEEKLY:
                 tar = tar - timedelta(days=tar.weekday())
 
             where = np.argwhere(dates == tar).flatten()
             if where.size != 0:
                 loc.append(where.min())
+
+        assert ops_s != -1
+        if ops_e == -1:
+            ops_e = len(self._records)
+
+        ops = ops[ops_s:ops_e]
 
         loc = np.array(loc)
 
@@ -77,7 +91,7 @@ class LeverageRecords(TextPlotter):
         lows = self._quotes.loc[:, "low"]
         middle = (highs.max() + lows.min()) / 2.0
 
-        for i, x in enumerate(unique):
+        for x in unique:
             h = highs.iloc[x]
             l = lows.iloc[x]
             m = (h + l) / 2.0
