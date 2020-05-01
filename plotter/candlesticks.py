@@ -1,7 +1,8 @@
+import numpy as np
 import pandas as pd
-from matplotlib import axes
-
 from fun.plotter.plotter import Plotter
+from matplotlib import axes, patches
+from matplotlib.collections import PatchCollection
 
 
 class CandleSticks(Plotter):
@@ -24,6 +25,11 @@ class CandleSticks(Plotter):
         self._color_unchanged = color_unchanged
 
     def plot(self, ax: axes.Axes) -> None:
+
+        length = len(self._quotes)
+
+        bodys = np.ndarray(shape=length, dtype=object)
+        shadows = np.ndarray(shape=length, dtype=object)
 
         for index, df in enumerate(self._quotes.itertuples()):
 
@@ -67,17 +73,40 @@ class CandleSticks(Plotter):
             elif p_close < p_open:
                 color = self._color_down
 
-            ax.plot(
-                [index, index],
-                [p_shadow_top, p_shadow_bottom],
-                linewidth=self._shadow_width,
-                color=color,
-                zorder=5,
+            # ax.plot(
+            # [index, index],
+            # [p_shadow_top, p_shadow_bottom],
+            # linewidth=self._shadow_width,
+            # color=color,
+            # zorder=5,
+            # )
+
+            # ax.plot(
+            # [index, index],
+            # [p_body_top, p_body_bottom],
+            # linewidth=self._body_width,
+            # color=color,
+            # zorder=5,
+            # )
+
+            shadow = patches.Rectangle(
+                xy=(index - (self._shadow_width / 2.0), p_shadow_bottom),
+                width=self._shadow_width,
+                height=p_shadow_top - p_shadow_bottom,
+                facecolor=color,
+                edgecolor=color,
             )
-            ax.plot(
-                [index, index],
-                [p_body_top, p_body_bottom],
-                linewidth=self._body_width,
-                color=color,
-                zorder=5,
+
+            body = patches.Rectangle(
+                xy=(index - (self._body_width / 2.0), p_body_bottom),
+                width=self._body_width,
+                height=p_body_top - p_body_bottom,
+                facecolor=color,
+                edgecolor=color,
             )
+
+            bodys[index] = body
+            shadows[index] = shadow
+
+        ax.add_collection(PatchCollection(bodys, match_original=True, zorder=5))
+        ax.add_collection(PatchCollection(shadows, match_original=True, zorder=5))

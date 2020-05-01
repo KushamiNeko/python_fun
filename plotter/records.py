@@ -17,7 +17,7 @@ class LeverageRecords(TextPlotter):
         quotes: pd.DataFrame,
         frequency: FREQUENCY,
         records: List[FuturesTransaction],
-        offset: float = 0.001,
+        # offset: float = 0.001,
         font_color: str = "k",
         font_size: float = 10.0,
         font_src: Optional[str] = None,
@@ -37,7 +37,7 @@ class LeverageRecords(TextPlotter):
 
         self._records = records
 
-        self._offset = offset
+        # self._offset = offset
 
     def plot(self, ax: axes.Axes) -> None:
         if len(self._quotes) == 0 or len(self._records) == 0:
@@ -56,23 +56,29 @@ class LeverageRecords(TextPlotter):
         loc = []
         for i, r in enumerate(self._records):
             tar = r.datetime()
+            if self._frequency == WEEKLY:
+                tar = tar - timedelta(days=tar.weekday())
+
             if ops_s == -1 and tar >= dates[0]:
                 ops_s = i
             if ops_e == -1 and tar > dates[-1]:
                 ops_e = i
 
-            if self._frequency == WEEKLY:
-                tar = tar - timedelta(days=tar.weekday())
-
             where = np.argwhere(dates == tar).flatten()
             if where.size != 0:
                 loc.append(where.min())
 
-        assert ops_s != -1
+        # assert ops_s != -1
+        if ops_s == -1:
+            return
+
         if ops_e == -1:
             ops_e = len(self._records)
 
         ops = ops[ops_s:ops_e]
+
+        if len(ops) == 0:
+            return
 
         loc = np.array(loc)
 
@@ -89,14 +95,23 @@ class LeverageRecords(TextPlotter):
 
         highs = self._quotes.loc[:, "high"]
         lows = self._quotes.loc[:, "low"]
-        middle = (highs.max() + lows.min()) / 2.0
+
+        mx = highs.max()
+        mn = lows.min()
+        mr = mx - mn
+
+        middle = (mx + mn) / 2.0
+
+        offset = mr * 0.0075
 
         for x in unique:
             h = highs.iloc[x]
             l = lows.iloc[x]
             m = (h + l) / 2.0
 
-            y = l * (1 - self._offset) if m > middle else h * (1 + self._offset)
+            # y = l * (1 - offset) if m > middle else h * (1 + offset)
+
+            y = l - offset if m > middle else h + offset
             va = "top" if m > middle else "bottom"
 
             text = "\n".join([labels[j] for j in np.argwhere(loc == x).flatten()])
