@@ -169,6 +169,9 @@ class CandleSticksPreset:
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
 
+        elif self._symbol in ("nikk", "ezu", "eem", "hsi", "fxi"):
+            src = Yahoo()
+
         elif self._symbol in (
             "gsy",
             "near",
@@ -189,7 +192,8 @@ class CandleSticksPreset:
             "reet",
             "rem",
         ):
-            src = AlphaVantage()
+            # src = AlphaVantage()
+            src = Yahoo()
 
         df: pd.DataFrame
         if src is None:
