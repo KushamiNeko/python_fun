@@ -6,4 +6,5 @@ _*cache*
 .vscode
 env
 .pytype
+.idea
 

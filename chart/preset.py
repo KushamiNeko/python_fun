@@ -105,7 +105,7 @@ class CandleSticksPreset:
 
         self._symbol = symbol
 
-        assert frequency in (DAILY, WEEKLY)
+        assert frequency in (DAILY, WEEKLY, MONTHLY)
 
         self._frequency = frequency
 
@@ -136,7 +136,7 @@ class CandleSticksPreset:
         elif self._frequency == WEEKLY:
             stime = etime - timedelta(days=365 * 4)
         elif self._frequency == MONTHLY:
-            stime = etime - timedelta(days=368 * 18)
+            stime = etime - timedelta(days=365 * 18)
         else:
             raise ValueError(f"invalid frequency")
 
@@ -169,7 +169,7 @@ class CandleSticksPreset:
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
 
-        elif self._symbol in ("nikk", "ezu", "eem", "hsi", "fxi"):
+        elif self._symbol in ("spx", "nikk", "ezu", "eem", "hsi", "fxi"):
             src = Yahoo()
 
         elif self._symbol in (

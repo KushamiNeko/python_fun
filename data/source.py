@@ -38,6 +38,25 @@ def daily_to_weekly(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def daily_to_monthly(df: pd.DataFrame) -> pd.DataFrame:
+    agg = {
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
+        "volume": "sum",
+    }
+
+    if "open interest" in df.columns:
+        agg["open interest"] = "sum"
+
+    dfg = df.groupby(pd.Grouper(freq="MS", label="left", closed="left"))
+
+    df = dfg.agg(agg)
+
+    return df
+
+
 class DataSource(metaclass=ABCMeta):
     @abstractmethod
     def _timestamp_preprocessing(self, x: str) -> datetime:
@@ -95,7 +114,7 @@ class DataSource(metaclass=ABCMeta):
         self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> pd.DataFrame:
 
-        assert frequency in (DAILY, WEEKLY)
+        assert frequency in (DAILY, WEEKLY, MONTHLY)
 
         df = self._read_data(start, end, symbol)
 
@@ -120,6 +139,8 @@ class DataSource(metaclass=ABCMeta):
 
         if frequency == WEEKLY:
             df = daily_to_weekly(df)
+        elif frequency == MONTHLY:
+            df = daily_to_monthly(df)
 
         length = len(df)
 
