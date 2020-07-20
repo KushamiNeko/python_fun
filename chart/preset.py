@@ -120,6 +120,8 @@ class CandleSticksPreset:
         self._theme = Theme()
         self._setting = Setting(chart_size=chart_size)
 
+        self._last_quote = True
+
         self._records: Optional[List[FuturesTransaction]] = None
 
         self._params: Dict[str, str] = {}
@@ -169,7 +171,7 @@ class CandleSticksPreset:
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
 
-        elif self._symbol in ("spx", "nikk", "ezu", "eem", "hsi", "fxi"):
+        elif self._symbol in ("spx", "ndx", "nikk", "ezu", "eem", "hsi", "fxi"):
             src = Yahoo()
 
         elif self._symbol in (
@@ -217,7 +219,7 @@ class CandleSticksPreset:
         return cache
 
     def _make_plotters(self, plotters: Optional[List[Plotter]] = None) -> List[Plotter]:
-        ps: List[Plotter] = [
+        ps = [
             SimpleMovingAverage(
                 n=5,
                 quotes=self._cache.full_quotes(),
@@ -276,14 +278,25 @@ class CandleSticksPreset:
                 line_alpha=self._theme.get_alpha("bb"),
                 line_width=self._setting.linewidth(),
             ),
-            LastQuote(
-                quotes=self._cache.quotes(),
-                font_color=self._theme.get_color("text"),
-                font_properties=self._theme.get_font(
-                    self._setting.text_fontsize(multiplier=1.5)
-                ),
-            ),
+            # LastQuote(
+            #     quotes=self._cache.quotes(),
+            #     font_color=self._theme.get_color("text"),
+            #     font_properties=self._theme.get_font(
+            #         self._setting.text_fontsize(multiplier=1.5)
+            #     ),
+            # ),
         ]
+
+        if self._last_quote is True:
+            ps.append(
+                LastQuote(
+                    quotes=self._cache.quotes(),
+                    font_color=self._theme.get_color("text"),
+                    font_properties=self._theme.get_font(
+                        self._setting.text_fontsize(multiplier=1.5)
+                    ),
+                ),
+            )
 
         if self._records is not None:
             ps.append(
@@ -322,6 +335,9 @@ class CandleSticksPreset:
             self._records = records
         else:
             self._records = None
+
+    def show_last_quote(self, show: bool) -> None:
+        self._last_quote = show
 
     def quote(self) -> Dict[str, Any]:
         df = self._cache.quotes().iloc[-1]
