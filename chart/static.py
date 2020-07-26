@@ -21,6 +21,7 @@ class CandleSticks(base.CandleSticks):
     def __init__(
         self,
         quotes: pd.DataFrame,
+        theme: Optional[Theme] = None,
         chart_size: CHART_SIZE = LARGE_CHART,
         figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
@@ -39,7 +40,11 @@ class CandleSticks(base.CandleSticks):
 
         assert self._figsize is not None
 
-        self._theme = Theme()
+        if theme is None:
+            self._theme = Theme()
+        else:
+            self._theme = theme
+
         self._setting = CandleSticksSetting(chart_size)
 
         self._figure: Optional[figure.Figure] = None
@@ -84,6 +89,9 @@ class CandleSticks(base.CandleSticks):
         )
 
         ax.yaxis.tick_right()
+
+    def new_theme(self, theme: Theme) -> None:
+        self._theme = theme
 
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:

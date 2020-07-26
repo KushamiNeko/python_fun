@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Callable, Optional, cast
 
 import pandas as pd
+from fun.chart.theme import Theme
 
 from fun.chart.base import ChartFactory
 from fun.utils import colors, pretty
@@ -53,6 +54,13 @@ class QuotesCache:
     def chart(self) -> ChartFactory:
         assert self._chart is not None
         return self._chart
+
+    def new_factory(self, factory: Callable[[pd.DataFrame], ChartFactory]) -> None:
+        self._chart_factory = factory
+        self._make_chart()
+
+    def new_theme(self, theme: Theme) -> None:
+        self._chart.new_theme(theme)
 
     def _make_chart(self) -> None:
         self._chart = self._chart_factory(self.quotes())

@@ -87,7 +87,7 @@ class SimpleMovingAverage(Indicator):
         return self._quotes.loc[:, "close"].rolling(self._n).mean()
 
 
-class BollinggerBand(Indicator):
+class BollingerBand(Indicator):
     def __init__(
         self,
         n: int,
