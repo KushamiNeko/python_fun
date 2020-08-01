@@ -106,7 +106,7 @@ class CandleSticksPreset:
         if self._symbol in ("vix", "vxn", "sml", "ovx", "gvz"):
             src = Yahoo()
 
-        elif self._symbol in ("vstx", "jniv"):
+        elif self._symbol in ("vstx", "jniv", "vhsi", "vxfxi"):
             src = InvestingCom()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):

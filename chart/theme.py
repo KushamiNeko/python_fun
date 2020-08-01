@@ -48,7 +48,7 @@ class Theme:
 
         self._colors["sma0"] = colors.PAPER_YELLOW_300
         self._colors["sma1"] = colors.PAPER_BLUE_GREY_200
-        self._colors["sma2"] = colors.PAPER_LIGHT_BLUE_300
+        self._colors["sma2"] = colors.PAPER_BROWN_400
         self._colors["sma3"] = colors.PAPER_PURPLE_300
 
         # self._colors["sma4"] = colors.PAPER_INDIGO_400
@@ -95,8 +95,6 @@ class MagicalTheme(Theme):
     def __init__(self):
         super().__init__()
 
-        print(self._colors["background"])
-
     def dart_theme(self) -> None:
         super().dart_theme()
 
@@ -117,16 +115,16 @@ class MagicalTheme(Theme):
         # self._colors["bb2"] = colors.PAPER_RED_900
         # self._colors["bb3"] = colors.PAPER_BLUE_700
 
-        self._colors["sma3"] = colors.PAPER_YELLOW_300
-        self._colors["sma5"] = colors.PAPER_RED_500
-        self._colors["sma7"] = colors.PAPER_LIGHT_BLUE_300
-        self._colors["sma10"] = colors.PAPER_PURPLE_300
+        self._colors["sma3"] = colors.PAPER_PINK_200
+        self._colors["sma5"] = colors.PAPER_RED_600
+        self._colors["sma7"] = "#000000"
+        self._colors["sma10"] = colors.PAPER_YELLOW_500
 
         self._colors["sma20"] = colors.PAPER_GREEN_500
-        self._colors["sma30"] = colors.PAPER_RED_900
+        self._colors["sma30"] = colors.PAPER_GREY_500
         self._colors["sma60"] = colors.PAPER_BLUE_500
-        self._colors["sma100"] = colors.PAPER_LIME_300
-        self._colors["sma300"] = colors.PAPER_ORANGE_900
+        self._colors["sma100"] = colors.PAPER_PURPLE_400
+        self._colors["sma300"] = colors.PAPER_ORANGE_500
 
         # self._colors["in0"] = colors.PAPER_GREY_200
 

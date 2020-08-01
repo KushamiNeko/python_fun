@@ -198,7 +198,7 @@ class DistributionsDay(TextPlotter):
 
         if len(self._quotes) > 1:
             text = "\n".join(
-                f"{k.upper()}: {counts[k]}" for k in self._reference_symbols
+                f"{k.upper()}: {counts.get(k, 0)}" for k in self._reference_symbols
             )
 
             h = np.amax(self._quotes.loc[:, "high"])

@@ -4,6 +4,7 @@ from typing import List, NewType, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from fun.chart.theme import Theme
 
 from fun.plotter.plotter import Plotter
 
@@ -38,6 +39,10 @@ class ChartFactory(metaclass=ABCMeta):
             mn - (r / extend_ratio),
             mx + (r / extend_ratio),
         )
+
+    @abstractmethod
+    def new_theme(self, theme: Theme) -> None:
+        raise NotImplementedError
 
     @abstractmethod
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
