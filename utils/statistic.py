@@ -7,12 +7,11 @@ import pandas as pd
 
 
 def bake_correlation_statistic(
-    df: pd.DataFrame,
-    drops: List[str],
-    correlation_func: Callable[[pd.DataFrame, str, str], Tuple[float, float]],
-    output_file: str,
+        df: pd.DataFrame,
+        drops: List[str],
+        correlation_func: Callable[[pd.DataFrame, str, str], Tuple[float, float]],
+        output_file: str,
 ) -> None:
-
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -45,7 +44,7 @@ def bake_correlation_statistic(
                 print(f"{round((progress / works) * 100.0, 4)}%.....")
 
             statistic[x][y] = {
-                "p": str(p_value),
+                "p":   str(p_value),
                 "tau": str(tau),
             }
 

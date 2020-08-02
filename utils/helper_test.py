@@ -13,15 +13,15 @@ class TestHelper(unittest.TestCase):
             self.assertNotEqual(rand_string_01, rand_string_02)
 
     @parameterized(
-        [
-            {"inputs": "price=100;op=l", "expected": {"price": "100", "op": "l"}},
-            {"inputs": "price=100 ; op=l", "expected": {"price": "100", "op": "l"}},
-            {
-                "inputs": "price=100.5 ; note=hello world",
-                "expected": {"price": "100.5", "note": "hello world"},
-            },
-            {"inputs": "action=+ ; op=-", "expected": {"action": "+", "op": "-"}},
-        ]
+            [
+                {"inputs": "price=100;op=l", "expected": {"price": "100", "op": "l"}},
+                {"inputs": "price=100 ; op=l", "expected": {"price": "100", "op": "l"}},
+                {
+                    "inputs":   "price=100.5 ; note=hello world",
+                    "expected": {"price": "100.5", "note": "hello world"},
+                },
+                {"inputs": "action=+ ; op=-", "expected": {"action": "+", "op": "-"}},
+            ]
     )
     def test_key_value_pair_succeed(self, inputs, expected):
         pair = helper.key_value_pair(inputs)

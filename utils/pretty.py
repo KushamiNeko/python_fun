@@ -26,7 +26,6 @@ def color_input(hex_rgb: str, message: str) -> str:
 
 
 def hex_to_rgb8(hexstr: str) -> Tuple[int, int, int]:
-
     match = re.match(r"#?([0-9a-zA-Z]{6})", hexstr)
 
     if not match:

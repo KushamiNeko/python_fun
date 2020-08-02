@@ -68,32 +68,3 @@ class Setting:
 
         # rectangle plotter
         return 0.6
-
-# class CandleSticksSetting(Setting):
-#     def shadow_width(self, multiplier: float = 1.0) -> float:
-#         # line plotter
-#         # if self._chart_size == SMALL_CHART:
-#             # return 0.72 * multiplier
-#         # elif self._chart_size == MEDIUM_CHART:
-#             # return 1.2 * multiplier
-#         # elif self._chart_size == LARGE_CHART:
-#             # return 2 * multiplier
-#         # else:
-#             # raise ValueError("invalid chart size")
-#
-#         # rectangle plotter
-#         return 0.125
-#
-#     def body_width(self, multiplier: float = 1.0) -> float:
-#         # line plotter
-#         # if self._chart_size == SMALL_CHART:
-#         #     return 2.34 * multiplier
-#         # elif self._chart_size == MEDIUM_CHART:
-#         #     return 3.9 * multiplier
-#         # elif self._chart_size == LARGE_CHART:
-#         #     return 6.5 * multiplier
-#         # else:
-#         #     raise ValueError("invalid chart size")
-#
-#         # rectangle plotter
-#         return 0.6

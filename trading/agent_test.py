@@ -1,7 +1,7 @@
 import os
 import unittest
-from typing import cast
 from datetime import datetime
+from typing import cast
 
 from fun.trading.agent import TradingAgent
 from fun.utils import colors, pretty
@@ -16,7 +16,7 @@ class TestTradingAgent(unittest.TestCase):
         else:
             for f in os.listdir(root):
                 pretty.color_print(
-                    colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+                        colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
                 )
                 os.remove(os.path.join(root, f))
 
@@ -25,7 +25,7 @@ class TestTradingAgent(unittest.TestCase):
     def _clean_root(self, root):
         for f in os.listdir(root):
             pretty.color_print(
-                colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+                    colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
             )
             os.remove(os.path.join(root, f))
 
@@ -37,29 +37,29 @@ class TestTradingAgent(unittest.TestCase):
         self.assertFalse(os.path.exists(root))
 
     @parameterized(
-        [
-            {
-                "user_name": "nonexist",
-                "new_user": False,
-                "error": ValueError,
-                "expected": None,
-            },
-            {
-                "user_name": "new",
-                "new_user": True,
-                "error": None,
-                "expected": [{"name": "new", "uid": ""}],
-            },
-        ]
+            [
+                {
+                    "user_name": "nonexist",
+                    "new_user":  False,
+                    "error":     ValueError,
+                    "expected":  None,
+                },
+                {
+                    "user_name": "new",
+                    "new_user":  True,
+                    "error":     None,
+                    "expected":  [{"name": "new", "uid": ""}],
+                },
+            ]
     )
     def test_init(self, user_name, new_user, error, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "agent",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "agent",
         )
 
         self._check_root(root)
@@ -71,13 +71,13 @@ class TestTradingAgent(unittest.TestCase):
         if error is not None:
             with self.assertRaises(ValueError):
                 TradingAgent(
-                    root, user_name=user_name, new_user=new_user,
+                        root, user_name=user_name, new_user=new_user,
                 )
         else:
             self.assertTrue(expected is not None)
 
             TradingAgent(
-                root, user_name=user_name, new_user=new_user,
+                    root, user_name=user_name, new_user=new_user,
             )
 
             db = "admin"
@@ -110,234 +110,234 @@ class TestTradingAgent(unittest.TestCase):
         self._clean_root(root)
 
     @parameterized(
-        [
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 1},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 1},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 1},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 1},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-        ]
+            [
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 1},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 1},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 1},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 1},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+            ]
     )
     def test_read_trades(self, orders, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "read_trades",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "read_trades",
         )
 
         self._check_root(root)
@@ -359,180 +359,180 @@ class TestTradingAgent(unittest.TestCase):
         self._clean_root(root)
 
     @parameterized(
-        [
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 4},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 3},
-            },
-            {
-                "orders": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190309",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 6},
-            },
-        ]
+            [
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 4},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 3},
+                },
+                {
+                    "orders":   [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190309",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 6},
+                },
+            ]
     )
     def test_read_records(self, orders, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "read_records",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "read_records",
         )
 
         self._check_root(root)
@@ -554,185 +554,185 @@ class TestTradingAgent(unittest.TestCase):
         self._clean_root(root)
 
     @parameterized(
-        [
-            {
-                "orders_a": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "orders_b": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 4},
-            },
-            {
-                "orders_a": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "orders_b": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190310",
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 8},
-            },
-            {
-                "orders_a": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "orders_b": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 4},
-            },
-            {
-                "orders_a": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "orders_b": [
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "datetime": "20190308",
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 4},
-            },
-        ]
+            [
+                {
+                    "orders_a": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "orders_b": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 4},
+                },
+                {
+                    "orders_a": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "orders_b": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190310",
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 8},
+                },
+                {
+                    "orders_a": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "orders_b": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 4},
+                },
+                {
+                    "orders_a": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "orders_b": [
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "datetime":  "20190308",
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 4},
+                },
+            ]
     )
     def test_read_all_records(self, orders_a, orders_b, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "read_all_records",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "read_all_records",
         )
 
         self._check_root(root)
@@ -757,161 +757,161 @@ class TestTradingAgent(unittest.TestCase):
         self._clean_root(root)
 
     @parameterized(
-        [
-            {
-                "orders": [
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 4},
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "es",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "es",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 2},
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 3},
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "-",
-                        "leverage": "2",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                    {
-                        "symbol": "ty",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "10000",
-                    },
-                ],
-                "expected": {"length": 6},
-            },
-        ]
+            [
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 4},
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "es",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "es",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 2},
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 3},
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "-",
+                            "leverage":  "2",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                        {
+                            "symbol":    "ty",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "10000",
+                        },
+                    ],
+                    "expected": {"length": 6},
+                },
+            ]
     )
     def test_new_order(self, orders, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "orders",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "orders",
         )
 
         self._check_root(root)
@@ -934,85 +934,85 @@ class TestTradingAgent(unittest.TestCase):
         self._clean_root(root)
 
     @parameterized(
-        [
-            {
-                "orders": [
-                    {
-                        "symbol": "ym",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                    {
-                        "symbol": "ym",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                ],
-                "events": [{"dtime": "20191231", "price": 110}],
-                "expected": [
-                    {
-                        "datetime": "20191231",
-                        "symbol": "ym",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                ],
-            },
-            {
-                "orders": [
-                    {
-                        "symbol": "ym",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "120",
-                    },
-                    {
-                        "symbol": "ym",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                    {
-                        "symbol": "ym",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                ],
-                "events": [
-                    {"dtime": "20191229", "price": 110},
-                    {"dtime": "20191231", "price": 90},
-                ],
-                "expected": [
-                    {
-                        "datetime": "20191229",
-                        "symbol": "ym",
-                        "operation": "+",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                    {
-                        "datetime": "20191231",
-                        "symbol": "ym",
-                        "operation": "-",
-                        "leverage": "1",
-                        "price": "100",
-                    },
-                ],
-            },
-        ]
+            [
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ym",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                        {
+                            "symbol":    "ym",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                    ],
+                    "events":   [{"dtime": "20191231", "price": 110}],
+                    "expected": [
+                        {
+                            "datetime":  "20191231",
+                            "symbol":    "ym",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                    ],
+                },
+                {
+                    "orders":   [
+                        {
+                            "symbol":    "ym",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "120",
+                        },
+                        {
+                            "symbol":    "ym",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                        {
+                            "symbol":    "ym",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                    ],
+                    "events":   [
+                        {"dtime": "20191229", "price": 110},
+                        {"dtime": "20191231", "price": 90},
+                    ],
+                    "expected": [
+                        {
+                            "datetime":  "20191229",
+                            "symbol":    "ym",
+                            "operation": "+",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                        {
+                            "datetime":  "20191231",
+                            "symbol":    "ym",
+                            "operation": "-",
+                            "leverage":  "1",
+                            "price":     "100",
+                        },
+                    ],
+                },
+            ]
     )
     def test_check_orders(self, orders, events, expected):
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "testing",
-            "json",
-            "check_orders",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "testing",
+                "json",
+                "check_orders",
         )
 
         self._check_root(root)
@@ -1031,10 +1031,10 @@ class TestTradingAgent(unittest.TestCase):
 
         for ei, event in enumerate(events):
             agent.check_orders(
-                book,
-                datetime.strptime(event["dtime"], "%Y%m%d"),
-                event["price"],
-                new_book=True,
+                    book,
+                    datetime.strptime(event["dtime"], "%Y%m%d"),
+                    event["price"],
+                    new_book=True,
             )
 
             self.assertEqual(len(orders) - (ei + 1), len(agent.read_orders()))

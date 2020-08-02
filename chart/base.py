@@ -38,10 +38,6 @@ class ChartFactory(metaclass=ABCMeta):
             mx + (r / extend_ratio),
         )
 
-    # @abstractmethod
-    # def set_theme(self, theme: Theme) -> None:
-    #     raise NotImplementedError
-
     @abstractmethod
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         raise NotImplementedError
@@ -54,12 +50,3 @@ class ChartFactory(metaclass=ABCMeta):
             interactive: bool = False,
     ) -> None:
         raise NotImplementedError
-
-# class CandleSticksFactory(ChartFactory, metaclass=ABCMeta):
-#     def _minimum_height(self) -> float:
-#         # ratio = 0.00025
-#         ratio = 0.001
-#         mn, mx = self.quotes_range()
-#         r = mx - mn
-#
-#         return r * ratio

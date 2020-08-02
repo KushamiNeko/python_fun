@@ -6,7 +6,7 @@ from typing import Dict
 
 class TransactionOrder:
     def __init__(
-        self, symbol: str, operation: str, leverage: float, price: float,
+            self, symbol: str, operation: str, leverage: float, price: float,
     ) -> None:
 
         if not re.match(r"^[a-zA-Z]+$", symbol):
@@ -39,17 +39,17 @@ class TransactionOrder:
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "symbol": self._symbol,
+            "symbol":    self._symbol,
             "operation": self._operation,
-            "leverage": f"{self._leverage}",
-            "price": f"{self._price}",
+            "leverage":  f"{self._leverage}",
+            "price":     f"{self._price}",
         }
 
     @classmethod
     def from_entity(cls, entity: Dict[str, str]) -> TransactionOrder:
         return TransactionOrder(
-            symbol=entity["symbol"],
-            operation=entity["operation"],
-            leverage=float(entity["leverage"]),
-            price=float(entity["price"]),
+                symbol=entity["symbol"],
+                operation=entity["operation"],
+                leverage=float(entity["leverage"]),
+                price=float(entity["price"]),
         )

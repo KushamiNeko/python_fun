@@ -15,46 +15,34 @@ from matplotlib import axes, figure
 matplotlib.use("agg")
 
 
-# class CandleSticksFactory(base.ChartFactory):
 class TradingChart(base.ChartFactory):
     def __init__(
             self,
             quotes: pd.DataFrame,
-            # theme: Optional[Theme] = None,
             theme: Theme = Theme(),
             scale: str = "log",
-            # chart_size: CHART_SIZE = LARGE_CHART,
             setting: Setting = Setting(chart_size=LARGE_CHART),
             figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
 
         assert quotes is not None
-        # assert chart_size in (LARGE_CHART, MEDIUM_CHART)
         assert setting is not None
         assert setting.chart_size() in (LARGE_CHART, MEDIUM_CHART)
 
         super().__init__(quotes)
 
-        # if chart_size == SMALL_CHART:
         if setting.chart_size() == SMALL_CHART:
             self._figsize = (figsize[0] * 1.0, figsize[1] * 1.0)
-        # elif chart_size == MEDIUM_CHART:
         elif setting.chart_size() == MEDIUM_CHART:
             self._figsize = (figsize[0] * 1.2, figsize[1] * 1.2)
-        # elif chart_size == LARGE_CHART:
         elif setting.chart_size() == LARGE_CHART:
             self._figsize = (figsize[0] * 2.0, figsize[1] * 2.0)
 
         assert self._figsize is not None
 
-        # if theme is None:
-        #     self._theme = Theme()
-        # else:
-        #     self._theme = theme
         self._theme = theme
         self._scale = scale
 
-        # self._setting = Setting(chart_size)
         self._setting = setting
 
         self._figure: Optional[figure.Figure] = None
@@ -100,9 +88,6 @@ class TradingChart(base.ChartFactory):
 
         ax.yaxis.tick_right()
 
-    # def set_theme(self, theme: Theme) -> None:
-    #     self._theme = theme
-
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:
             return None
@@ -130,7 +115,6 @@ class TradingChart(base.ChartFactory):
                 tight_layout=False,
         )
 
-        # ax.set_yscale("log")
         ax.set_yscale(self._scale)
 
         self._setup_general(fig, ax)
@@ -142,18 +126,6 @@ class TradingChart(base.ChartFactory):
 
         ax.set_xlim(*self.chart_xrange())
         ax.set_ylim(*self.chart_yrange())
-
-        # CandleSticksPlotter(
-        #     quotes=self._quotes,
-        #     shadow_width=self._setting.shadow_width(),
-        #     body_width=self._setting.body_width(),
-        #     minimum_height=self._minimum_height(),
-        #     color_up=self._theme.get_color("up"),
-        #     color_down=self._theme.get_color("down"),
-        #     color_unchanged=self._theme.get_color("unchanged"),
-        # ).plot(ax)
-
-        # ax.autoscale_view()
 
         if plotters is not None and len(plotters) > 0:
             for p in plotters:

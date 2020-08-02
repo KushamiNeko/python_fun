@@ -82,7 +82,6 @@ class TestQuotesCache(unittest.TestCase):
                 df,
                 s,
                 e,
-                # chart_factory=lambda quotes: CandleSticks(quotes, chart_size=MEDIUM_CHART),
         )
 
         # original_buf = io.BytesIO()

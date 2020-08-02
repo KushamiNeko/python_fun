@@ -2,29 +2,29 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
-from fun.data.source import FREQUENCY, DAILY
+from fun.data.source import DAILY, FREQUENCY
 from fun.plotter.plotter import Plotter
-from matplotlib import axes
 from fun.utils import colors
+from matplotlib import axes
 
 
 class EntryZone(Plotter):
     def __init__(
-        self,
-        quotes: pd.DataFrame,
-        frequency: FREQUENCY,
-        operation: str,
-        notice_signal: Optional[datetime] = None,
-        prepare_signal: Optional[datetime] = None,
-        notice_to_entry_minimum_days: int = 30,
-        notice_to_entry_warning_days: int = 30,
-        prepare_minimum_days: int = 5,
-        prepare_warning_days: int = 9,
-        color_notice_stop: str = colors.PAPER_RED_600,
-        color_notice_warning: str = colors.PAPER_RED_200,
-        color_prepare_stop: str = colors.PAPER_PINK_600,
-        color_prepare_warning: str = colors.PAPER_PINK_200,
-        alpha: float = 0.15,
+            self,
+            quotes: pd.DataFrame,
+            frequency: FREQUENCY,
+            operation: str,
+            notice_signal: Optional[datetime] = None,
+            prepare_signal: Optional[datetime] = None,
+            notice_to_entry_minimum_days: int = 30,
+            notice_to_entry_warning_days: int = 30,
+            prepare_minimum_days: int = 5,
+            prepare_warning_days: int = 9,
+            color_notice_stop: str = colors.PAPER_RED_600,
+            color_notice_warning: str = colors.PAPER_RED_200,
+            color_prepare_stop: str = colors.PAPER_PINK_600,
+            color_prepare_warning: str = colors.PAPER_PINK_200,
+            alpha: float = 0.15,
     ) -> None:
         assert quotes is not None
 
@@ -61,50 +61,50 @@ class EntryZone(Plotter):
             if self._notice_signal is not None:
                 first_signal_index = self._quotes.index.get_loc(self._notice_signal)
                 minimum_days_index = self._quotes.index.get_loc(
-                    self._notice_signal
-                    + timedelta(days=self._notice_to_entry_minimum_days),
-                    method="nearest",
+                        self._notice_signal
+                        + timedelta(days=self._notice_to_entry_minimum_days),
+                        method="nearest",
                 )
 
                 ax.bar(
-                    first_signal_index,
-                    width=minimum_days_index - first_signal_index,
-                    bottom=mn,
-                    height=mx - mn,
-                    align="edge",
-                    color=self._color_notice_stop,
-                    alpha=self._alpha,
+                        first_signal_index,
+                        width=minimum_days_index - first_signal_index,
+                        bottom=mn,
+                        height=mx - mn,
+                        align="edge",
+                        color=self._color_notice_stop,
+                        alpha=self._alpha,
                 )
 
             if self._prepare_signal is not None:
                 prepare_signal_index = self._quotes.index.get_loc(self._prepare_signal)
                 minimum_days_index = self._quotes.index.get_loc(
-                    self._prepare_signal + timedelta(days=self._prepare_minimum_days),
-                    method="nearest",
+                        self._prepare_signal + timedelta(days=self._prepare_minimum_days),
+                        method="nearest",
                 )
                 warning_days_index = self._quotes.index.get_loc(
-                    self._prepare_signal + timedelta(days=self._prepare_warning_days),
-                    method="nearest",
+                        self._prepare_signal + timedelta(days=self._prepare_warning_days),
+                        method="nearest",
                 )
 
                 ax.bar(
-                    prepare_signal_index,
-                    width=minimum_days_index - prepare_signal_index,
-                    bottom=mn,
-                    height=mx - mn,
-                    align="edge",
-                    color=self._color_prepare_stop,
-                    alpha=self._alpha,
+                        prepare_signal_index,
+                        width=minimum_days_index - prepare_signal_index,
+                        bottom=mn,
+                        height=mx - mn,
+                        align="edge",
+                        color=self._color_prepare_stop,
+                        alpha=self._alpha,
                 )
 
                 ax.bar(
-                    minimum_days_index,
-                    width=warning_days_index - minimum_days_index,
-                    bottom=mn,
-                    height=mx - mn,
-                    align="edge",
-                    color=self._color_prepare_warning,
-                    alpha=self._alpha,
+                        minimum_days_index,
+                        width=warning_days_index - minimum_days_index,
+                        bottom=mn,
+                        height=mx - mn,
+                        align="edge",
+                        color=self._color_prepare_warning,
+                        alpha=self._alpha,
                 )
 
         except KeyError:

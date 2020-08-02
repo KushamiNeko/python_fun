@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import math
-from typing import Dict, List
 from datetime import datetime
+from typing import Dict, List
 
 from fun.trading.trade import FuturesTrade
 
@@ -343,12 +343,12 @@ class Statistic:
 
     def nominal_win_loss_ratio_long(self) -> float:
         return self.winners_nominal_pl_mean_long() / abs(
-            self.losers_nominal_pl_mean_long()
+                self.losers_nominal_pl_mean_long()
         )
 
     def nominal_win_loss_ratio_short(self) -> float:
         return self.winners_nominal_pl_mean_short() / abs(
-            self.losers_nominal_pl_mean_short()
+                self.losers_nominal_pl_mean_short()
         )
 
     def leveraged_win_loss_ratio(self) -> float:
@@ -356,96 +356,96 @@ class Statistic:
 
     def leveraged_win_loss_ratio_long(self) -> float:
         return self.winners_leveraged_pl_mean_long() / abs(
-            self.losers_leveraged_pl_mean_long()
+                self.losers_leveraged_pl_mean_long()
         )
 
     def leveraged_win_loss_ratio_short(self) -> float:
         return self.winners_leveraged_pl_mean_short() / abs(
-            self.losers_leveraged_pl_mean_short()
+                self.losers_leveraged_pl_mean_short()
         )
 
     def nominal_adjusted_win_loss_ratio(self) -> float:
         ba = self.batting_average()
 
         return (self.winners_nominal_pl_mean() * ba) / (
-            abs(self.losers_nominal_pl_mean()) * (1.0 - ba)
+                abs(self.losers_nominal_pl_mean()) * (1.0 - ba)
         )
 
     def nominal_adjusted_win_loss_ratio_long(self) -> float:
         ba = self.batting_average_long()
 
         return (self.winners_nominal_pl_mean_long() * ba) / (
-            abs(self.losers_nominal_pl_mean_long()) * (1.0 - ba)
+                abs(self.losers_nominal_pl_mean_long()) * (1.0 - ba)
         )
 
     def nominal_adjusted_win_loss_ratio_short(self) -> float:
         ba = self.batting_average_short()
 
         return (self.winners_nominal_pl_mean_short() * ba) / (
-            abs(self.losers_nominal_pl_mean_short()) * (1.0 - ba)
+                abs(self.losers_nominal_pl_mean_short()) * (1.0 - ba)
         )
 
     def leveraged_adjusted_win_loss_ratio(self) -> float:
         ba = self.batting_average()
 
         return (self.winners_leveraged_pl_mean() * ba) / (
-            abs(self.losers_leveraged_pl_mean()) * (1.0 - ba)
+                abs(self.losers_leveraged_pl_mean()) * (1.0 - ba)
         )
 
     def leveraged_adjusted_win_loss_ratio_long(self) -> float:
         ba = self.batting_average_long()
 
         return (self.winners_leveraged_pl_mean_long() * ba) / (
-            abs(self.losers_leveraged_pl_mean_long()) * (1.0 - ba)
+                abs(self.losers_leveraged_pl_mean_long()) * (1.0 - ba)
         )
 
     def leveraged_adjusted_win_loss_ratio_short(self) -> float:
         ba = self.batting_average_short()
 
         return (self.winners_leveraged_pl_mean_short() * ba) / (
-            abs(self.losers_leveraged_pl_mean_short()) * (1.0 - ba)
+                abs(self.losers_leveraged_pl_mean_short()) * (1.0 - ba)
         )
 
     def nominal_expected_value(self) -> float:
         ba = self.batting_average()
 
         return (self.winners_nominal_pl_mean() * ba) + (
-            self.losers_nominal_pl_mean() * (1.0 - ba)
+                self.losers_nominal_pl_mean() * (1.0 - ba)
         )
 
     def nominal_expected_value_long(self) -> float:
         ba = self.batting_average_long()
 
         return (self.winners_nominal_pl_mean_long() * ba) + (
-            self.losers_nominal_pl_mean_long() * (1.0 - ba)
+                self.losers_nominal_pl_mean_long() * (1.0 - ba)
         )
 
     def nominal_expected_value_short(self) -> float:
         ba = self.batting_average_short()
 
         return (self.winners_nominal_pl_mean_short() * ba) + (
-            self.losers_nominal_pl_mean_short() * (1.0 - ba)
+                self.losers_nominal_pl_mean_short() * (1.0 - ba)
         )
 
     def leveraged_expected_value(self) -> float:
         ba = self.batting_average()
 
         return (self.winners_leveraged_pl_mean() * ba) + (
-            self.losers_leveraged_pl_mean() * (1.0 - ba)
+                self.losers_leveraged_pl_mean() * (1.0 - ba)
         )
 
     def leveraged_expected_value_long(self) -> float:
         ba = self.batting_average_long()
 
         return (self.winners_leveraged_pl_mean_long() * ba) + (
-            self.losers_leveraged_pl_mean_long() * (1.0 - ba)
+                self.losers_leveraged_pl_mean_long() * (1.0 - ba)
         )
 
     def leveraged_expected_value_short(self) -> float:
         ba = self.batting_average_short()
 
         return (self.winners_leveraged_pl_mean_short() * ba) + (
-            self.losers_leveraged_pl_mean_short() * (1.0 - ba)
+                self.losers_leveraged_pl_mean_short() * (1.0 - ba)
         )
 
     def nominal_kelly_criterion(self) -> float:
@@ -480,50 +480,50 @@ class Statistic:
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "statistic_start": self.statistic_start().strftime("%Y%m%d"),
-            "statistic_end": self.statistic_end().strftime("%Y%m%d"),
-            "total_trades": f"{self.total_trades()}",
-            "total_long_trades": f"{self.total_long_trades()}",
-            "total_short_trades": f"{self.total_short_trades()}",
-            "number_of_winners": f"{self.number_of_winners()}",
-            "number_of_losers": f"{self.number_of_losers()}",
-            "batting_average": f"{self.batting_average()*100.0:.{self._float_decimals}f}%",
-            "batting_average_long": f"{self.batting_average_long()*100.0:.{self._float_decimals}f}%",
-            "batting_average_short": f"{self.batting_average_short()*100.0:.{self._float_decimals}f}%",
-            "winners_holding_mean": f"{self.winners_holding_mean():.{self._float_decimals}f}",
-            "winners_holding_mean_long": f"{self.winners_holding_mean_long():.{self._float_decimals}f}",
-            "winners_holding_mean_short": f"{self.winners_holding_mean_short():.{self._float_decimals}f}",
-            "losers_holding_mean": f"{self.losers_holding_mean():.{self._float_decimals}f}",
-            "losers_holding_mean_long": f"{self.losers_holding_mean_long():.{self._float_decimals}f}",
-            "losers_holding_mean_short": f"{self.losers_holding_mean_short():.{self._float_decimals}f}",
-            "nominal_win_loss_ratio": f"{self.nominal_win_loss_ratio():.{self._float_decimals}f}",
-            "nominal_win_loss_ratio_long": f"{self.nominal_win_loss_ratio_long():.{self._float_decimals}f}",
-            "nominal_win_loss_ratio_short": f"{self.nominal_win_loss_ratio_short():.{self._float_decimals}f}",
-            "leveraged_win_loss_ratio": f"{self.leveraged_win_loss_ratio():.{self._float_decimals}f}",
-            "leveraged_win_loss_ratio_long": f"{self.leveraged_win_loss_ratio_long():.{self._float_decimals}f}",
-            "leveraged_win_loss_ratio_short": f"{self.leveraged_win_loss_ratio_short():.{self._float_decimals}f}",
-            "nominal_adjusted_win_loss_ratio": f"{self.nominal_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-            "nominal_adjusted_win_loss_ratio_long": f"{self.nominal_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
-            "nominal_adjusted_win_loss_ratio_short": f"{self.nominal_adjusted_win_loss_ratio_short():.{self._float_decimals}f}",
-            "leveraged_adjusted_win_loss_ratio": f"{self.leveraged_adjusted_win_loss_ratio():.{self._float_decimals}f}",
-            "leveraged_adjusted_win_loss_ratio_long": f"{self.leveraged_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
+            "statistic_start":                         self.statistic_start().strftime("%Y%m%d"),
+            "statistic_end":                           self.statistic_end().strftime("%Y%m%d"),
+            "total_trades":                            f"{self.total_trades()}",
+            "total_long_trades":                       f"{self.total_long_trades()}",
+            "total_short_trades":                      f"{self.total_short_trades()}",
+            "number_of_winners":                       f"{self.number_of_winners()}",
+            "number_of_losers":                        f"{self.number_of_losers()}",
+            "batting_average":                         f"{self.batting_average() * 100.0:.{self._float_decimals}f}%",
+            "batting_average_long":                    f"{self.batting_average_long() * 100.0:.{self._float_decimals}f}%",
+            "batting_average_short":                   f"{self.batting_average_short() * 100.0:.{self._float_decimals}f}%",
+            "winners_holding_mean":                    f"{self.winners_holding_mean():.{self._float_decimals}f}",
+            "winners_holding_mean_long":               f"{self.winners_holding_mean_long():.{self._float_decimals}f}",
+            "winners_holding_mean_short":              f"{self.winners_holding_mean_short():.{self._float_decimals}f}",
+            "losers_holding_mean":                     f"{self.losers_holding_mean():.{self._float_decimals}f}",
+            "losers_holding_mean_long":                f"{self.losers_holding_mean_long():.{self._float_decimals}f}",
+            "losers_holding_mean_short":               f"{self.losers_holding_mean_short():.{self._float_decimals}f}",
+            "nominal_win_loss_ratio":                  f"{self.nominal_win_loss_ratio():.{self._float_decimals}f}",
+            "nominal_win_loss_ratio_long":             f"{self.nominal_win_loss_ratio_long():.{self._float_decimals}f}",
+            "nominal_win_loss_ratio_short":            f"{self.nominal_win_loss_ratio_short():.{self._float_decimals}f}",
+            "leveraged_win_loss_ratio":                f"{self.leveraged_win_loss_ratio():.{self._float_decimals}f}",
+            "leveraged_win_loss_ratio_long":           f"{self.leveraged_win_loss_ratio_long():.{self._float_decimals}f}",
+            "leveraged_win_loss_ratio_short":          f"{self.leveraged_win_loss_ratio_short():.{self._float_decimals}f}",
+            "nominal_adjusted_win_loss_ratio":         f"{self.nominal_adjusted_win_loss_ratio():.{self._float_decimals}f}",
+            "nominal_adjusted_win_loss_ratio_long":    f"{self.nominal_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
+            "nominal_adjusted_win_loss_ratio_short":   f"{self.nominal_adjusted_win_loss_ratio_short():.{self._float_decimals}f}",
+            "leveraged_adjusted_win_loss_ratio":       f"{self.leveraged_adjusted_win_loss_ratio():.{self._float_decimals}f}",
+            "leveraged_adjusted_win_loss_ratio_long":  f"{self.leveraged_adjusted_win_loss_ratio_long():.{self._float_decimals}f}",
             "leveraged_adjusted_win_loss_ratio_short": f"{self.leveraged_adjusted_win_loss_ratio_short():.{self._float_decimals}f}",
-            "nominal_expected_value": f"{self.nominal_expected_value()*100.0:.{self._float_decimals}f}%",
-            "nominal_expected_value_long": f"{self.nominal_expected_value_long()*100.0:.{self._float_decimals}f}%",
-            "nominal_expected_value_short": f"{self.nominal_expected_value_short()*100.0:.{self._float_decimals}f}%",
-            "leveraged_expected_value": f"{self.leveraged_expected_value()*100.0:.{self._float_decimals}f}%",
-            "leveraged_expected_value_long": f"{self.leveraged_expected_value_long()*100.0:.{self._float_decimals}f}%",
-            "leveraged_expected_value_short": f"{self.leveraged_expected_value_short()*100.0:.{self._float_decimals}f}%",
-            "winners_nominal_pl_mean": f"{self.winners_nominal_pl_mean()*100.0:.{self._float_decimals}f}%",
-            "winners_nominal_pl_mean_long": f"{self.winners_nominal_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-            "winners_nominal_pl_mean_short": f"{self.winners_nominal_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-            "winners_leveraged_pl_mean": f"{self.winners_leveraged_pl_mean()*100.0:.{self._float_decimals}f}%",
-            "winners_leveraged_pl_mean_long": f"{self.winners_leveraged_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-            "winners_leveraged_pl_mean_short": f"{self.winners_leveraged_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-            "losers_nominal_pl_mean": f"{self.losers_nominal_pl_mean()*100.0:.{self._float_decimals}f}%",
-            "losers_nominal_pl_mean_long": f"{self.losers_nominal_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-            "losers_nominal_pl_mean_short": f"{self.losers_nominal_pl_mean_short()*100.0:.{self._float_decimals}f}%",
-            "losers_leveraged_pl_mean": f"{self.losers_leveraged_pl_mean()*100.0:.{self._float_decimals}f}%",
-            "losers_leveraged_pl_mean_long": f"{self.losers_leveraged_pl_mean_long()*100.0:.{self._float_decimals}f}%",
-            "losers_leveraged_pl_mean_short": f"{self.losers_leveraged_pl_mean_short()*100.0:.{self._float_decimals}f}%",
+            "nominal_expected_value":                  f"{self.nominal_expected_value() * 100.0:.{self._float_decimals}f}%",
+            "nominal_expected_value_long":             f"{self.nominal_expected_value_long() * 100.0:.{self._float_decimals}f}%",
+            "nominal_expected_value_short":            f"{self.nominal_expected_value_short() * 100.0:.{self._float_decimals}f}%",
+            "leveraged_expected_value":                f"{self.leveraged_expected_value() * 100.0:.{self._float_decimals}f}%",
+            "leveraged_expected_value_long":           f"{self.leveraged_expected_value_long() * 100.0:.{self._float_decimals}f}%",
+            "leveraged_expected_value_short":          f"{self.leveraged_expected_value_short() * 100.0:.{self._float_decimals}f}%",
+            "winners_nominal_pl_mean":                 f"{self.winners_nominal_pl_mean() * 100.0:.{self._float_decimals}f}%",
+            "winners_nominal_pl_mean_long":            f"{self.winners_nominal_pl_mean_long() * 100.0:.{self._float_decimals}f}%",
+            "winners_nominal_pl_mean_short":           f"{self.winners_nominal_pl_mean_short() * 100.0:.{self._float_decimals}f}%",
+            "winners_leveraged_pl_mean":               f"{self.winners_leveraged_pl_mean() * 100.0:.{self._float_decimals}f}%",
+            "winners_leveraged_pl_mean_long":          f"{self.winners_leveraged_pl_mean_long() * 100.0:.{self._float_decimals}f}%",
+            "winners_leveraged_pl_mean_short":         f"{self.winners_leveraged_pl_mean_short() * 100.0:.{self._float_decimals}f}%",
+            "losers_nominal_pl_mean":                  f"{self.losers_nominal_pl_mean() * 100.0:.{self._float_decimals}f}%",
+            "losers_nominal_pl_mean_long":             f"{self.losers_nominal_pl_mean_long() * 100.0:.{self._float_decimals}f}%",
+            "losers_nominal_pl_mean_short":            f"{self.losers_nominal_pl_mean_short() * 100.0:.{self._float_decimals}f}%",
+            "losers_leveraged_pl_mean":                f"{self.losers_leveraged_pl_mean() * 100.0:.{self._float_decimals}f}%",
+            "losers_leveraged_pl_mean_long":           f"{self.losers_leveraged_pl_mean_long() * 100.0:.{self._float_decimals}f}%",
+            "losers_leveraged_pl_mean_short":          f"{self.losers_leveraged_pl_mean_short() * 100.0:.{self._float_decimals}f}%",
         }

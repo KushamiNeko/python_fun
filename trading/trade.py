@@ -16,7 +16,7 @@ class FuturesTrade:
         assert orders is not None and len(orders) > 0
 
         self._orders = sorted(
-            orders, key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+                orders, key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
         )
 
         self._open_orders: List[FuturesTransaction]
@@ -25,7 +25,7 @@ class FuturesTrade:
 
     def _validate_orders(self) -> None:
         if (self._orders[0].operation() not in ("+", "-")) or (
-            self._orders[-1].operation() not in ("-", "+")
+                self._orders[-1].operation() not in ("-", "+")
         ):
             raise ValueError("invalid trade orders operation")
 
@@ -38,7 +38,7 @@ class FuturesTrade:
         for o in self._orders:
             if o.symbol() != self.symbol():
                 raise ValueError(
-                    f"mismatch symbol in orders: {o.symbol}, {self.symbol}"
+                        f"mismatch symbol in orders: {o.symbol}, {self.symbol}"
                 )
 
             if o.operation() == self.operation():
@@ -50,7 +50,7 @@ class FuturesTrade:
 
         if open_leverage != close_leverage:
             raise ValueError(
-                f"leverage of open and close contracts do not match\nopen: {open_leverage}, close: {close_leverage}"
+                    f"leverage of open and close contracts do not match\nopen: {open_leverage}, close: {close_leverage}"
             )
 
         self._open_orders = open_orders
@@ -115,13 +115,13 @@ class FuturesTrade:
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "symbol": self.symbol(),
-            "operation": self.operation(),
-            "leverage": f"{self.leverage()}",
-            "open_time": self.open_time().strftime("%Y%m%d"),
-            "close_time": self.close_time().strftime("%y%m%d"),
-            "average_open": f"{self.average_open()}",
+            "symbol":        self.symbol(),
+            "operation":     self.operation(),
+            "leverage":      f"{self.leverage()}",
+            "open_time":     self.open_time().strftime("%Y%m%d"),
+            "close_time":    self.close_time().strftime("%y%m%d"),
+            "average_open":  f"{self.average_open()}",
             "average_close": f"{self.average_close()}",
-            "nominal_pl": f"{self.nominal_pl()*100.0:.{self._float_decimals}f}%",
-            "leveraged_pl": f"{self.leveraged_pl()*100.0:.{self._float_decimals}f}%",
+            "nominal_pl":    f"{self.nominal_pl() * 100.0:.{self._float_decimals}f}%",
+            "leveraged_pl":  f"{self.leveraged_pl() * 100.0:.{self._float_decimals}f}%",
         }

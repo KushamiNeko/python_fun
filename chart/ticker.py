@@ -3,9 +3,8 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from matplotlib import ticker
-
 from fun.data.source import DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY
+from matplotlib import ticker
 
 
 class Ticker(metaclass=ABCMeta):
@@ -50,7 +49,7 @@ class TimeTicker(Ticker):
             loc = [np.argwhere(dates == l).min() for l in labels]
 
             func = np.vectorize(
-                lambda x: x.split("-")[0] if "Jan" in x else x.split("-")[1]
+                    lambda x: x.split("-")[0] if "Jan" in x else x.split("-")[1]
             )
             labels = func(labels)
 
@@ -70,14 +69,13 @@ class TimeTicker(Ticker):
 
 class StepTicker(Ticker):
     def __init__(
-        self,
-        mn: float,
-        mx: float,
-        nbins: int = 25,
-        steps: Optional[List[int]] = [1, 2, 5, 10],
-        decimals: int = 2,
+            self,
+            mn: float,
+            mx: float,
+            nbins: int = 25,
+            steps: Optional[List[int]] = [1, 2, 5, 10],
+            decimals: int = 2,
     ) -> None:
-
         self._nbins = nbins
         self._steps = steps
         self._min = mn

@@ -8,7 +8,7 @@ from fun.utils import helper
 
 
 class TradingBook:
-    def __init__(self, title: str, index: str = "", last_modified: float = 0,) -> None:
+    def __init__(self, title: str, index: str = "", last_modified: float = 0, ) -> None:
 
         if title == "":
             raise ValueError("invaild book title")
@@ -40,8 +40,8 @@ class TradingBook:
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "title": self._title,
-            "index": self._index,
+            "title":         self._title,
+            "index":         self._index,
             "last_modified": f"{self._last_modified}",
         }
 
@@ -49,7 +49,7 @@ class TradingBook:
     def from_entity(cls, entity: Dict[str, str]) -> TradingBook:
 
         return TradingBook(
-            title=entity["title"],
-            index=entity.get("index", ""),
-            last_modified=float(entity.get("last_modified", "0")),
+                title=entity["title"],
+                index=entity.get("index", ""),
+                last_modified=float(entity.get("last_modified", "0")),
         )

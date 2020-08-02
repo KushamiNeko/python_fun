@@ -32,7 +32,6 @@ class Indicator(LinePlotter):
     def _calculate(self) -> Union[pd.Series, List[pd.Series]]:
         raise NotImplementedError
 
-    # def _render(self, ax: axes.Axes, ys: Union[pd.Series, List[pd.Series]]) -> None:
     def _render(self, ax: axes.Axes, ys: pd.Series) -> None:
         if self._slice_start is not None and self._slice_end is not None:
             ys = ys.loc[self._slice_start: self._slice_end]

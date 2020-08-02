@@ -11,7 +11,6 @@ class CandleSticks(Plotter):
             quotes: pd.DataFrame,
             shadow_width: float,
             body_width: float,
-            # minimum_height: float,
             color_up: str,
             color_down: str,
             color_unchanged: str,
@@ -27,7 +26,6 @@ class CandleSticks(Plotter):
         self._color_unchanged = color_unchanged
 
     def _minimum_height(self) -> float:
-        # ratio = 0.00025
         ratio = 0.001
         mn = np.amin(self._quotes.loc[:, "low"])
         mx = np.amax(self._quotes.loc[:, "high"])
@@ -83,22 +81,6 @@ class CandleSticks(Plotter):
                 color = self._color_up
             elif p_close < p_open:
                 color = self._color_down
-
-            # ax.plot(
-            # [index, index],
-            # [p_shadow_top, p_shadow_bottom],
-            # linewidth=self._shadow_width,
-            # color=color,
-            # zorder=5,
-            # )
-
-            # ax.plot(
-            # [index, index],
-            # [p_body_top, p_body_bottom],
-            # linewidth=self._body_width,
-            # color=color,
-            # zorder=5,
-            # )
 
             shadow = patches.Rectangle(
                     xy=(index - (self._shadow_width / 2.0), p_shadow_bottom),

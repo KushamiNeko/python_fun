@@ -1,7 +1,8 @@
 import json
 import os
 from typing import Dict, List, Optional
-from fun.utils import pretty, colors
+
+from fun.utils import colors, pretty
 
 
 class JsonDB:
@@ -43,11 +44,11 @@ class JsonDB:
         self._write(database, collection)
 
     def replace(
-        self,
-        database: str,
-        collection: str,
-        query: Dict[str, str],
-        new_entity: Dict[str, str],
+            self,
+            database: str,
+            collection: str,
+            query: Dict[str, str],
+            new_entity: Dict[str, str],
     ) -> None:
 
         assert query is not None
@@ -69,7 +70,7 @@ class JsonDB:
         self._write(database, collection)
 
     def find(
-        self, database: str, collection: str, query: Optional[Dict[str, str]]
+            self, database: str, collection: str, query: Optional[Dict[str, str]]
     ) -> Optional[List[Dict[str, str]]]:
 
         self._read(database, collection)

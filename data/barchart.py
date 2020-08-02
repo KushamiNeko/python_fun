@@ -3,13 +3,12 @@ import re
 from datetime import datetime
 
 import pandas as pd
-
-from fun.data.source import DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY, DataSource
+from fun.data.source import DAILY, DataSource, FREQUENCY, HOURLY, MONTHLY, WEEKLY
 
 
 class BarchartOnDemand(DataSource):
     def _url(
-        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
 
         if not re.match(r"^[a-zA-Z]+[0-9]{2}$", symbol):
@@ -90,7 +89,7 @@ class Barchart(DataSource):
         raise ValueError(f"unknown timestamp format: {x}")
 
     def _url(
-        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
         return os.path.join("barchart", f"{symbol}.csv")
 
@@ -100,24 +99,24 @@ class Barchart(DataSource):
             content = f.readlines()
 
         if (
-            re.match(
-                r"""["']*Symbol:\s*\w+\d*["']*,+["']*Study:\s*\w+["']*,""",
-                content[0].strip(),
-            )
-            is not None
+                re.match(
+                        r"""["']*Symbol:\s*\w+\d*["']*,+["']*Study:\s*\w+["']*,""",
+                        content[0].strip(),
+                )
+                is not None
         ):
             df = pd.read_csv(
-                self._localfile(self._url(start, end, symbol, DAILY)), header=1
+                    self._localfile(self._url(start, end, symbol, DAILY)), header=1
             )
         else:
             df = pd.read_csv(self._localfile(self._url(start, end, symbol, DAILY)))
 
         if (
-            re.match(
-                r"""["']*\s*Downloaded\s*from\s*Barchart\.com\s*as\s*of\s*\d{2}-\d{2}-\d{4}\s*\d{2}:\d{2}[ap]m\s*C[SD]T["']*""",
-                content[-1].strip(),
-            )
-            is not None
+                re.match(
+                        r"""["']*\s*Downloaded\s*from\s*Barchart\.com\s*as\s*of\s*\d{2}-\d{2}-\d{4}\s*\d{2}:\d{2}[ap]m\s*C[SD]T["']*""",
+                        content[-1].strip(),
+                )
+                is not None
         ):
             df = df.drop(df.tail(1).index)
 
@@ -166,6 +165,6 @@ class Barchart(DataSource):
 
 class BarchartContract(Barchart):
     def _url(
-        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
-        return os.path.join("continuous", symbol[:2], f"{symbol}.csv",)
+        return os.path.join("continuous", symbol[:2], f"{symbol}.csv", )

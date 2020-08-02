@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import List, NewType
 
 import pandas as pd
-
 from fun.data.barchart import BarchartContract
 from fun.data.source import DAILY
 from fun.utils import colors, pretty
@@ -22,18 +21,17 @@ QUANDL = CODE_FORMAT(1)
 
 
 class Contract:
-
     _barchart_format = r"^(\w{2})([fghjkmnquvxz])(\d{2})$"
     _quandl_format = r"^([\d\w]+)([fghjkmnquvxz])(\d{4})$"
 
     @classmethod
     def front_month(
-        cls,
-        symbol: str,
-        months: CONTRACT_MONTHS,
-        fmt: CODE_FORMAT = BARCHART,
-        read_data: bool = True,
-        time: datetime = datetime.now(),
+            cls,
+            symbol: str,
+            months: CONTRACT_MONTHS,
+            fmt: CODE_FORMAT = BARCHART,
+            read_data: bool = True,
+            time: datetime = datetime.now(),
     ) -> Contract:
         assert fmt in (BARCHART, QUANDL)
         assert months in (
@@ -73,18 +71,18 @@ class Contract:
         assert year_code != ""
 
         return Contract(
-            code=f"{symbol}{front_month}{year_code}",
-            fmt=fmt,
-            months=months,
-            read_data=read_data,
+                code=f"{symbol}{front_month}{year_code}",
+                fmt=fmt,
+                months=months,
+                read_data=read_data,
         )
 
     def __init__(
-        self,
-        code: str,
-        months: CONTRACT_MONTHS,
-        fmt: CODE_FORMAT = BARCHART,
-        read_data: bool = True,
+            self,
+            code: str,
+            months: CONTRACT_MONTHS,
+            fmt: CODE_FORMAT = BARCHART,
+            read_data: bool = True,
     ) -> None:
 
         assert fmt in (BARCHART, QUANDL)
@@ -108,7 +106,7 @@ class Contract:
             match = re.match(self._barchart_format, self._code)
             if match is None:
                 raise ValueError(
-                    f"invalid contract code {self._code} for {self._fmt} format"
+                        f"invalid contract code {self._code} for {self._fmt} format"
                 )
 
             year = int(f"20{match.group(3)}")
@@ -117,7 +115,7 @@ class Contract:
             match = re.match(self._quandl_format, self._code)
             if match is None:
                 raise ValueError(
-                    f"invalid contract code {self._code} for {self._fmt} format"
+                        f"invalid contract code {self._code} for {self._fmt} format"
                 )
 
             year = int(match.group(3))
@@ -146,10 +144,10 @@ class Contract:
 
     def read_data(self, src=BarchartContract()) -> None:
         self._df = src.read(
-            start=datetime(1776, 7, 4),
-            end=datetime.now(),
-            symbol=self._code,
-            frequency=DAILY,
+                start=datetime(1776, 7, 4),
+                end=datetime.now(),
+                symbol=self._code,
+                frequency=DAILY,
         )
 
         assert self._df is not None
@@ -177,7 +175,7 @@ class Contract:
             p_year -= 1
 
         p_month = month_from_futures_month_code(
-            self._months[mi - 1 % len(self._months)]
+                self._months[mi - 1 % len(self._months)]
         )
 
         year_code = ""
@@ -190,10 +188,10 @@ class Contract:
             raise ValueError("invalid code format")
 
         return Contract(
-            code=f"{self._symbol}{month_to_futures_month_code(p_month)}{year_code}",
-            months=self._months,
-            fmt=self._fmt,
-            read_data=read_data,
+                code=f"{self._symbol}{month_to_futures_month_code(p_month)}{year_code}",
+                months=self._months,
+                fmt=self._fmt,
+                read_data=read_data,
         )
 
 
@@ -256,17 +254,16 @@ def month_from_futures_month_code(code: str) -> int:
 
 
 def contract_list(
-    start: datetime,
-    end: datetime,
-    symbol: str,
-    months: CONTRACT_MONTHS,
-    fmt: CODE_FORMAT,
-    read_data: bool = True,
+        start: datetime,
+        end: datetime,
+        symbol: str,
+        months: CONTRACT_MONTHS,
+        fmt: CODE_FORMAT,
+        read_data: bool = True,
 ) -> List[Contract]:
-
     try:
         cur = Contract.front_month(
-            symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
+                symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
         )
     except FileNotFoundError:
         msg = "empty contract list"
@@ -275,8 +272,8 @@ def contract_list(
 
     contracts = [cur]
     while not (
-        (cur.year() * 10000 + cur.month() * 100)
-        < (start.year * 10000 + start.month * 100)
+            (cur.year() * 10000 + cur.month() * 100)
+            < (start.year * 10000 + start.month * 100)
     ):
 
         try:

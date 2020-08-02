@@ -39,9 +39,6 @@ class CandleSticksPreset:
             dtime: datetime,
             symbol: str,
             frequency: FREQUENCY,
-            # theme: Optional[Theme] = None,
-            # theme: Theme = Theme(),
-            # setting: Setting=Setting(),
             chart_size: CHART_SIZE = MEDIUM_CHART,
     ) -> None:
         assert re.match(r"^[a-zA-Z0-9]+$", symbol) is not None
@@ -60,23 +57,11 @@ class CandleSticksPreset:
         self._chart_size = chart_size
         self._cache = self._read_chart_data()
 
-        # if theme is None:
-        #     self._theme = Theme()
-        # else:
-        #     self._theme = theme
-        # self._theme = theme
-        # self._setting = Setting(chart_size=chart_size)
         self._theme = None
         self._setting = None
 
         self._controller = None
         self._chart = None
-        # self._chart = TradingChart(
-        #     quotes=self._cache.quotes(), theme=self._theme, chart_size=self._chart_size,
-        # )
-        # self._last_quote = True
-        # self._records: Optional[List[FuturesTransaction]] = None
-        # self._params: Dict[str, str] = {}
 
     def _time_range(self, dtime: datetime) -> Tuple[datetime, datetime]:
 
@@ -110,9 +95,6 @@ class CandleSticksPreset:
         print("network")
 
         src: Optional[DataSource] = None
-        # factory = lambda quotes: CandleSticks(
-        #     quotes=quotes, chart_size=self._chart_size
-        # )
 
         if self._symbol in ("vix", "vxn", "sml", "ovx", "gvz"):
             src = Yahoo()
@@ -177,138 +159,8 @@ class CandleSticksPreset:
 
         assert df is not None
 
-        # cache = QuotesCache(df, self._stime, self._etime, chart_factory=factory)
         cache = QuotesCache(df, self._stime, self._etime)
         return cache
-
-    # @abstractmethod
-    # def make_plotters(
-    #     self,
-    #     parameters: Optional[List[str]] = None,
-    #     additional_plotters: Optional[List[Plotter]] = None,
-    # ) -> List[Plotter]:
-    # ps = [
-    #     SimpleMovingAverage(
-    #         n=5,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("sma0"),
-    #         line_alpha=self._theme.get_alpha("sma"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     SimpleMovingAverage(
-    #         n=20,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("sma1"),
-    #         line_alpha=self._theme.get_alpha("sma"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     BollinggerBand(
-    #         n=20,
-    #         m=1.5,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("bb0"),
-    #         line_alpha=self._theme.get_alpha("bb"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     BollinggerBand(
-    #         n=20,
-    #         m=2.0,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("bb1"),
-    #         line_alpha=self._theme.get_alpha("bb"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     BollinggerBand(
-    #         n=20,
-    #         m=2.5,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("bb2"),
-    #         line_alpha=self._theme.get_alpha("bb"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     BollinggerBand(
-    #         n=20,
-    #         m=3.0,
-    #         quotes=self._cache.full_quotes(),
-    #         slice_start=self._cache.quotes().index[0],
-    #         slice_end=self._cache.quotes().index[-1],
-    #         line_color=self._theme.get_color("bb3"),
-    #         line_alpha=self._theme.get_alpha("bb"),
-    #         line_width=self._setting.linewidth(),
-    #     ),
-    #     # LastQuote(
-    #     #     quotes=self._cache.quotes(),
-    #     #     font_color=self._theme.get_color("text"),
-    #     #     font_properties=self._theme.get_font(
-    #     #         self._setting.text_fontsize(multiplier=1.5)
-    #     #     ),
-    #     # ),
-    # ]
-
-    # if self._last_quote is True:
-    #     ps.append(
-    #         LastQuote(
-    #             quotes=self._cache.quotes(),
-    #             font_color=self._theme.get_color("text"),
-    #             font_properties=self._theme.get_font(
-    #                 self._setting.text_fontsize(multiplier=1.5)
-    #             ),
-    #         ),
-    #     )
-
-    # if self._records is not None:
-    #     ps.append(
-    #         LeverageRecords(
-    #             quotes=self._cache.quotes(),
-    #             frequency=self._frequency,
-    #             records=self._records,
-    #             font_color=self._theme.get_color("text"),
-    #             font_properties=self._theme.get_font(self._setting.text_fontsize()),
-    #         )
-    #     )
-
-    # if self._params is not None and len(self._params) != 0:
-    #     if self._symbol in ("vix", "vxn", "rvx", "vstx", "jniv"):
-    #         dtime = self._params.get("vixzone", None)
-    #         op = self._params.get("vixop", None)
-    #         if dtime is not None and op is not None:
-    #             ps.append(
-    #                 VolatilityZone(
-    #                     quotes=self._cache.quotes(),
-    #                     dtime=datetime.strptime(dtime, "%Y%m%d"),
-    #                     op=op,
-    #                 )
-    #             )
-
-    # ps = []
-    #
-    # if plotters is not None:
-    #     ps.extend(plotters)
-    #
-    # return ps
-    # raise NotImplementedError
-
-    # def set_parameters(self, params: Dict[str, str]) -> None:
-    #     self._params = params
-    #
-    # def show_records(self, records: Optional[List[FuturesTransaction]] = None) -> None:
-    #     if records is not None and len(records) > 0:
-    #         self._records = records
-    #     else:
-    #         self._records = None
-
-    # def show_last_quote(self, show: bool) -> None:
-    #     self._last_quote = show
 
     def cache(self) -> QuotesCache:
         return self._cache
@@ -324,13 +176,6 @@ class CandleSticksPreset:
 
     def setting(self) -> Optional[Setting]:
         return self._setting
-
-    # def set_theme(self, theme: Theme) -> None:
-    #     self._theme = theme
-    #     # self._cache.new_theme(theme)
-    #
-    # def set_setting(self, setting: Setting) -> None:
-    #     self._setting = setting
 
     def last_quote(self) -> Dict[str, Any]:
         df = self._cache.quotes().iloc[-1]
@@ -373,38 +218,32 @@ class CandleSticksPreset:
         return cast(datetime, self._cache.exetime().to_pydatetime())
 
     def forward(self) -> bool:
-        # chart = self._cache.forward()
-        # if chart is None:
-        #     return False
-        # else:
-        #     return True
         return self._cache.forward()
 
     def backward(self) -> bool:
-        # chart = self._cache.backward()
-        # if chart is None:
-        #     return False
-        # else:
-        #     return True
         return self._cache.backward()
 
     def make_controller(
             self,
             parameters: Optional[Dict[str, str]],
             preset_key: str = "Preset",
-            # setting_key: str = "s",
     ) -> None:
         if parameters is None:
-            return
-
-        preset = parameters.get(preset_key, "").strip()
-        # setting = parameters.get(setting_key, "").strip().split(",")
-        if preset == "KushamiNeko":
             self._controller = KushamiNekoController(
                     cache=self._cache,
                     symbol=self._symbol,
                     frequency=self._frequency,
-                    # setting=self._setting,
+                    chart_size=self._chart_size,
+                    parameters=parameters,
+            )
+            return
+
+        preset = parameters.get(preset_key, "").strip()
+        if preset == "" or preset == "KushamiNeko":
+            self._controller = KushamiNekoController(
+                    cache=self._cache,
+                    symbol=self._symbol,
+                    frequency=self._frequency,
                     chart_size=self._chart_size,
                     parameters=parameters,
             )
@@ -413,38 +252,26 @@ class CandleSticksPreset:
                     cache=self._cache,
                     symbol=self._symbol,
                     frequency=self._frequency,
-                    # setting=self._setting,
                     chart_size=self._chart_size,
                     parameters=parameters,
             )
 
-    # def render(self, plotters: Optional[List[Plotter]] = None) -> io.BytesIO:
-    # def render(self, controller: Optional[PresetController] = None,
     def render(self, additional_plotters: Optional[List[Plotter]] = None) -> io.BytesIO:
-
         buf = io.BytesIO()
 
-        # self._cache.chart().render(buf, plotters=self._make_plotters(plotters=plotters))
-
         plotters = []
-        # if controller is not None:
-        #     # controller.set_cache(self._cache)
-        #     # controller.set_frequency(self._frequency)
-        #     # controller.set_setting(self._setting)
-        #
-        #     self._theme = controller.get_theme()
-        #     plotters = controller.get_plotters()
 
-        if self._controller is not None:
-            self._theme = self._controller.get_theme()
-            self._setting = self._controller.get_setting()
-            plotters.extend(self._controller.get_plotters())
+        if self._controller is None:
+            self.make_controller(parameters={"MovingAverages": "true", "BollingerBands": "true"})
+
+        self._theme = self._controller.get_theme()
+        self._setting = self._controller.get_setting()
+        plotters.extend(self._controller.get_plotters())
 
         if additional_plotters is not None and len(additional_plotters) > 0:
             plotters.extend(additional_plotters)
 
         self._chart = TradingChart(
-                # quotes=self._cache.quotes(), theme=self._theme, chart_size=self._chart_size,
                 quotes=self._cache.quotes(),
                 theme=self._theme,
                 setting=self._setting,
@@ -464,7 +291,6 @@ class CandleSticksPreset:
             ay: Optional[float] = None,
             decimals: int = 2,
     ) -> Optional[Dict[str, str]]:
-        # n = self._cache.chart().to_data_coordinates(x, y)
         n = self._chart.to_data_coordinates(x, y)
         if n is None:
             return None
@@ -494,7 +320,6 @@ class CandleSticksPreset:
                 ] = f"{((df.iloc[nx].get('close') - base) / base) * 100.0:,.{decimals}f}"
 
         else:
-            # an = self._cache.chart().to_data_coordinates(ax, ay)
             an = self._chart.to_data_coordinates(ax, ay)
             assert an is not None
 
@@ -512,39 +337,22 @@ class CandleSticksPreset:
 
 class PresetController(metaclass=ABCMeta):
 
-    # def __init__(self, cache: QuotesCache, frequency: FREQUENCY, parameters: Optional[Dict[str, str]]) -> None:
-    # def __init__(self, cache: QuotesCache, frequency: FREQUENCY, setting: Setting, parameters: Optional[Dict[str, str]]) -> None:
     def __init__(
             self,
             cache: QuotesCache,
             symbol: str,
             frequency: FREQUENCY,
-            # setting: Setting,
             chart_size: CHART_SIZE,
-            # parameters: Optional[List[str]],
             parameters: Optional[Dict[str, str]],
     ) -> None:
         self._cache = cache
         self._symbol = symbol
         self._frequency = frequency
-        # self._setting = setting
 
         self._chart_size = chart_size
         self._setting = Setting(chart_size=chart_size)
 
         self._parameters = parameters
-
-    # def set_cache(self, cache: QuotesCache) -> None:
-    #     self._cache = cache
-    #
-    # def set_frequency(self, frequency: FREQUENCY) -> None:
-    #     self._frequency = frequency
-    #
-    # def set_setting(self, setting: Setting) -> None:
-    #     self._setting = setting
-    #
-    # def set_chart_size(self, chart_size: CHART_SIZE) -> None:
-    #     self._setting = Setting(chart_size=chart_size)
 
     def get_setting(self) -> Setting:
         return self._setting
@@ -554,7 +362,6 @@ class PresetController(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    # def get_plotters(self, parameters: Optional[Dict[str, str]]) -> List[Plotter]:
     def get_plotters(self) -> List[Plotter]:
         raise NotImplementedError
 
@@ -565,8 +372,6 @@ class KushamiNekoController(PresetController):
 
     def get_plotters(
             self,
-            # parameters: Optional[List[str]] = None,
-            # additional_plotters: Optional[List[Plotter]] = None,
     ) -> List[Plotter]:
         plotters = [
             BackgroundTimeRangeMark(
@@ -576,7 +381,6 @@ class KushamiNekoController(PresetController):
                     quotes=self._cache.quotes(),
                     shadow_width=self._setting.shadow_width(),
                     body_width=self._setting.body_width(),
-                    # minimum_height=self._minimum_height(),
                     color_up=self.get_theme().get_color("up"),
                     color_down=self.get_theme().get_color("down"),
                     color_unchanged=self.get_theme().get_color("unchanged"),
@@ -598,12 +402,8 @@ class KushamiNekoController(PresetController):
             )
         ]
 
-        # theme_set = self._params.get("themeSet", "").strip()
-        # theme_setting = self._params.get("themeSetting", "").strip()
         if self._parameters is not None:
 
-            # for setting in self._parameters:
-            # if setting == "MovingAverages":
             if self._parameters.get("MovingAverages", "").lower() == "true":
                 plotters.extend(
                         [
@@ -625,18 +425,8 @@ class KushamiNekoController(PresetController):
                                     line_alpha=self.get_theme().get_alpha("sma"),
                                     line_width=self._setting.linewidth(),
                             ),
-                            # SimpleMovingAverage(
-                            #     n=100,
-                            #     quotes=self._cache.full_quotes(),
-                            #     slice_start=self._cache.quotes().index[0],
-                            #     slice_end=self._cache.quotes().index[-1],
-                            #     line_color=self._theme.get_color("sma2"),
-                            #     line_alpha=self._theme.get_alpha("sma"),
-                            #     line_width=self._setting.linewidth(),
-                            # ),
                         ]
                 )
-            # elif setting == "BollingerBands":
             if self._parameters.get("BollingerBands", "").lower() == "true":
                 plotters.extend(
                         [
@@ -768,7 +558,6 @@ class MagicalController(PresetController):
                     quotes=self._cache.quotes(),
                     shadow_width=self._setting.shadow_width(),
                     body_width=self._setting.body_width(),
-                    # minimum_height=self._minimum_height(),
                     color_up=self.get_theme().get_color("up"),
                     color_down=self.get_theme().get_color("down"),
                     color_unchanged=self.get_theme().get_color("unchanged"),
@@ -801,179 +590,4 @@ class MagicalController(PresetController):
                         ),
                 )
 
-        # if self._parameters is not None:
-        #     numbers = [int(s) for s in self._parameters]
-        #     for n in numbers:
-        #         plotters.append(
-        #             SimpleMovingAverage(
-        #                 n=n,
-        #                 quotes=self._cache.full_quotes(),
-        #                 slice_start=self._cache.quotes().index[0],
-        #                 slice_end=self._cache.quotes().index[-1],
-        #                 line_color=self.get_theme().get_color(f"sma{n}"),
-        #                 line_alpha=self.get_theme().get_alpha("sma"),
-        #                 line_width=self._setting.linewidth(),
-        #             ),
-        #         )
-
         return plotters
-
-# class BollingerBandsPreset(CandleSticksPreset):
-#     def _make_plotters(self, plotters: Optional[List[Plotter]] = None) -> List[Plotter]:
-#         ps = [
-#             SimpleMovingAverage(
-#                 n=5,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma0"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             SimpleMovingAverage(
-#                 n=20,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma1"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             BollingerBand(
-#                 n=20,
-#                 m=1.5,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("bb0"),
-#                 line_alpha=self._theme.get_alpha("bb"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             BollingerBand(
-#                 n=20,
-#                 m=2.0,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("bb1"),
-#                 line_alpha=self._theme.get_alpha("bb"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             BollingerBand(
-#                 n=20,
-#                 m=2.5,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("bb2"),
-#                 line_alpha=self._theme.get_alpha("bb"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             BollingerBand(
-#                 n=20,
-#                 m=3.0,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("bb3"),
-#                 line_alpha=self._theme.get_alpha("bb"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#         ]
-#
-#         if plotters is not None:
-#             ps.extend(plotters)
-#
-#         return ps
-
-
-# class MovingAveragesPreset(CandleSticksPreset):
-#     def _make_plotters(self, plotters: Optional[List[Plotter]] = None) -> List[Plotter]:
-#         ps = [
-#             # SimpleMovingAverage(
-#             #     n=3,
-#             #     quotes=self._cache.full_quotes(),
-#             #     slice_start=self._cache.quotes().index[0],
-#             #     slice_end=self._cache.quotes().index[-1],
-#             #     line_color=self._theme.get_color("sma2"),
-#             #     line_alpha=self._theme.get_alpha("sma"),
-#             #     line_width=self._setting.linewidth(),
-#             # ),
-#             SimpleMovingAverage(
-#                 n=5,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma0"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             # SimpleMovingAverage(
-#             #     n=7,
-#             #     quotes=self._cache.full_quotes(),
-#             #     slice_start=self._cache.quotes().index[0],
-#             #     slice_end=self._cache.quotes().index[-1],
-#             #     line_color=self._theme.get_color("sma3"),
-#             #     line_alpha=self._theme.get_alpha("sma"),
-#             #     line_width=self._setting.linewidth(),
-#             # ),
-#             # SimpleMovingAverage(
-#             #     n=10,
-#             #     quotes=self._cache.full_quotes(),
-#             #     slice_start=self._cache.quotes().index[0],
-#             #     slice_end=self._cache.quotes().index[-1],
-#             #     line_color=self._theme.get_color("sma4"),
-#             #     line_alpha=self._theme.get_alpha("sma"),
-#             #     line_width=self._setting.linewidth(),
-#             # ),
-#             SimpleMovingAverage(
-#                 n=20,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma1"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             # SimpleMovingAverage(
-#             #     n=30,
-#             #     quotes=self._cache.full_quotes(),
-#             #     slice_start=self._cache.quotes().index[0],
-#             #     slice_end=self._cache.quotes().index[-1],
-#             #     line_color=self._theme.get_color("sma5"),
-#             #     line_alpha=self._theme.get_alpha("sma"),
-#             #     line_width=self._setting.linewidth(),
-#             # ),
-#             SimpleMovingAverage(
-#                 n=50,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma2"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#             # SimpleMovingAverage(
-#             #     n=100,
-#             #     quotes=self._cache.full_quotes(),
-#             #     slice_start=self._cache.quotes().index[0],
-#             #     slice_end=self._cache.quotes().index[-1],
-#             #     line_color=self._theme.get_color("sma7"),
-#             #     line_alpha=self._theme.get_alpha("sma"),
-#             #     line_width=self._setting.linewidth(),
-#             # ),
-#             SimpleMovingAverage(
-#                 n=200,
-#                 quotes=self._cache.full_quotes(),
-#                 slice_start=self._cache.quotes().index[0],
-#                 slice_end=self._cache.quotes().index[-1],
-#                 line_color=self._theme.get_color("sma3"),
-#                 line_alpha=self._theme.get_alpha("sma"),
-#                 line_width=self._setting.linewidth(),
-#             ),
-#         ]
-#
-#         if plotters is not None:
-#             ps.extend(plotters)
-#
-#         return ps

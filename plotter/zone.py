@@ -41,7 +41,6 @@ class VolatilityZone(Plotter):
 
     def _long_zone(self, ax: axes.Axes, p_open: float, p_close: float) -> None:
         h = max(p_open, p_close)
-        # l = min(p_open, p_close)
 
         l = h * (1.0 - self._long_tolerant)
         le = h * (1.0 - (self._long_tolerant * self._long_tolerant_extended_ratio))
@@ -55,15 +54,6 @@ class VolatilityZone(Plotter):
                 alpha=self._tolerant_alpha,
         )
 
-        # ax.barh(
-        # h,
-        # width=len(self._quotes),
-        # height=le - h,
-        # align="edge",
-        # color=self._tolerant_extended_color,
-        # alpha=self._tolerant_extended_alpha,
-        # )
-
         ax.barh(
                 l,
                 width=len(self._quotes),
@@ -75,7 +65,6 @@ class VolatilityZone(Plotter):
 
     def _short_zone(self, ax: axes.Axes, p_open: float, p_close: float) -> None:
         l = min(p_open, p_close)
-        # h = max(p_open, p_close)
 
         h = l * (1.0 + self._short_tolerant)
         he = l * (1.0 + (self._short_tolerant * self._short_tolerant_extended_ratio))
@@ -88,15 +77,6 @@ class VolatilityZone(Plotter):
                 color=self._tolerant_color,
                 alpha=self._tolerant_alpha,
         )
-
-        # ax.barh(
-        # l,
-        # width=len(self._quotes),
-        # height=he - l,
-        # align="edge",
-        # color=self._tolerant_extended_color,
-        # alpha=self._tolerant_extended_alpha,
-        # )
 
         ax.barh(
                 h,

@@ -14,7 +14,7 @@ def parameterized(sets: List[Dict[str, Any]]):
                 count += 1
 
             pretty.color_print(
-                colors.PAPER_LIGHT_BLUE_300, f"\nrunning {count} parameterized tests",
+                    colors.PAPER_LIGHT_BLUE_300, f"\nrunning {count} parameterized tests",
             )
 
         return wrapper_testing

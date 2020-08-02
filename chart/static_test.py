@@ -8,7 +8,6 @@ from fun.futures.continuous import ContinuousContract
 from fun.utils.testing import parameterized
 
 
-# class TestStaticCandleSticks(unittest.TestCase):
 class TestStaticTradingChart(unittest.TestCase):
     @parameterized(
             [
@@ -115,7 +114,6 @@ class TestStaticTradingChart(unittest.TestCase):
             buf = io.BytesIO()
 
             chart = TradingChart(
-                    # quotes=df.loc[(df.index >= s) & (df.index <= e)], chart_size=MEDIUM_CHART
                     quotes=df.loc[(df.index >= s) & (df.index <= e)],
             )
 

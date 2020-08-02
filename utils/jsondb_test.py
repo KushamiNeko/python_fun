@@ -2,9 +2,9 @@ import os
 import unittest
 from typing import cast
 
+from fun.utils import colors, pretty
 from fun.utils.jsondb import JsonDB
 from fun.utils.testing import parameterized
-from fun.utils import pretty, colors
 
 
 class TestJsonDB(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestJsonDB(unittest.TestCase):
         else:
             for f in os.listdir(root):
                 pretty.color_print(
-                    colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+                        colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
                 )
                 os.remove(os.path.join(root, f))
 
@@ -23,7 +23,7 @@ class TestJsonDB(unittest.TestCase):
     def _clean_root(self, root):
         for f in os.listdir(root):
             pretty.color_print(
-                colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
+                    colors.PAPER_RED_500, f"removing file {os.path.join(root, f)}"
             )
             os.remove(os.path.join(root, f))
 
@@ -63,226 +63,226 @@ class TestJsonDB(unittest.TestCase):
             self.assertIsNone(result)
 
     @parameterized(
-        [
-            {
-                "entities": [
-                    ##
-                    {"a": "1", "b": "2"},
-                ],
-                "queries": [
-                    ##
-                    {"a": "1"},
-                    {"b": "2"},
-                    {"c": "3"},
-                    {"a": "1", "b": "2"},
-                    {"a": "1", "b": "2", "c": "3"},
-                ],
-                "expected": [
-                    ##
-                    [
+            [
+                {
+                    "entities":     [
                         ##
                         {"a": "1", "b": "2"},
                     ],
-                    [
+                    "queries":      [
                         ##
+                        {"a": "1"},
+                        {"b": "2"},
+                        {"c": "3"},
                         {"a": "1", "b": "2"},
+                        {"a": "1", "b": "2", "c": "3"},
                     ],
-                    [
+                    "expected":     [
                         ##
+                        [
+                            ##
+                            {"a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                        ],
+                        [
+                            ##
+                            {"a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                        ],
                     ],
-                    [
+                    "new_entities": [],
+                    "new_queries":  [],
+                    "new_expected": [
                         ##
-                        {"a": "1", "b": "2"},
+                        [],
                     ],
-                    [
-                        ##
-                    ],
-                ],
-                "new_entities": [],
-                "new_queries": [],
-                "new_expected": [
-                    ##
-                    [],
-                ],
-            },
-            {
-                "entities": [
-                    ##
-                    {"s": "0", "a": "1", "b": "2"},
-                    {"s": "0", "c": "3", "d": "4"},
-                ],
-                "queries": [
-                    ##
-                    {"s": "0"},
-                    {"a": "1"},
-                    {"b": "2"},
-                    {"c": "3"},
-                    {"d": "4"},
-                    {"e": "7"},
-                    {"c": "3", "d": "4"},
-                    {"s": "0", "d": "4"},
-                    {"s": "0", "b": "2"},
-                    {"s": "0", "a": "1", "b": "2"},
-                    {"s": "0", "c": "3", "d": "4"},
-                ],
-                "expected": [
-                    ##
-                    [
+                },
+                {
+                    "entities":     [
                         ##
                         {"s": "0", "a": "1", "b": "2"},
                         {"s": "0", "c": "3", "d": "4"},
                     ],
-                    [
+                    "queries":      [
                         ##
-                        {"s": "0", "a": "1", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "a": "1", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "a": "1", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "a": "1", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                ],
-                "new_entities": [],
-                "new_queries": [],
-                "new_expected": [
-                    ##
-                    [],
-                ],
-            },
-            {
-                "entities": [
-                    ##
-                    {"s": "0", "a": "1", "b": "2"},
-                    {"s": "0", "c": "3", "d": "4"},
-                    {"hello": "world"},
-                ],
-                "queries": [
-                    ##
-                    {"s": "0"},
-                    {"a": "1"},
-                    {"c": "3"},
-                    {"c": "3", "d": "4"},
-                    {"e": "7"},
-                ],
-                "expected": [
-                    ##
-                    [
-                        ##
+                        {"s": "0"},
+                        {"a": "1"},
+                        {"b": "2"},
+                        {"c": "3"},
+                        {"d": "4"},
+                        {"e": "7"},
+                        {"c": "3", "d": "4"},
+                        {"s": "0", "d": "4"},
+                        {"s": "0", "b": "2"},
                         {"s": "0", "a": "1", "b": "2"},
                         {"s": "0", "c": "3", "d": "4"},
                     ],
-                    [
+                    "expected":     [
+                        ##
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                    ],
+                    "new_entities": [],
+                    "new_queries":  [],
+                    "new_expected": [
+                        ##
+                        [],
+                    ],
+                },
+                {
+                    "entities":     [
                         ##
                         {"s": "0", "a": "1", "b": "2"},
-                    ],
-                    [
-                        ##
                         {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "c": "3", "d": "4"},
-                    ],
-                    [
-                        ##
-                    ],
-                ],
-                "new_entities": [
-                    ##
-                    {"s": "0", "a": "10", "b": "2"},
-                    {"s": "5", "c": "3", "d": "4", "b": "2"},
-                    {"hello": "world"},
-                ],
-                "new_queries": [
-                    ##
-                    {"s": "0"},
-                    {"s": "5"},
-                    {"a": "1"},
-                    {"a": "10"},
-                    {"b": "2"},
-                    {"c": "3"},
-                    {"c": "3", "d": "4"},
-                    {"hello": "world"},
-                ],
-                "new_expected": [
-                    ##
-                    [
-                        ##
-                        {"s": "0", "a": "10", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "5", "c": "3", "d": "4", "b": "2"},
-                    ],
-                    [
-                        ##
-                    ],
-                    [
-                        ##
-                        {"s": "0", "a": "10", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "0", "a": "10", "b": "2"},
-                        {"s": "5", "c": "3", "d": "4", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "5", "c": "3", "d": "4", "b": "2"},
-                    ],
-                    [
-                        ##
-                        {"s": "5", "c": "3", "d": "4", "b": "2"},
-                    ],
-                    [
-                        ##
                         {"hello": "world"},
                     ],
-                ],
-            },
-        ]
+                    "queries":      [
+                        ##
+                        {"s": "0"},
+                        {"a": "1"},
+                        {"c": "3"},
+                        {"c": "3", "d": "4"},
+                        {"e": "7"},
+                    ],
+                    "expected":     [
+                        ##
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "1", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "c": "3", "d": "4"},
+                        ],
+                        [
+                            ##
+                        ],
+                    ],
+                    "new_entities": [
+                        ##
+                        {"s": "0", "a": "10", "b": "2"},
+                        {"s": "5", "c": "3", "d": "4", "b": "2"},
+                        {"hello": "world"},
+                    ],
+                    "new_queries":  [
+                        ##
+                        {"s": "0"},
+                        {"s": "5"},
+                        {"a": "1"},
+                        {"a": "10"},
+                        {"b": "2"},
+                        {"c": "3"},
+                        {"c": "3", "d": "4"},
+                        {"hello": "world"},
+                    ],
+                    "new_expected": [
+                        ##
+                        [
+                            ##
+                            {"s": "0", "a": "10", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "5", "c": "3", "d": "4", "b": "2"},
+                        ],
+                        [
+                            ##
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "10", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "0", "a": "10", "b": "2"},
+                            {"s": "5", "c": "3", "d": "4", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "5", "c": "3", "d": "4", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"s": "5", "c": "3", "d": "4", "b": "2"},
+                        ],
+                        [
+                            ##
+                            {"hello": "world"},
+                        ],
+                    ],
+                },
+            ]
     )
     def test_db(
-        self, entities, queries, expected, new_entities, new_queries, new_expected
+            self, entities, queries, expected, new_entities, new_queries, new_expected
     ):
 
         root = os.path.join(
-            cast(str, os.getenv("HOME")),
-            "Documents",
-            "database",
-            "json",
-            "testing",
-            "db",
+                cast(str, os.getenv("HOME")),
+                "Documents",
+                "database",
+                "json",
+                "testing",
+                "db",
         )
 
         self._check_root(root)
@@ -309,7 +309,7 @@ class TestJsonDB(unittest.TestCase):
                 database.replace(db, col, e, new_entities[i])
 
             self._check_database(
-                database, db, col, new_entities, new_queries, new_expected
+                    database, db, col, new_entities, new_queries, new_expected
             )
 
         database.drop(db, col)

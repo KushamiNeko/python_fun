@@ -1,18 +1,14 @@
-import unittest
-
-import pandas as pd
 import os
-
-from fun.data.source import Yahoo, StockCharts, InvestingCom, DAILY, WEEKLY
-from fun.data.barchart import Barchart, BarchartContract
-
+import unittest
 from datetime import datetime
 
-from fun.utils import pretty, colors
+import pandas as pd
+from fun.data.barchart import Barchart, BarchartContract
+from fun.data.source import DAILY, InvestingCom, StockCharts, WEEKLY, Yahoo
+from fun.utils import colors, pretty
 
 
 class TestSource(unittest.TestCase):
-
     _time_fmt = "%Y%m%d"
 
     _start = datetime.strptime("20170101", _time_fmt)
@@ -53,12 +49,12 @@ class TestSource(unittest.TestCase):
 
                 if len(rows) > 0:
                     pretty.color_print(
-                        colors.PAPER_RED_400,
-                        f"{symbol.upper()} contains 0 in open, high, low, or close",
+                            colors.PAPER_RED_400,
+                            f"{symbol.upper()} contains 0 in open, high, low, or close",
                     )
 
                 self.assertEqual(
-                    len(rows), 0,
+                        len(rows), 0,
                 )
 
     def test_daily_to_weekly(self):
@@ -78,7 +74,7 @@ class TestSource(unittest.TestCase):
         target = target.rename(columns=cols)
 
         target.loc[:, "timestamp"] = target.loc[:, "timestamp"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d"),
+                lambda x: datetime.strptime(x, "%Y-%m-%d"),
         )
 
         target = target.set_index("timestamp")
@@ -91,7 +87,7 @@ class TestSource(unittest.TestCase):
                     continue
 
                 equals = (
-                    target.loc[target.index == i, columns] == df.loc[i, columns]
+                        target.loc[target.index == i, columns] == df.loc[i, columns]
                 ).all(axis=1)
 
                 self.assertEqual(len(equals), 1)

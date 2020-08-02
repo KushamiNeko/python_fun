@@ -2,7 +2,6 @@ import random
 import re
 import readline  # noqa # pylint: disable=unused-import
 import string
-import time
 from typing import Dict
 
 from fun.utils import pretty
@@ -39,12 +38,11 @@ def key_value_pair(inputs: str) -> Dict[str, str]:
 
 
 def random_string(
-    length: int = 32,
-    has_letter: bool = True,
-    has_digits: bool = True,
-    has_punctuation: bool = False,
+        length: int = 32,
+        has_letter: bool = True,
+        has_digits: bool = True,
+        has_punctuation: bool = False,
 ) -> str:
-
     random.seed()
 
     src = ""

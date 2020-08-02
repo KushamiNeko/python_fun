@@ -21,12 +21,10 @@ class DistributionsDay(TextPlotter):
             frequency: FREQUENCY,
             reference_symbols: List[str] = ("spx", "compq", "sml"),
             distribution_threshold: float = -0.2,
-            # follow_through_threshold: float=1.0,
             distribution_invalid_threshold: float = 5.0,
             distribution_color: str = colors.PAPER_LIME_300,
             days_pass_invalid_threshold: int = 35,
             invalid_distribution_color: str = colors.PAPER_ORANGE_400,
-            # follow_through_color: str="g",
             xoffset: float = 3,
             font_color: str = "r",
             font_size: float = 10.0,
@@ -49,11 +47,9 @@ class DistributionsDay(TextPlotter):
         self._reference_symbols = reference_symbols
 
         self._distribution_threshold = distribution_threshold
-        # self._follow_through_threshold = follow_through_threshold
 
         self._distribution_color = distribution_color
         self._invalid_distribution_color = invalid_distribution_color
-        # self._follow_through_color = follow_through_color
 
         if info_font_properties is None:
             self._info_font_properties = font_properties
@@ -120,28 +116,21 @@ class DistributionsDay(TextPlotter):
                     continue
 
                 move = ((current_close - previous_close) / previous_close) * 100.0
-                # qualified = False
 
                 if (
                         move < self._distribution_threshold
                         and current_volume > previous_volume
                 ):
                     action = DISTRIBUTION
-                    # elif move > self._follow_through_threshold and current_volume > previous_volume:
-                    #     action = FOLLOW_THROUGH
 
                     for k in key:
                         if k.upper() not in labels:
                             labels.append(k.upper())
                             break
 
-                    # labels.append(key[0].upper())
-
                     if (
                             self._quotes.index[-1] - self._quotes.index[x]
                     ).days < self._days_pass_invalid_threshold:
-                        # lc = self._quotes.iloc[-1].get("close")
-                        # if (((lc - current_close) / current_close) * 100.0) < self._distribution_invalid_threshold:
 
                         color = self._distribution_color
                         if key in counts:
@@ -165,8 +154,6 @@ class DistributionsDay(TextPlotter):
 
                 offset = mr * 0.0075
 
-                # y = l * (1 - offset) if m > middle else h * (1 + offset)
-
                 y = l - offset if m < middle else h + offset
                 va = "top" if m < middle else "bottom"
 
@@ -176,18 +163,11 @@ class DistributionsDay(TextPlotter):
 
                 text = "\n".join(labels)
 
-                # color = (
-                #     self._distribution_color
-                #     if action == DISTRIBUTION
-                #     else self._follow_through_color
-                # )
-
                 ax.text(
                         x,
                         y,
                         text,
                         color=color,
-                        # color=self._font_color,
                         fontproperties=self._font_properties,
                         ha="center",
                         va=va,
