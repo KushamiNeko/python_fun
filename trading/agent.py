@@ -1,19 +1,18 @@
 import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import numpy as np
 
+import numpy as np
 from fun.trading.book import TradingBook
 from fun.trading.order import TransactionOrder
-from fun.trading.transaction import FuturesTransaction
 from fun.trading.statistic import Statistic
 from fun.trading.trade import FuturesTrade
+from fun.trading.transaction import FuturesTransaction
 from fun.utils.helper import random_string
 from fun.utils.jsondb import JsonDB
 
 
 class TradingAgent:
-
     _DB_ADMIN = "admin"
 
     _DB_TRADING_BOOKS = "books"
@@ -63,7 +62,7 @@ class TradingAgent:
             return orders
 
     def __init__(
-        self, root: str = "", user_name: str = "default", new_user: bool = False
+            self, root: str = "", user_name: str = "default", new_user: bool = False
     ) -> None:
         home = os.getenv("HOME")
         assert home is not None
@@ -79,9 +78,9 @@ class TradingAgent:
 
     def _login(self, user_name: str, new_user: bool) -> str:
         users = self._db.find(
-            database=self._DB_ADMIN,
-            collection=self._COL_USER,
-            query={"name": user_name},
+                database=self._DB_ADMIN,
+                collection=self._COL_USER,
+                query={"name": user_name},
         )
 
         if users is not None and len(users) == 1:
@@ -93,7 +92,7 @@ class TradingAgent:
                 uid = random_string()
 
                 self._db.insert(
-                    self._DB_ADMIN, self._COL_USER, {"name": user_name, "uid": uid},
+                        self._DB_ADMIN, self._COL_USER, {"name": user_name, "uid": uid},
                 )
 
                 return uid
@@ -111,7 +110,7 @@ class TradingAgent:
 
     def books(self) -> Optional[List[TradingBook]]:
         books = self._db.find(
-            database=self._DB_TRADING_BOOKS, collection=self._uid, query=None
+                database=self._DB_TRADING_BOOKS, collection=self._uid, query=None
         )
 
         if books is not None and len(books) > 0:
@@ -134,7 +133,7 @@ class TradingAgent:
         return self._ORDERS
 
     def check_orders(
-        self, title: str, dtime: datetime, price: float, new_book: bool = False
+            self, title: str, dtime: datetime, price: float, new_book: bool = False
     ) -> None:
         orders = self._check_orders(price)
         if orders is None or len(orders) == 0:
@@ -147,7 +146,7 @@ class TradingAgent:
                 self.new_record(title, entity, new_book=new_book)
 
     def new_record(
-        self, title: str, entity: Dict[str, str], new_book: bool = False
+            self, title: str, entity: Dict[str, str], new_book: bool = False
     ) -> FuturesTransaction:
         assert title != ""
 
@@ -156,7 +155,7 @@ class TradingAgent:
             if new_book:
                 book = TradingBook(title=title)
                 self._db.insert(
-                    self._DB_TRADING_BOOKS, self._uid, book.to_entity(),
+                        self._DB_TRADING_BOOKS, self._uid, book.to_entity(),
                 )
             else:
                 raise ValueError(f"book {title} does not exist")
@@ -174,8 +173,8 @@ class TradingAgent:
             entities = self._db.find(self._DB_TRADING_RECORDS, book.index(), query=None)
             if entities is not None and len(entities) != 0:
                 return sorted(
-                    [FuturesTransaction.from_entity(e) for e in entities],
-                    key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+                        [FuturesTransaction.from_entity(e) for e in entities],
+                        key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
                 )
 
         return None
@@ -189,7 +188,7 @@ class TradingAgent:
         ts: List[FuturesTransaction] = []
         for b in books:
             entities = self._db.find(
-                f"{self._DB_TRADING_RECORDS}", b.index(), query=None
+                    f"{self._DB_TRADING_RECORDS}", b.index(), query=None
             )
             if entities is None or len(entities) == 0:
                 continue
@@ -219,15 +218,15 @@ class TradingAgent:
             return {}
 
     def _process_trades(
-        self, transactions: List[FuturesTransaction]
+            self, transactions: List[FuturesTransaction]
     ) -> List[FuturesTrade]:
 
         transactions.sort(
-            key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+                key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
         )
 
         ops = np.add.accumulate(
-            [float(f"{t.operation()}{t.leverage()}") for t in transactions]
+                [float(f"{t.operation()}{t.leverage()}") for t in transactions]
         )
 
         where = np.argwhere(ops == 0).flatten()

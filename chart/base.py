@@ -4,8 +4,6 @@ from typing import List, NewType, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from fun.chart.theme import Theme
-
 from fun.plotter.plotter import Plotter
 
 CHART_SIZE = NewType("CHART_SIZE", int)
@@ -15,7 +13,7 @@ SMALL_CHART = CHART_SIZE(2)
 
 
 class ChartFactory(metaclass=ABCMeta):
-    def __init__(self, quotes: pd.DataFrame,) -> None:
+    def __init__(self, quotes: pd.DataFrame) -> None:
         assert quotes is not None
 
         self._quotes = quotes
@@ -40,9 +38,9 @@ class ChartFactory(metaclass=ABCMeta):
             mx + (r / extend_ratio),
         )
 
-    @abstractmethod
-    def new_theme(self, theme: Theme) -> None:
-        raise NotImplementedError
+    # @abstractmethod
+    # def set_theme(self, theme: Theme) -> None:
+    #     raise NotImplementedError
 
     @abstractmethod
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
@@ -50,19 +48,18 @@ class ChartFactory(metaclass=ABCMeta):
 
     @abstractmethod
     def render(
-        self,
-        output: Optional[Union[str, io.BytesIO]] = None,
-        plotters: Optional[List[Plotter]] = None,
-        interactive: bool = False,
+            self,
+            output: Optional[Union[str, io.BytesIO]] = None,
+            plotters: Optional[List[Plotter]] = None,
+            interactive: bool = False,
     ) -> None:
         raise NotImplementedError
 
-
-class CandleSticks(ChartFactory):
-    def _minimum_height(self) -> float:
-        # ratio = 0.00025
-        ratio = 0.001
-        mn, mx = self.quotes_range()
-        r = mx - mn
-
-        return r * ratio
+# class CandleSticksFactory(ChartFactory, metaclass=ABCMeta):
+#     def _minimum_height(self) -> float:
+#         # ratio = 0.00025
+#         ratio = 0.001
+#         mn, mx = self.quotes_range()
+#         r = mx - mn
+#
+#         return r * ratio

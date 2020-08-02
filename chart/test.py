@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from fun.chart.base import MEDIUM_CHART
-from fun.chart.static import CandleSticks
+from fun.chart.setting import Setting
+from fun.chart.static import TradingChart
 from fun.data.source import DAILY
 from fun.futures.continuous import ContinuousContract
 
@@ -16,8 +17,8 @@ if __name__ == "__main__":
 
     df = c.read(exs, exe, "es", DAILY)
 
-    large = CandleSticks(df.loc[s:e])
-    medium = CandleSticks(df.loc[s:e], chart_size=MEDIUM_CHART)
+    large = TradingChart(df.loc[s:e])
+    medium = TradingChart(df.loc[s:e], setting=Setting(chart_size=MEDIUM_CHART))
 
     large.render("large.png")
     medium.render("medium.png")

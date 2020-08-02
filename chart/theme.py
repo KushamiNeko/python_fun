@@ -36,10 +36,10 @@ class Theme:
         self._colors["records"] = "#ffffff"
 
         self._colors["distribution"] = colors.PAPER_LIME_300
-        self._colors["follow_through"] = colors.PAPER_CYAN_600
+        # self._colors["follow_through"] = colors.PAPER_CYAN_600
 
         self._colors["invalid_distribution"] = colors.PAPER_ORANGE_400
-        self._colors["invalid_follow_through"] = colors.PAPER_CYAN_300
+        # self._colors["invalid_follow_through"] = colors.PAPER_CYAN_300
 
         self._colors["bb0"] = colors.PAPER_PURPLE_400
         self._colors["bb1"] = colors.PAPER_INDIGO_400

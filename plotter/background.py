@@ -1,18 +1,17 @@
-from fun.data.source import FREQUENCY, DAILY, WEEKLY, MONTHLY
-from fun.plotter.plotter import Plotter
-
 import pandas as pd
+from fun.data.source import DAILY, FREQUENCY, MONTHLY, WEEKLY
+from fun.plotter.plotter import Plotter
 from matplotlib import axes
 
 
 class BackgroundTimeRangeMark(Plotter):
     def __init__(
-        self,
-        quotes: pd.DataFrame,
-        frequency: FREQUENCY,
-        from_start: bool = True,
-        color: str = "w",
-        alpha: float = 0.05,
+            self,
+            quotes: pd.DataFrame,
+            frequency: FREQUENCY,
+            from_start: bool = True,
+            color: str = "w",
+            alpha: float = 0.05,
     ) -> None:
         self._quotes = quotes
         self._frequency = frequency
@@ -52,26 +51,26 @@ class BackgroundTimeRangeMark(Plotter):
 
                 if plotting is False:
                     ax.bar(
-                        anchor_x,
-                        width=i - anchor_x,
-                        bottom=mn,
-                        height=mx - mn,
-                        align="edge",
-                        color=self._color,
-                        alpha=self._alpha,
+                            anchor_x,
+                            width=i - anchor_x,
+                            bottom=mn,
+                            height=mx - mn,
+                            align="edge",
+                            color=self._color,
+                            alpha=self._alpha,
                     )
                 else:
                     anchor_x = i
 
         if plotting is True:
             ax.bar(
-                anchor_x,
-                width=(len(self._quotes) - 1) - anchor_x,
-                bottom=mn,
-                height=mx - mn,
-                align="edge",
-                color=self._color,
-                alpha=self._alpha,
+                    anchor_x,
+                    width=(len(self._quotes) - 1) - anchor_x,
+                    bottom=mn,
+                    height=mx - mn,
+                    align="edge",
+                    color=self._color,
+                    alpha=self._alpha,
             )
 
     def _monthly_range(self, ax: axes.Axes) -> None:

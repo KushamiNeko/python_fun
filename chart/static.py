@@ -4,48 +4,58 @@ from typing import List, Optional, Tuple, Union
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib import axes, figure
-
 from fun.chart import base
-from fun.chart.base import CHART_SIZE, LARGE_CHART, MEDIUM_CHART, SMALL_CHART
-from fun.chart.setting import CandleSticksSetting
+from fun.chart.base import LARGE_CHART, MEDIUM_CHART, SMALL_CHART
+from fun.chart.setting import Setting
 from fun.chart.theme import Theme
 from fun.chart.ticker import StepTicker, Ticker, TimeTicker
-from fun.plotter.candlesticks import CandleSticks as CandleSticksPlotter
 from fun.plotter.plotter import Plotter
+from matplotlib import axes, figure
 
 matplotlib.use("agg")
 
 
-class CandleSticks(base.CandleSticks):
+# class CandleSticksFactory(base.ChartFactory):
+class TradingChart(base.ChartFactory):
     def __init__(
-        self,
-        quotes: pd.DataFrame,
-        theme: Optional[Theme] = None,
-        chart_size: CHART_SIZE = LARGE_CHART,
-        figsize: Tuple[float, float] = (16.0, 9.0),
+            self,
+            quotes: pd.DataFrame,
+            # theme: Optional[Theme] = None,
+            theme: Theme = Theme(),
+            scale: str = "log",
+            # chart_size: CHART_SIZE = LARGE_CHART,
+            setting: Setting = Setting(chart_size=LARGE_CHART),
+            figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
 
         assert quotes is not None
-        assert chart_size in (LARGE_CHART, MEDIUM_CHART)
+        # assert chart_size in (LARGE_CHART, MEDIUM_CHART)
+        assert setting is not None
+        assert setting.chart_size() in (LARGE_CHART, MEDIUM_CHART)
 
         super().__init__(quotes)
 
-        if chart_size == SMALL_CHART:
+        # if chart_size == SMALL_CHART:
+        if setting.chart_size() == SMALL_CHART:
             self._figsize = (figsize[0] * 1.0, figsize[1] * 1.0)
-        elif chart_size == MEDIUM_CHART:
+        # elif chart_size == MEDIUM_CHART:
+        elif setting.chart_size() == MEDIUM_CHART:
             self._figsize = (figsize[0] * 1.2, figsize[1] * 1.2)
-        elif chart_size == LARGE_CHART:
+        # elif chart_size == LARGE_CHART:
+        elif setting.chart_size() == LARGE_CHART:
             self._figsize = (figsize[0] * 2.0, figsize[1] * 2.0)
 
         assert self._figsize is not None
 
-        if theme is None:
-            self._theme = Theme()
-        else:
-            self._theme = theme
+        # if theme is None:
+        #     self._theme = Theme()
+        # else:
+        #     self._theme = theme
+        self._theme = theme
+        self._scale = scale
 
-        self._setting = CandleSticksSetting(chart_size)
+        # self._setting = Setting(chart_size)
+        self._setting = setting
 
         self._figure: Optional[figure.Figure] = None
         self._ax: Optional[axes.Axes] = None
@@ -54,14 +64,14 @@ class CandleSticks(base.CandleSticks):
         loc, labels = ticker.ticks()
         ax.set_xticks(loc)
         ax.set_xticklabels(
-            labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
+                labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
         )
 
     def _setup_yticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
         ax.set_yticks(loc)
         ax.set_yticklabels(
-            labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
+                labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
         )
 
     def _setup_general(self, fig: figure.Figure, ax: axes.Axes) -> None:
@@ -71,9 +81,9 @@ class CandleSticks(base.CandleSticks):
         ax.spines["right"].set_visible(False)
 
         ax.grid(
-            True,
-            color=self._theme.get_color("grid"),
-            alpha=self._theme.get_alpha("grid"),
+                True,
+                color=self._theme.get_color("grid"),
+                alpha=self._theme.get_alpha("grid"),
         )
 
         ax.set_axisbelow(True)
@@ -82,16 +92,16 @@ class CandleSticks(base.CandleSticks):
         ax.set_facecolor(self._theme.get_color("background"))
 
         ax.tick_params(
-            axis="both",
-            color=self._theme.get_color("ticks"),
-            labelcolor=self._theme.get_color("ticks"),
-            labelsize=self._setting.tick_fontsize(),
+                axis="both",
+                color=self._theme.get_color("ticks"),
+                labelcolor=self._theme.get_color("ticks"),
+                labelsize=self._setting.tick_fontsize(),
         )
 
         ax.yaxis.tick_right()
 
-    def new_theme(self, theme: Theme) -> None:
-        self._theme = theme
+    # def set_theme(self, theme: Theme) -> None:
+    #     self._theme = theme
 
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
         if self._figure is None or self._ax is None:
@@ -108,19 +118,20 @@ class CandleSticks(base.CandleSticks):
         return (nx, ny)
 
     def render(
-        self,
-        output: Optional[Union[str, io.BytesIO]] = None,
-        plotters: Optional[List[Plotter]] = None,
-        interactive: bool = False,
+            self,
+            output: Optional[Union[str, io.BytesIO]] = None,
+            plotters: Optional[List[Plotter]] = None,
+            interactive: bool = False,
     ) -> None:
 
         fig, ax = plt.subplots(
-            figsize=self._figsize,
-            facecolor=self._theme.get_color("background"),
-            tight_layout=False,
+                figsize=self._figsize,
+                facecolor=self._theme.get_color("background"),
+                tight_layout=False,
         )
 
-        ax.set_yscale("log")
+        # ax.set_yscale("log")
+        ax.set_yscale(self._scale)
 
         self._setup_general(fig, ax)
         self._setup_xticks(ax, TimeTicker(self._quotes))
@@ -132,21 +143,23 @@ class CandleSticks(base.CandleSticks):
         ax.set_xlim(*self.chart_xrange())
         ax.set_ylim(*self.chart_yrange())
 
-        CandleSticksPlotter(
-            quotes=self._quotes,
-            shadow_width=self._setting.shadow_width(),
-            body_width=self._setting.body_width(),
-            minimum_height=self._minimum_height(),
-            color_up=self._theme.get_color("up"),
-            color_down=self._theme.get_color("down"),
-            color_unchanged=self._theme.get_color("unchanged"),
-        ).plot(ax)
+        # CandleSticksPlotter(
+        #     quotes=self._quotes,
+        #     shadow_width=self._setting.shadow_width(),
+        #     body_width=self._setting.body_width(),
+        #     minimum_height=self._minimum_height(),
+        #     color_up=self._theme.get_color("up"),
+        #     color_down=self._theme.get_color("down"),
+        #     color_unchanged=self._theme.get_color("unchanged"),
+        # ).plot(ax)
 
-        ax.autoscale_view()
+        # ax.autoscale_view()
 
         if plotters is not None and len(plotters) > 0:
             for p in plotters:
                 p.plot(ax)
+
+        ax.autoscale_view()
 
         plt.tight_layout()
 

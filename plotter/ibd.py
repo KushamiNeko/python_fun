@@ -1,15 +1,12 @@
-from datetime import timedelta, datetime
-from typing import List, Optional, NewType
+from datetime import datetime, timedelta
+from typing import List, NewType, Optional
 
 import numpy as np
 import pandas as pd
-from matplotlib import axes
-from matplotlib import font_manager as fm
-
-from fun.data.source import FREQUENCY, WEEKLY, Yahoo, DAILY
+from fun.data.source import DAILY, FREQUENCY, Yahoo
 from fun.plotter.plotter import TextPlotter
-from fun.trading.transaction import FuturesTransaction
-from fun.utils import pretty, colors
+from fun.utils import colors, pretty
+from matplotlib import axes, font_manager as fm
 
 DAY_ACTION = NewType("DAY_ACTION", int)
 FOLLOW_THROUGH = DAY_ACTION(0)
@@ -19,31 +16,31 @@ NEUTRAL = DAY_ACTION(2)
 
 class DistributionsDay(TextPlotter):
     def __init__(
-        self,
-        quotes: pd.DataFrame,
-        frequency: FREQUENCY,
-        reference_symbols: List[str] = ["spx", "compq", "sml"],
-        distribution_threshold: float = -0.2,
-        # follow_through_threshold: float=1.0,
-        distribution_invalid_threshold: float = 5.0,
-        distribution_color: str = "r",
-        days_pass_invalid_threshold: int = 35,
-        invalid_distribution_color: str = "r",
-        # follow_through_color: str="g",
-        xoffset: float = 3,
-        font_color: str = "r",
-        font_size: float = 10.0,
-        font_src: Optional[str] = None,
-        font_properties: Optional[fm.FontProperties] = None,
-        info_font_properties: Optional[fm.FontProperties] = None,
+            self,
+            quotes: pd.DataFrame,
+            frequency: FREQUENCY,
+            reference_symbols: List[str] = ("spx", "compq", "sml"),
+            distribution_threshold: float = -0.2,
+            # follow_through_threshold: float=1.0,
+            distribution_invalid_threshold: float = 5.0,
+            distribution_color: str = colors.PAPER_LIME_300,
+            days_pass_invalid_threshold: int = 35,
+            invalid_distribution_color: str = colors.PAPER_ORANGE_400,
+            # follow_through_color: str="g",
+            xoffset: float = 3,
+            font_color: str = "r",
+            font_size: float = 10.0,
+            font_src: Optional[str] = None,
+            font_properties: Optional[fm.FontProperties] = None,
+            info_font_properties: Optional[fm.FontProperties] = None,
     ) -> None:
         assert quotes is not None
 
         super().__init__(
-            font_color=font_color,
-            font_size=font_size,
-            font_src=font_src,
-            font_properties=font_properties,
+                font_color=font_color,
+                font_size=font_size,
+                font_src=font_src,
+                font_properties=font_properties,
         )
 
         self._quotes = quotes
@@ -74,11 +71,11 @@ class DistributionsDay(TextPlotter):
 
         for symbol in self._reference_symbols:
             self._dataframes[symbol] = src.read(
-                start=datetime.strptime("19000101", "%Y%m%d"),
-                end=datetime.utcnow() + timedelta(days=2),
-                symbol=symbol,
-                frequency=self._frequency,
-            ).loc[self._quotes.index[0] : self._quotes.index[-1]]
+                    start=datetime.strptime("19000101", "%Y%m%d"),
+                    end=datetime.utcnow() + timedelta(days=2),
+                    symbol=symbol,
+                    frequency=self._frequency,
+            ).loc[self._quotes.index[0]: self._quotes.index[-1]]
 
     def plot(self, ax: axes.Axes) -> None:
         if self._frequency != DAILY:
@@ -99,7 +96,7 @@ class DistributionsDay(TextPlotter):
                 index = self._quotes.index[x]
                 if index not in quotes.index:
                     pretty.color_print(
-                        colors.PAPER_AMBER_300, f"skip {index} in {key}",
+                            colors.PAPER_AMBER_300, f"skip {index} in {key}",
                     )
                     continue
 
@@ -109,7 +106,7 @@ class DistributionsDay(TextPlotter):
                 index = self._quotes.index[x - 1]
                 if index not in quotes.index:
                     pretty.color_print(
-                        colors.PAPER_AMBER_300, f"skip {index} in {key}",
+                            colors.PAPER_AMBER_300, f"skip {index} in {key}",
                     )
                     continue
 
@@ -126,8 +123,8 @@ class DistributionsDay(TextPlotter):
                 # qualified = False
 
                 if (
-                    move < self._distribution_threshold
-                    and current_volume > previous_volume
+                        move < self._distribution_threshold
+                        and current_volume > previous_volume
                 ):
                     action = DISTRIBUTION
                     # elif move > self._follow_through_threshold and current_volume > previous_volume:
@@ -141,7 +138,7 @@ class DistributionsDay(TextPlotter):
                     # labels.append(key[0].upper())
 
                     if (
-                        self._quotes.index[-1] - self._quotes.index[x]
+                            self._quotes.index[-1] - self._quotes.index[x]
                     ).days < self._days_pass_invalid_threshold:
                         # lc = self._quotes.iloc[-1].get("close")
                         # if (((lc - current_close) / current_close) * 100.0) < self._distribution_invalid_threshold:
@@ -186,19 +183,19 @@ class DistributionsDay(TextPlotter):
                 # )
 
                 ax.text(
-                    x,
-                    y,
-                    text,
-                    color=color,
-                    # color=self._font_color,
-                    fontproperties=self._font_properties,
-                    ha="center",
-                    va=va,
+                        x,
+                        y,
+                        text,
+                        color=color,
+                        # color=self._font_color,
+                        fontproperties=self._font_properties,
+                        ha="center",
+                        va=va,
                 )
 
         if len(self._quotes) > 1:
             text = "\n".join(
-                f"{k.upper()}: {counts.get(k, 0)}" for k in self._reference_symbols
+                    f"{k.upper()}: {counts.get(k, 0)}" for k in self._reference_symbols
             )
 
             h = np.amax(self._quotes.loc[:, "high"])
@@ -217,11 +214,11 @@ class DistributionsDay(TextPlotter):
                 va = "top"
 
             ax.text(
-                len(self._quotes.index) - self._xoffset,
-                y,
-                text,
-                color=self._font_color,
-                fontproperties=self._info_font_properties,
-                ha="right",
-                va=va,
+                    len(self._quotes.index) - self._xoffset,
+                    y,
+                    text,
+                    color=self._font_color,
+                    fontproperties=self._info_font_properties,
+                    ha="right",
+                    va=va,
             )

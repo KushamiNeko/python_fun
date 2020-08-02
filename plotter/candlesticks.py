@@ -7,28 +7,39 @@ from matplotlib.collections import PatchCollection
 
 class CandleSticks(Plotter):
     def __init__(
-        self,
-        quotes: pd.DataFrame,
-        shadow_width: float,
-        body_width: float,
-        minimum_height: float,
-        color_up: str,
-        color_down: str,
-        color_unchanged: str,
+            self,
+            quotes: pd.DataFrame,
+            shadow_width: float,
+            body_width: float,
+            # minimum_height: float,
+            color_up: str,
+            color_down: str,
+            color_unchanged: str,
     ):
         self._quotes = quotes
         self._shadow_width = shadow_width
         self._body_width = body_width
-        self._minimum_height = minimum_height
+
+        self._minimum_height = self._minimum_height()
+
         self._color_up = color_up
         self._color_down = color_down
         self._color_unchanged = color_unchanged
+
+    def _minimum_height(self) -> float:
+        # ratio = 0.00025
+        ratio = 0.001
+        mn = np.amin(self._quotes.loc[:, "low"])
+        mx = np.amax(self._quotes.loc[:, "high"])
+        r = mx - mn
+
+        return r * ratio
 
     def plot(self, ax: axes.Axes) -> None:
 
         length = len(self._quotes)
 
-        bodys = np.ndarray(shape=length, dtype=object)
+        bodies = np.ndarray(shape=length, dtype=object)
         shadows = np.ndarray(shape=length, dtype=object)
 
         for index, df in enumerate(self._quotes.itertuples()):
@@ -90,23 +101,23 @@ class CandleSticks(Plotter):
             # )
 
             shadow = patches.Rectangle(
-                xy=(index - (self._shadow_width / 2.0), p_shadow_bottom),
-                width=self._shadow_width,
-                height=p_shadow_top - p_shadow_bottom,
-                facecolor=color,
-                edgecolor=color,
+                    xy=(index - (self._shadow_width / 2.0), p_shadow_bottom),
+                    width=self._shadow_width,
+                    height=p_shadow_top - p_shadow_bottom,
+                    facecolor=color,
+                    edgecolor=color,
             )
 
             body = patches.Rectangle(
-                xy=(index - (self._body_width / 2.0), p_body_bottom),
-                width=self._body_width,
-                height=p_body_top - p_body_bottom,
-                facecolor=color,
-                edgecolor=color,
+                    xy=(index - (self._body_width / 2.0), p_body_bottom),
+                    width=self._body_width,
+                    height=p_body_top - p_body_bottom,
+                    facecolor=color,
+                    edgecolor=color,
             )
 
-            bodys[index] = body
+            bodies[index] = body
             shadows[index] = shadow
 
-        ax.add_collection(PatchCollection(bodys, match_original=True, zorder=5))
+        ax.add_collection(PatchCollection(bodies, match_original=True, zorder=5))
         ax.add_collection(PatchCollection(shadows, match_original=True, zorder=5))

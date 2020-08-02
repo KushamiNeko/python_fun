@@ -2,98 +2,97 @@ import io
 import unittest
 from datetime import datetime
 
-from fun.chart.base import MEDIUM_CHART
-from fun.chart.static import CandleSticks
+from fun.chart.static import TradingChart
 from fun.data.source import DAILY, WEEKLY
 from fun.futures.continuous import ContinuousContract
-from fun.futures.rolling import RATIO, LastNTradingDays
 from fun.utils.testing import parameterized
 
 
-class TestStaticCandleSticks(unittest.TestCase):
+# class TestStaticCandleSticks(unittest.TestCase):
+class TestStaticTradingChart(unittest.TestCase):
     @parameterized(
-        [
-            {
-                "start": "20190101",
-                "end": "20200101",
-                "symbol": "es",
-                "freqneucy": DAILY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19980101",
-                "end": "19990101",
-                "symbol": "es",
-                "freqneucy": DAILY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19970101",
-                "end": "19980101",
-                "symbol": "es",
-                "freqneucy": DAILY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19960101",
-                "end": "19970101",
-                "symbol": "es",
-                "freqneucy": DAILY,
-                "make_slice": True,
-                "error": ValueError,
-            },
-            {
-                "start": "19950101",
-                "end": "19960101",
-                "symbol": "es",
-                "freqneucy": DAILY,
-                "make_slice": True,
-                "error": ValueError,
-            },
-            {
-                "start": "20160101",
-                "end": "20200101",
-                "symbol": "es",
-                "freqneucy": WEEKLY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19950101",
-                "end": "19990101",
-                "symbol": "es",
-                "freqneucy": WEEKLY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19940101",
-                "end": "19980101",
-                "symbol": "es",
-                "freqneucy": WEEKLY,
-                "make_slice": True,
-                "error": None,
-            },
-            {
-                "start": "19930101",
-                "end": "19970101",
-                "symbol": "es",
-                "freqneucy": WEEKLY,
-                "make_slice": True,
-                "error": ValueError,
-            },
-            {
-                "start": "19920101",
-                "end": "19960101",
-                "symbol": "es",
-                "freqneucy": WEEKLY,
-                "make_slice": True,
-                "error": ValueError,
-            },
-        ]
+            [
+                {
+                    "start":      "20190101",
+                    "end":        "20200101",
+                    "symbol":     "es",
+                    "freqneucy":  DAILY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19980101",
+                    "end":        "19990101",
+                    "symbol":     "es",
+                    "freqneucy":  DAILY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19970101",
+                    "end":        "19980101",
+                    "symbol":     "es",
+                    "freqneucy":  DAILY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19960101",
+                    "end":        "19970101",
+                    "symbol":     "es",
+                    "freqneucy":  DAILY,
+                    "make_slice": True,
+                    "error":      ValueError,
+                },
+                {
+                    "start":      "19950101",
+                    "end":        "19960101",
+                    "symbol":     "es",
+                    "freqneucy":  DAILY,
+                    "make_slice": True,
+                    "error":      ValueError,
+                },
+                {
+                    "start":      "20160101",
+                    "end":        "20200101",
+                    "symbol":     "es",
+                    "freqneucy":  WEEKLY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19950101",
+                    "end":        "19990101",
+                    "symbol":     "es",
+                    "freqneucy":  WEEKLY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19940101",
+                    "end":        "19980101",
+                    "symbol":     "es",
+                    "freqneucy":  WEEKLY,
+                    "make_slice": True,
+                    "error":      None,
+                },
+                {
+                    "start":      "19930101",
+                    "end":        "19970101",
+                    "symbol":     "es",
+                    "freqneucy":  WEEKLY,
+                    "make_slice": True,
+                    "error":      ValueError,
+                },
+                {
+                    "start":      "19920101",
+                    "end":        "19960101",
+                    "symbol":     "es",
+                    "freqneucy":  WEEKLY,
+                    "make_slice": True,
+                    "error":      ValueError,
+                },
+            ]
     )
     def test_plot(self, start, end, symbol, freqneucy, make_slice, error):
         c = ContinuousContract()
@@ -115,8 +114,9 @@ class TestStaticCandleSticks(unittest.TestCase):
 
             buf = io.BytesIO()
 
-            chart = CandleSticks(
-                df.loc[(df.index >= s) & (df.index <= e)], chart_size=MEDIUM_CHART
+            chart = TradingChart(
+                    # quotes=df.loc[(df.index >= s) & (df.index <= e)], chart_size=MEDIUM_CHART
+                    quotes=df.loc[(df.index >= s) & (df.index <= e)],
             )
 
             chart.render(buf)
