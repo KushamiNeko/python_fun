@@ -10,6 +10,7 @@ from fun.chart.cache import QuotesCache
 from fun.chart.setting import Setting
 from fun.chart.static import TradingChart
 from fun.chart.theme import MagicalTheme, Theme
+from fun.data.barchart import Barchart
 from fun.data.source import (
     DAILY,
     DataSource,
@@ -22,9 +23,11 @@ from fun.data.source import (
     Yahoo,
 )
 from fun.futures.continuous import ContinuousContract
+from fun.plotter.advance_decline import AdvanceDeclineLine
 from fun.plotter.background import BackgroundTimeRangeMark
 from fun.plotter.candlesticks import CandleSticks
 from fun.plotter.entry import EntryZone
+from fun.plotter.equal_weighted import EqualWeightedRelativeStrength
 from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
 from fun.plotter.plotter import Plotter
@@ -115,8 +118,17 @@ class CandleSticksPreset:
                 "eem",
                 "hsi",
                 "fxi",
+                "ndxew",
         ):
             src = Yahoo()
+
+        elif self._symbol in (
+                "spxew",
+                "smlew",
+                "midew",
+                "topix",
+        ):
+            src = Barchart()
 
         elif self._symbol in (
                 "gsy",
@@ -172,9 +184,11 @@ class CandleSticksPreset:
         return self._cache.quotes()
 
     def theme(self) -> Optional[Theme]:
+        assert self._theme is not None
         return self._theme
 
     def setting(self) -> Optional[Setting]:
+        assert self._setting is not None
         return self._setting
 
     def last_quote(self) -> Dict[str, Any]:
@@ -236,6 +250,10 @@ class CandleSticksPreset:
                     chart_size=self._chart_size,
                     parameters=parameters,
             )
+
+            self._theme = self._controller.get_theme()
+            self._setting = self._controller.get_setting()
+
             return
 
         preset = parameters.get(preset_key, "").strip()
@@ -256,6 +274,9 @@ class CandleSticksPreset:
                     parameters=parameters,
             )
 
+        self._theme = self._controller.get_theme()
+        self._setting = self._controller.get_setting()
+
     def render(self, additional_plotters: Optional[List[Plotter]] = None) -> io.BytesIO:
         buf = io.BytesIO()
 
@@ -264,8 +285,10 @@ class CandleSticksPreset:
         if self._controller is None:
             self.make_controller(parameters={"MovingAverages": "true", "BollingerBands": "true"})
 
-        self._theme = self._controller.get_theme()
-        self._setting = self._controller.get_setting()
+        assert self._controller is not None
+
+        # self._theme = self._controller.get_theme()
+        # self._setting = self._controller.get_setting()
         plotters.extend(self._controller.get_plotters())
 
         if additional_plotters is not None and len(additional_plotters) > 0:
@@ -392,14 +415,6 @@ class KushamiNekoController(PresetController):
                             self._setting.text_fontsize(multiplier=1.5)
                     ),
             ),
-            VolatilityLevel(
-                    quotes=self._cache.quotes(),
-                    symbol=self._symbol,
-                    frequency=self._frequency,
-                    font_properties=self.get_theme().get_font(
-                            self._setting.text_fontsize(multiplier=1.5)
-                    ),
-            )
         ]
 
         if self._parameters is not None:
@@ -472,6 +487,19 @@ class KushamiNekoController(PresetController):
                             ),
                         ]
                 )
+
+            if self._parameters.get("VolatilityLevel", "").lower() == "true":
+                plotters.append(
+                        VolatilityLevel(
+                                quotes=self._cache.quotes(),
+                                symbol=self._symbol,
+                                frequency=self._frequency,
+                                font_properties=self.get_theme().get_font(
+                                        self._setting.text_fontsize(multiplier=1.5)
+                                ),
+                        )
+                )
+
             if self._parameters.get("VixZone", "").lower() == "true":
                 if self._symbol in (
                         "vix",
@@ -517,6 +545,34 @@ class KushamiNekoController(PresetController):
                                     prepare_signal=prepare_date,
                             ),
                     )
+
+            if self._parameters.get("EWRelativeStrength", "").lower() == "true":
+                plotters.append(
+                        EqualWeightedRelativeStrength(
+                                quotes=self._cache.quotes(),
+                                frequency=self._frequency,
+                                symbol=self._symbol,
+                        )
+                )
+
+            if self._parameters.get("AdvanceDecline", "").lower() == "true":
+                plotters.append(
+                        AdvanceDeclineLine(
+                                quotes=self._cache.quotes(),
+                                frequency=self._frequency,
+                                symbol=self._symbol,
+                        )
+                )
+
+            if self._parameters.get("AdvanceDeclineVolume", "").lower() == "true":
+                plotters.append(
+                        AdvanceDeclineLine(
+                                quotes=self._cache.quotes(),
+                                frequency=self._frequency,
+                                symbol=self._symbol,
+                                volume_diff=True,
+                        )
+                )
 
             if self._parameters.get("DistributionDays", "").lower() == "true":
                 plotters.append(

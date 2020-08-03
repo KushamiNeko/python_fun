@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, NewType, Optional
+from typing import Dict, List, NewType, Optional
 
 import numpy as np
 import pandas as pd
@@ -15,6 +15,20 @@ NEUTRAL = DAY_ACTION(2)
 
 
 class DistributionsDay(TextPlotter):
+    _dataframes = None
+
+    @classmethod
+    def _get_dataframes(cls) -> Optional[Dict[str, pd.DataFrame]]:
+        return cls._dataframes
+
+    @classmethod
+    def _init_dataframes(cls) -> None:
+        cls._dataframes = {}
+
+    @classmethod
+    def _add_dataframe(cls, key: str, dataframe: pd.DataFrame) -> None:
+        cls._dataframes[key] = dataframe
+
     def __init__(
             self,
             quotes: pd.DataFrame,
@@ -61,17 +75,23 @@ class DistributionsDay(TextPlotter):
         self._days_pass_invalid_threshold = days_pass_invalid_threshold
         self._distribution_invalid_threshold = distribution_invalid_threshold
 
-        self._dataframes = {}
-
         src = Yahoo()
 
-        for symbol in self._reference_symbols:
-            self._dataframes[symbol] = src.read(
-                    start=datetime.strptime("19000101", "%Y%m%d"),
-                    end=datetime.utcnow() + timedelta(days=2),
-                    symbol=symbol,
-                    frequency=self._frequency,
-            ).loc[self._quotes.index[0]: self._quotes.index[-1]]
+        if self._get_dataframes() is None or len(self._get_dataframes().keys()) == 0:
+            print("init dataframes")
+            if self._get_dataframes() is None:
+                self._init_dataframes()
+
+            for symbol in self._reference_symbols:
+                self._add_dataframe(
+                        symbol,
+                        src.read(
+                                start=datetime.strptime("19000101", "%Y%m%d"),
+                                end=datetime.utcnow() + timedelta(days=2),
+                                symbol=symbol,
+                                frequency=self._frequency,
+                        ).loc[self._quotes.index[0]: self._quotes.index[-1]],
+                )
 
     def plot(self, ax: axes.Axes) -> None:
         if self._frequency != DAILY:
@@ -88,7 +108,7 @@ class DistributionsDay(TextPlotter):
             labels = []
             action = NEUTRAL
             color = self._invalid_distribution_color
-            for key, quotes in self._dataframes.items():
+            for key, quotes in self._get_dataframes().items():
                 index = self._quotes.index[x]
                 if index not in quotes.index:
                     pretty.color_print(

@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 from fun.data.source import FREQUENCY, InvestingCom, StockCharts, Yahoo
-from fun.plotter.plotter import LinePlotter, Plotter, TextPlotter
+from fun.plotter.plotter import LinePlotter, Plotter
 from fun.utils import colors
 from matplotlib import axes, font_manager as fm
 
@@ -46,20 +46,16 @@ class VolatilitySource:
         self._src = src
 
 
-class VolatilitySummary(VolatilitySource, LinePlotter, TextPlotter):
+class VolatilitySummary(VolatilitySource, LinePlotter):
     def __init__(
             self,
             quotes: pd.DataFrame,
             frequency: FREQUENCY,
             symbol: str,
-            top_ratio: float = 1.0,
-            line_color: str = "w",
-            line_alpha: float = 0.2,
+            height_ratio: float = 1.0,
+            line_color: str = colors.PAPER_LIGHT_BLUE_A100,
+            line_alpha: float = 0.5,
             line_width: float = 2.5,
-            font_color: str = "r",
-            font_size: float = 10.0,
-            font_src: Optional[str] = None,
-            font_properties: Optional[fm.FontProperties] = None,
     ) -> None:
 
         VolatilitySource.__init__(self, symbol=symbol)
@@ -68,19 +64,11 @@ class VolatilitySummary(VolatilitySource, LinePlotter, TextPlotter):
                 self, line_color=line_color, line_alpha=line_alpha, line_width=line_width
         )
 
-        TextPlotter.__init__(
-                self,
-                font_color=font_color,
-                font_size=font_size,
-                font_src=font_src,
-                font_properties=font_properties,
-        )
-
         self._quotes = quotes
         self._frequency = frequency
         self._symbol = symbol
 
-        self._top_ratio = top_ratio
+        self._height_ratio = height_ratio
 
         if self._vix_symbol is not None and self._src is not None:
             self._vix_quotes = self._src.read(
@@ -96,7 +84,7 @@ class VolatilitySummary(VolatilitySource, LinePlotter, TextPlotter):
 
         mn, mx = ax.get_ylim()
 
-        top = ((mx - mn) * self._top_ratio) + mn
+        top = ((mx - mn) * self._height_ratio) + mn
 
         vix_max = self._vix_quotes.loc[:, "close"].max()
         vix_min = self._vix_quotes.loc[:, "close"].min()
@@ -127,8 +115,8 @@ class VolatilityLevel(VolatilitySource, Plotter):
             symbol: str,
             frequency: FREQUENCY,
             x_offset: float = 3,
-            yellow_threshold: float = 25.0,
-            red_threshold: float = 40.0,
+            yellow_threshold: float = 22.5,
+            red_threshold: float = 45.0,
             color_green: str = colors.PAPER_LIGHT_GREEN_A200,
             color_yellow: str = colors.PAPER_YELLOW_A200,
             color_red: str = colors.PAPER_PINK_A100,
