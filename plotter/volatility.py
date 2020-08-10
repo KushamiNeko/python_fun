@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib import axes
 from matplotlib import font_manager as fm
 
-from fun.data.source import FREQUENCY, InvestingCom, StockCharts, Yahoo
+from fun.data.source import FREQUENCY, DataSource, InvestingCom, StockCharts, Yahoo
 from fun.plotter.plotter import LinePlotter, Plotter
 from fun.utils import colors
 
@@ -16,7 +16,7 @@ class VolatilitySource:
         self._symbol = symbol
 
         self._vix_symbol = None
-        src: Plotter = Yahoo()
+        src: DataSource = Yahoo()
 
         if self._symbol in ("es", "spx"):
             self._vix_symbol = "vix"
@@ -163,7 +163,7 @@ class VolatilityLevel(VolatilitySource, Plotter):
             ).loc[self._quotes.index[0] : self._quotes.index[-1]]
 
     def plot(self, ax: axes.Axes) -> None:
-        if self._vix_quotes is None:
+        if self._vix_symbol is None or self._vix_quotes is None:
             return
 
         if len(self._vix_quotes.index) == 0:
