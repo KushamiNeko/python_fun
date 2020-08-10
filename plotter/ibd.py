@@ -77,8 +77,11 @@ class DistributionsDay(TextPlotter):
 
         src = Yahoo()
 
-        if self._get_dataframes() is None or len(self._get_dataframes().keys()) == 0:
+        if self._get_dataframes() is None or (
+                self._get_dataframes() is not None and len(self._get_dataframes().keys()) == 0):
+
             print("init dataframes")
+
             if self._get_dataframes() is None:
                 self._init_dataframes()
 
@@ -98,6 +101,7 @@ class DistributionsDay(TextPlotter):
             return
 
         assert ax is not None
+        assert self._get_dataframes() is not None
 
         counts = {}
 

@@ -17,10 +17,10 @@ class AdvanceDeclineSource:
         src = BarchartCumulativeSum()
 
         if self._symbol in ("es", "spx", "spxew"):
-            self._ad_symbol = "addn" if not volume_diff else "nyud"
+            self._ad_symbol = "addn" if not volume_diff else "avdn"
 
         elif self._symbol in ("nq", "ndx", "ndxew"):
-            self._ad_symbol = "addq" if not volume_diff else "naud"
+            self._ad_symbol = "addq" if not volume_diff else "avdq"
 
         self._src = src
 
@@ -81,7 +81,7 @@ class AdvanceDeclineLine(AdvanceDeclineSource, LinePlotter):
                     for i, d in enumerate(self._quotes.index)
                     if d in self._ad_quotes.index
                 ],
-                self._ad_quotes.loc[:, "close"],
+                self._ad_quotes.loc[[d for d in self._ad_quotes.index if d in self._quotes.index], "close"],
                 color=self._line_color,
                 alpha=self._line_alpha,
                 linewidth=self._line_width,
