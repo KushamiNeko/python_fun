@@ -10,14 +10,14 @@ from fun.utils import helper
 
 class FuturesTransaction:
     def __init__(
-            self,
-            dtime: datetime,
-            symbol: str,
-            operation: str,
-            leverage: float,
-            price: float,
-            index: str = "",
-            time_stamp: float = 0,
+        self,
+        dtime: datetime,
+        symbol: str,
+        operation: str,
+        leverage: float,
+        price: float,
+        index: str = "",
+        time_stamp: float = 0,
     ) -> None:
 
         if index is None or index == "":
@@ -32,7 +32,7 @@ class FuturesTransaction:
         else:
             self._time_stamp = time_stamp
 
-        if type(dtime) != datetime:
+        if type(dtime) is not datetime:
             raise ValueError("invalid transaction time")
         self._datetime = dtime
 
@@ -75,23 +75,24 @@ class FuturesTransaction:
 
     def to_entity(self) -> Dict[str, str]:
         return {
-            "index":      self._index,
+            "index": self._index,
             "time_stamp": f"{self._time_stamp}",
-            "datetime":   self._datetime.strftime("%Y%m%d"),
-            "symbol":     self._symbol,
-            "operation":  self._operation,
-            "leverage":   f"{self._leverage}",
-            "price":      f"{self._price}",
+            "datetime": self._datetime.strftime("%Y%m%d"),
+            "symbol": self._symbol,
+            "operation": self._operation,
+            "leverage": f"{self._leverage}",
+            "price": f"{self._price}",
         }
 
     @classmethod
     def from_entity(cls, entity: Dict[str, str]) -> FuturesTransaction:
         return FuturesTransaction(
-                dtime=datetime.strptime(entity["datetime"], "%Y%m%d"),
-                symbol=entity["symbol"],
-                operation=entity["operation"],
-                leverage=float(entity["leverage"]),
-                price=float(entity["price"]),
-                index=entity.get("index", ""),
-                time_stamp=float(entity.get("time_stamp", 0)),
+            dtime=datetime.strptime(entity["datetime"], "%Y%m%d"),
+            symbol=entity["symbol"],
+            operation=entity["operation"],
+            leverage=float(entity["leverage"]),
+            price=float(entity["price"]),
+            index=entity.get("index", ""),
+            time_stamp=float(entity.get("time_stamp", 0)),
         )
+
