@@ -613,7 +613,7 @@ class KushamiNekoController(PresetController):
                     )
                 )
 
-            if self._parameters.get("VolatilityRealBodySize", "").lower() == "true":
+            if self._parameters.get("VolatilityBodySize", "").lower() == "true":
                 plotters.append(
                     VolatilityRealBodyContraction(
                         quotes=self._cache.quotes(),

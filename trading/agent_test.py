@@ -1795,12 +1795,14 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "1",
                         "price": "10000",
@@ -1812,24 +1814,28 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
@@ -1841,12 +1847,14 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "es",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "2",
                         "price": "10000",
                     },
                     {
                         "symbol": "es",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "2",
                         "price": "10000",
@@ -1858,12 +1866,14 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "es",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "2",
                         "price": "10000",
                     },
                     {
                         "symbol": "es",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "2",
                         "price": "10000",
@@ -1875,18 +1885,21 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "-",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "2",
                         "price": "10000",
@@ -1898,36 +1911,42 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "2",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "short",
                         "operation": "-",
                         "leverage": "2",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
                     },
                     {
                         "symbol": "ty",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "10000",
@@ -1972,18 +1991,20 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ym",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "100",
                     },
                     {
                         "symbol": "ym",
+                        "side": "long",
                         "operation": "-",
                         "leverage": "1",
                         "price": "100",
                     },
                 ],
-                "events": [{"dtime": "20191231", "price": 110}],
+                "events": [{"side": "long", "dtime": "20191231", "price": 110}],
                 "expected": [
                     {
                         "datetime": "20191231",
@@ -1998,26 +2019,57 @@ class TestTradingAgent(unittest.TestCase):
                 "orders": [
                     {
                         "symbol": "ym",
+                        "side": "short",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "100",
+                    },
+                    {
+                        "symbol": "ym",
+                        "side": "long",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "100",
+                    },
+                ],
+                "events": [{"side": "short", "dtime": "20191231", "price": 110}],
+                "expected": [
+                    {
+                        "datetime": "20191231",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "100",
+                    },
+                ],
+            },
+            {
+                "orders": [
+                    {
+                        "symbol": "ym",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "120",
                     },
                     {
                         "symbol": "ym",
+                        "side": "long",
                         "operation": "+",
                         "leverage": "1",
                         "price": "100",
                     },
                     {
                         "symbol": "ym",
+                        "side": "long",
                         "operation": "-",
                         "leverage": "1",
                         "price": "100",
                     },
                 ],
                 "events": [
-                    {"dtime": "20191229", "price": 110},
-                    {"dtime": "20191231", "price": 90},
+                    {"side": "long", "dtime": "20191229", "price": 110},
+                    {"side": "long", "dtime": "20191231", "price": 90},
                 ],
                 "expected": [
                     {
@@ -2072,7 +2124,8 @@ class TestTradingAgent(unittest.TestCase):
 
             self.assertEqual(len(orders) - (ei + 1), len(agent.read_orders()))
 
-            ts = agent.read_records(book)
+            # ts = agent.read_records(book)
+            ts = agent.read_records(f"{book}_{event['side']}")
 
             self.assertTrue(ts is not None)
             self.assertNotEqual(len(ts), 0)

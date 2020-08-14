@@ -54,8 +54,9 @@ class OrderProcessor:
             else:
                 raise ValueError("invalid operation")
 
-        for i in indexes:
-            del self._orders[i]
+        # for i in indexes:
+        # del self._orders[i]
+        self._orders = [o for i, o in enumerate(self._orders) if i not in indexes]
 
         if len(orders) == 0:
             return None
@@ -205,7 +206,8 @@ class TradingAgent:
                 entity = order.to_entity()
                 entity["datetime"] = dtime.strftime("%Y%m%d")
 
-                self.new_record(title, entity, new_book=new_book)
+                # self.new_record(title, entity, new_book=new_book)
+                self.new_record(f"{title}_{order.side()}", entity, new_book=new_book)
 
     def new_record(
         self, title: str, entity: Dict[str, str], new_book: bool = False
