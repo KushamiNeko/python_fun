@@ -12,8 +12,17 @@ from fun.chart.setting import Setting
 from fun.chart.static import TradingChart
 from fun.chart.theme import MagicalTheme, Theme
 from fun.data.barchart import Barchart
-from fun.data.source import (DAILY, FREQUENCY, HOURLY, MONTHLY, WEEKLY,
-                             DataSource, InvestingCom, StockCharts, Yahoo)
+from fun.data.source import (
+    DAILY,
+    FREQUENCY,
+    HOURLY,
+    MONTHLY,
+    WEEKLY,
+    DataSource,
+    InvestingCom,
+    StockCharts,
+    Yahoo,
+)
 from fun.futures.continuous import ContinuousContract
 from fun.plotter.advance_decline import AdvanceDeclineLine
 from fun.plotter.background import BackgroundTimeRangeMark
@@ -24,9 +33,11 @@ from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
-from fun.plotter.volatility import (VolatilityLevel,
-                                    VolatilityRealBodyContraction,
-                                    VolatilitySummary)
+from fun.plotter.volatility import (
+    VolatilityLevel,
+    VolatilityRealBodyContraction,
+    VolatilitySummary,
+)
 from fun.plotter.zone import VolatilityZone
 
 
@@ -172,11 +183,13 @@ class CandleSticksPreset:
     def quotes(self) -> pd.DataFrame:
         return self._cache.quotes()
 
-    def theme(self) -> Optional[Theme]:
+    # def theme(self) -> Optional[Theme]:
+    def theme(self) -> Theme:
         assert self._theme is not None
         return self._theme
 
-    def setting(self) -> Optional[Setting]:
+    # def setting(self) -> Optional[Setting]:
+    def setting(self) -> Setting:
         assert self._setting is not None
         return self._setting
 
@@ -424,6 +437,33 @@ class KushamiNekoController(PresetController):
                             line_alpha=self.get_theme().get_alpha("sma"),
                             line_width=self._setting.linewidth(),
                         ),
+                        SimpleMovingAverage(
+                            n=60,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("sma2"),
+                            line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        SimpleMovingAverage(
+                            n=100,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("sma3"),
+                            line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        # SimpleMovingAverage(
+                        #     n=300,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma4"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
                     ]
                 )
             if self._parameters.get("BollingerBands", "").lower() == "true":
@@ -484,7 +524,7 @@ class KushamiNekoController(PresetController):
                     )
                 )
 
-            if self._parameters.get("VixZone", "").lower() == "true":
+            if self._parameters.get("VolatilityZone", "").lower() == "true":
                 if self._symbol in (
                     "vix",
                     "vxn",
@@ -573,7 +613,7 @@ class KushamiNekoController(PresetController):
                     )
                 )
 
-            if self._parameters.get("VolatilitySize", "").lower() == "true":
+            if self._parameters.get("VolatilityRealBodySize", "").lower() == "true":
                 plotters.append(
                     VolatilityRealBodyContraction(
                         quotes=self._cache.quotes(),

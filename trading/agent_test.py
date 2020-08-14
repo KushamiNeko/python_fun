@@ -1482,6 +1482,318 @@ class TestTradingAgent(unittest.TestCase):
             {
                 "orders": [
                     {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190310",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190311",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190317",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {
+                    "length": 2,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
+                },
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190310",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190311",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190317",
+                        "symbol": "ym",
+                        "operation": "+",
+                        "leverage": "2",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {
+                    "length": 2,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
+                },
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190320",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {
+                    "length": 2,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
+                },
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190320",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190325",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {
+                    "length": 2,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
+                },
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190315",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190320",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190325",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {
+                    "length": 2,
+                    "nominal_pl": -0.00997506234,
+                    "leveraged_pl": -0.01995012469,
+                },
+            },
+            {
+                "orders": [],
+                "virtual_order": {"datetime": "20190315", "price": "10125"},
+                "expected": {"length": None},
+            },
+            {
+                "orders": [
+                    {
+                        "datetime": "20190308",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10000",
+                    },
+                    {
+                        "datetime": "20190315",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190320",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                    {
+                        "datetime": "20190325",
+                        "symbol": "ym",
+                        "operation": "-",
+                        "leverage": "1",
+                        "price": "10050",
+                    },
+                ],
+                "virtual_order": {"datetime": "20190301", "price": "10125"},
+                "expected": {"length": None},
+            },
+        ]
+    )
+    def test_open_positions_slice_virtual_pl(self, orders, virtual_order, expected):
+
+        root = os.path.join(
+            cast(str, os.getenv("HOME")),
+            "Documents",
+            "database",
+            "testing",
+            "json",
+            "open_positions_virtual_pl",
+        )
+        self._check_root(root)
+
+        book = "open_positions_virtual_pl"
+
+        agent = TradingAgent(root, new_user=True)
+
+        for order in orders:
+            agent.new_record(book, order, new_book=True)
+
+        books = agent.books()
+        if len(orders) == 0:
+            self.assertIsNone(books)
+        else:
+            self.assertEqual(len(books), 1)
+
+            if expected["length"] is None:
+                self.assertIsNone(
+                    agent.open_positions(
+                        title=book,
+                        dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                    )
+                )
+
+                self.assertIsNone(
+                    agent.open_positions_virtual_pl(
+                        title=book,
+                        dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                        virtual_close=float(virtual_order["price"]),
+                    )
+                )
+
+                self.assertIsNone(
+                    agent.open_positions_leverage(
+                        title=book,
+                        dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                    )
+                )
+
+                self.assertIsNone(
+                    agent.open_positions_nominal_average_opening(
+                        title=book,
+                        dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                    )
+                )
+
+                self.assertIsNone(
+                    agent.open_positions_leverage_average_opening(
+                        title=book,
+                        dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                    )
+                )
+
+            else:
+                self.assertEqual(
+                    len(
+                        agent.open_positions(
+                            title=book,
+                            dtime=datetime.strptime(
+                                virtual_order["datetime"], r"%Y%m%d"
+                            ),
+                        )
+                    ),
+                    expected["length"],
+                )
+
+                nominal, leveraged = agent.open_positions_virtual_pl(
+                    title=book,
+                    dtime=datetime.strptime(virtual_order["datetime"], r"%Y%m%d"),
+                    virtual_close=float(virtual_order["price"]),
+                )
+
+                self.assertAlmostEqual(nominal, expected["nominal_pl"] * 100, 0)
+                self.assertAlmostEqual(leveraged, expected["leveraged_pl"] * 100, 0)
+
+        self._clean_root(root)
+
+    @parameterized(
+        [
+            {
+                "orders": [
+                    {
                         "symbol": "ty",
                         "operation": "+",
                         "leverage": "1",

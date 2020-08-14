@@ -279,34 +279,55 @@ class TradingAgent:
         else:
             return {}
 
-    def open_positions(self, title: str) -> Optional[List[FuturesTransaction]]:
+    def open_positions(
+        self, title: str, dtime: Optional[datetime] = None
+    ) -> Optional[List[FuturesTransaction]]:
         transactions = self.read_records(title)
         if transactions is None:
             return None
+
+        if dtime is not None:
+            transactions = [t for t in transactions if t.datetime() <= dtime]
 
         last_time_stamp = 0.0
 
         trades = self._process_trades(transactions)
         if trades is not None:
             last_time_stamp = trades[-1].close_time_stamp()
-        else:
-            return transactions
 
-        op = [
-            transaction
-            for transaction in transactions
-            if transaction.time_stamp() > last_time_stamp
-        ]
+            if dtime is None:
+                op = [
+                    transaction
+                    for transaction in transactions
+                    if transaction.time_stamp() > last_time_stamp
+                ]
+            else:
+                op = [
+                    transaction
+                    for transaction in transactions
+                    if transaction.time_stamp() > last_time_stamp
+                    and transaction.datetime() <= dtime
+                ]
 
-        if len(op) > 0:
-            return op
+            if len(op) > 0:
+                return op
+            else:
+                return None
+
         else:
-            return None
+            if dtime is None:
+                return transactions
+            else:
+                op = [t for t in transactions if t.datetime() <= dtime]
+                if len(op) > 0:
+                    return op
+                else:
+                    return None
 
     def open_positions_virtual_pl(
         self, title: str, dtime: datetime, virtual_close: float
     ) -> Optional[Tuple[float, float]]:
-        op = self.open_positions(title)
+        op = self.open_positions(title, dtime=dtime)
         if op is None:
             return None
 
@@ -328,16 +349,23 @@ class TradingAgent:
 
         return virtual_trade.nominal_pl() * 100.0, virtual_trade.leveraged_pl() * 100.0
 
-    def open_positions_leverage(self, title: str) -> Optional[float]:
-        op = self.open_positions(title)
+    def open_positions_leverage(
+        self, title: str, dtime: Optional[datetime] = None
+    ) -> Optional[float]:
+        op = self.open_positions(title, dtime=dtime)
+        print(title)
+        print(op)
+
         if op is None:
             return None
 
         else:
             return abs(sum([float(f"{t.operation()}{t.leverage()}") for t in op]))
 
-    def open_positions_nominal_average_opening(self, title: str) -> Optional[float]:
-        ts = self.open_positions(title)
+    def open_positions_nominal_average_opening(
+        self, title: str, dtime: Optional[datetime] = None
+    ) -> Optional[float]:
+        ts = self.open_positions(title, dtime=dtime)
         if ts is None:
             return None
 
@@ -346,8 +374,10 @@ class TradingAgent:
                 [t.price() for t in ts if t.operation() == ts[0].operation()]
             ) / len([t for t in ts if t.operation() == ts[0].operation()])
 
-    def open_positions_leverage_average_opening(self, title: str) -> Optional[float]:
-        ts = self.open_positions(title)
+    def open_positions_leverage_average_opening(
+        self, title: str, dtime: Optional[datetime] = None
+    ) -> Optional[float]:
+        ts = self.open_positions(title, dtime=dtime)
         if ts is None:
             return None
 
