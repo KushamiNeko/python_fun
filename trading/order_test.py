@@ -10,7 +10,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": 1,
                     "price": 2722.75,
@@ -25,7 +25,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "-",
                     "leverage": 10,
                     "price": 2722,
@@ -40,7 +40,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "Es",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": 1,
                     "price": 2722.75,
@@ -55,7 +55,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "eS",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "-",
                     "leverage": 2,
                     "price": 2722.75,
@@ -70,7 +70,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "-",
                     "leverage": 2,
                     "price": 2722.75,
@@ -87,14 +87,14 @@ class TestTransactionOrder(unittest.TestCase):
     def test_new_order_succeed(self, inputs):
         t = TransactionOrder(
             symbol=inputs["symbol"],
-            side=inputs["side"],
+            account=inputs["account"],
             operation=inputs["operation"],
             leverage=inputs["leverage"],
             price=inputs["price"],
         )
 
         self.assertEqual(inputs["symbol"].lower(), t.symbol())
-        self.assertEqual(inputs["side"], t.side())
+        self.assertEqual(inputs["account"], t.account())
         self.assertEqual(inputs["operation"], t.operation())
         self.assertEqual(inputs["leverage"], t.leverage())
         self.assertEqual(inputs["price"], t.price())
@@ -104,7 +104,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "-",
                     "leverage": 2,
                     "price": 2722.75,
@@ -113,7 +113,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "[\\]",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "-",
                     "leverage": 2,
                     "price": 2722.75,
@@ -122,7 +122,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "a123",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "-",
                     "leverage": 2,
                     "price": 2722.75,
@@ -131,7 +131,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "",
                     "leverage": 2,
                     "price": 2722.75,
@@ -140,7 +140,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "hello",
                     "leverage": 2,
                     "price": 2722.75,
@@ -149,7 +149,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "\\",
                     "leverage": 2,
                     "price": 2722.75,
@@ -158,7 +158,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "123",
                     "leverage": 2,
                     "price": 2722.75,
@@ -167,7 +167,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": 0,
                     "price": 2722.75,
@@ -176,7 +176,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": -1,
                     "price": 2722.75,
@@ -185,7 +185,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": 1,
                     "price": 0,
@@ -194,7 +194,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": 1,
                     "price": -1,
@@ -206,7 +206,7 @@ class TestTransactionOrder(unittest.TestCase):
         with self.assertRaises(ValueError):
             TransactionOrder(
                 symbol=inputs["symbol"],
-                side=inputs["side"],
+                account=inputs["account"],
                 operation=inputs["operation"],
                 leverage=inputs["leverage"],
                 price=inputs["price"],
@@ -217,14 +217,14 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": "1",
                     "price": "2722.75",
                 },
                 "expected": {
                     "symbol": "es",
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": 1,
                     "price": 2722.75,
@@ -233,14 +233,14 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": "1",
                     "price": "2722.75",
                 },
                 "expected": {
                     "symbol": "es",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": 1,
                     "price": 2722.75,
@@ -252,20 +252,20 @@ class TestTransactionOrder(unittest.TestCase):
         t = TransactionOrder.from_entity(inputs)
 
         self.assertEqual(expected["symbol"], t.symbol())
-        self.assertEqual(expected["side"], t.side())
+        self.assertEqual(expected["account"], t.account())
         self.assertEqual(expected["operation"], t.operation())
         self.assertEqual(expected["leverage"], t.leverage())
         self.assertEqual(expected["price"], t.price())
 
     def test_futures_order_to_entity_succeed(self):
         t = TransactionOrder(
-            symbol="es", side="long", operation="+", leverage=1, price=2722.75,
+            symbol="es", account="trading", operation="+", leverage=1, price=2722.75,
         )
 
         nt = TransactionOrder.from_entity(t.to_entity())
 
         self.assertEqual(nt.symbol(), t.symbol())
-        self.assertEqual(nt.side(), t.side())
+        self.assertEqual(nt.account(), t.account())
         self.assertEqual(nt.operation(), t.operation())
         self.assertEqual(nt.leverage(), t.leverage())
         self.assertEqual(nt.price(), t.price())
@@ -274,7 +274,7 @@ class TestTransactionOrder(unittest.TestCase):
         [
             {
                 "inputs": {
-                    "side": "long",
+                    "account": "trading",
                     "operation": "+",
                     "leverage": "1",
                     "price": "2722.75",
@@ -283,7 +283,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "long",
+                    "account": "trading",
                     "leverage": "1",
                     "price": "2722.75",
                 }
@@ -291,7 +291,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "price": "2722.75",
                 }
@@ -299,7 +299,7 @@ class TestTransactionOrder(unittest.TestCase):
             {
                 "inputs": {
                     "symbol": "ES",
-                    "side": "short",
+                    "account": "hedging",
                     "operation": "+",
                     "leverage": "1",
                 }

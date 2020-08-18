@@ -207,7 +207,7 @@ class TradingAgent:
                 entity["datetime"] = dtime.strftime("%Y%m%d")
 
                 # self.new_record(title, entity, new_book=new_book)
-                self.new_record(f"{title}_{order.side()}", entity, new_book=new_book)
+                self.new_record(f"{title}_{order.account()}", entity, new_book=new_book)
 
     def new_record(
         self, title: str, entity: Dict[str, str], new_book: bool = False
@@ -259,7 +259,10 @@ class TradingAgent:
             else:
                 ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 
-        return ts
+        # return ts
+        return sorted(
+            ts, key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+        )
 
     def read_trades(self, title: str) -> Optional[List[FuturesTrade]]:
         ts = self.read_records(title)
@@ -296,18 +299,21 @@ class TradingAgent:
         trades = self._process_trades(transactions)
         if trades is not None:
             last_time_stamp = trades[-1].close_time_stamp()
+            last_date = trades[-1].close_time()
 
             if dtime is None:
                 op = [
                     transaction
                     for transaction in transactions
                     if transaction.time_stamp() > last_time_stamp
+                    and transaction.datetime() > last_date
                 ]
             else:
                 op = [
                     transaction
                     for transaction in transactions
                     if transaction.time_stamp() > last_time_stamp
+                    and transaction.datetime() > last_date
                     and transaction.datetime() <= dtime
                 ]
 
@@ -351,12 +357,20 @@ class TradingAgent:
 
         return virtual_trade.nominal_pl() * 100.0, virtual_trade.leveraged_pl() * 100.0
 
+    def open_positions_operation(
+        self, title: str, dtime: Optional[datetime] = None
+    ) -> Optional[str]:
+        op = self.open_positions(title, dtime=dtime)
+
+        if op is None:
+            return None
+
+        return op[0].operation()
+
     def open_positions_leverage(
         self, title: str, dtime: Optional[datetime] = None
     ) -> Optional[float]:
         op = self.open_positions(title, dtime=dtime)
-        print(title)
-        print(op)
 
         if op is None:
             return None

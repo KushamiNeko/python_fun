@@ -140,8 +140,8 @@ class LongShortLeverageRecords(TextPlotter):
         virtual_close: float,
         quotes: pd.DataFrame,
         frequency: FREQUENCY,
-        long_book_title: str,
-        short_book_title: str,
+        trading_book_title: str,
+        hedging_book_title: str,
         agent: TradingAgent,
         font_color: str = "k",
         font_size: float = 10.0,
@@ -183,17 +183,22 @@ class LongShortLeverageRecords(TextPlotter):
         self._quotes = quotes
         self._frequency = frequency
 
-        self._long_book_title = long_book_title
-        self._short_book_title = short_book_title
+        self._trading_book_title = trading_book_title
+        self._hedging_book_title = hedging_book_title
 
         self._agent = agent
 
     def plot(self, ax: axes.Axes) -> None:
-        long_leverage = self._agent.open_positions_leverage(
-            title=self._long_book_title, dtime=self._dtime
+        trading_leverage = self._agent.open_positions_leverage(
+            title=self._trading_book_title, dtime=self._dtime
         )
-        long_virtual_pl = self._agent.open_positions_virtual_pl(
-            title=self._long_book_title,
+
+        trading_operation = self._agent.open_positions_operation(
+            title=self._trading_book_title, dtime=self._dtime
+        )
+
+        trading_virtual_pl = self._agent.open_positions_virtual_pl(
+            title=self._trading_book_title,
             dtime=self._dtime,
             virtual_close=self._virtual_close,
         )
@@ -201,7 +206,7 @@ class LongShortLeverageRecords(TextPlotter):
         plotter = LeverageRecords(
             quotes=self._quotes,
             frequency=self._frequency,
-            book_title=self._long_book_title,
+            book_title=self._trading_book_title,
             agent=self._agent,
             font_color=self._font_color,
             font_size=self._font_size,
@@ -211,11 +216,16 @@ class LongShortLeverageRecords(TextPlotter):
 
         plotter.plot(ax)
 
-        short_leverage = self._agent.open_positions_leverage(
-            title=self._short_book_title, dtime=self._dtime,
+        hedging_leverage = self._agent.open_positions_leverage(
+            title=self._hedging_book_title, dtime=self._dtime,
         )
-        short_virtual_pl = self._agent.open_positions_virtual_pl(
-            title=self._short_book_title,
+
+        hedging_operation = self._agent.open_positions_operation(
+            title=self._hedging_book_title, dtime=self._dtime
+        )
+
+        hedging_virtual_pl = self._agent.open_positions_virtual_pl(
+            title=self._hedging_book_title,
             dtime=self._dtime,
             virtual_close=self._virtual_close,
         )
@@ -223,7 +233,7 @@ class LongShortLeverageRecords(TextPlotter):
         plotter = LeverageRecords(
             quotes=self._quotes,
             frequency=self._frequency,
-            book_title=self._short_book_title,
+            book_title=self._hedging_book_title,
             agent=self._agent,
             flip_position=True,
             font_color=self._font_color,
@@ -234,39 +244,67 @@ class LongShortLeverageRecords(TextPlotter):
 
         plotter.plot(ax)
 
-        long_leverage = long_leverage if long_leverage is not None else 0
-        short_leverage = short_leverage if short_leverage is not None else 0
+        trading_leverage = trading_leverage if trading_leverage is not None else 0
+        hedging_leverage = hedging_leverage if hedging_leverage is not None else 0
 
-        nominal_long_vpl = long_virtual_pl[0] if long_virtual_pl is not None else 0
-        leveraged_long_vpl = long_virtual_pl[1] if long_virtual_pl is not None else 0
+        trading_operation = trading_operation if trading_operation is not None else ""
+        hedging_operation = hedging_operation if hedging_operation is not None else ""
 
-        nominal_short_vpl = short_virtual_pl[0] if short_virtual_pl is not None else 0
-        leveraged_short_vpl = short_virtual_pl[1] if short_virtual_pl is not None else 0
+        nominal_trading_vpl = (
+            trading_virtual_pl[0] if trading_virtual_pl is not None else 0
+        )
+        leveraged_trading_vpl = (
+            trading_virtual_pl[1] if trading_virtual_pl is not None else 0
+        )
 
-        nominal_balance = nominal_long_vpl + nominal_short_vpl
-        leveraged_balance = leveraged_long_vpl + leveraged_short_vpl
+        nominal_hedging_vpl = (
+            hedging_virtual_pl[0] if hedging_virtual_pl is not None else 0
+        )
+        leveraged_hedging_vpl = (
+            hedging_virtual_pl[1] if hedging_virtual_pl is not None else 0
+        )
+
+        nominal_balance = nominal_trading_vpl + nominal_hedging_vpl
+        leveraged_balance = leveraged_trading_vpl + leveraged_hedging_vpl
 
         text = "\n".join(
             [
-                "Long : Short",
-                "============",
-                f"{long_leverage} : {short_leverage}",
-                "============",
-                f"{nominal_long_vpl: .2f}% : {nominal_short_vpl: .2f}%",
-                f"{leveraged_long_vpl: .2f}% : {leveraged_short_vpl: .2f}%",
-                "============",
+                "Trading : Hedging",
+                "==============",
+                f"{trading_operation}{trading_leverage}  :  {hedging_operation}{hedging_leverage}",
+                "==============",
+                f"{nominal_trading_vpl: .2f}%  :  {nominal_hedging_vpl: .2f}%",
+                f"{leveraged_trading_vpl: .2f}%  :  {leveraged_hedging_vpl: .2f}%",
+                "==============",
                 f"{nominal_balance: .2f}%",
                 f"{leveraged_balance: .2f}%",
             ]
         )
 
+        length = len(self._quotes.index)
+        start = (length // 2) - ((length // 12) // 2)
+        end = (length // 2) + ((length // 12) // 2)
+
+        lh = np.amax(self._quotes.iloc[start:end].loc[:, "high"])
+        ll = np.amin(self._quotes.iloc[start:end].loc[:, "low"])
+
+        mn, mx = ax.get_ylim()
+
+        y = mn
+        va = "bottom"
+        if (mx - lh) > (ll - mn):
+            y = mx
+            va = "top"
+
         ax.text(
             len(self._quotes.index) // 2,
-            ax.get_ylim()[0],
+            y,
+            # ax.get_ylim()[0],
             text,
             color=self._info_font_color,
             fontproperties=self._info_font_properties,
             ha="center",
-            va="bottom",
+            va=va,
+            # va="bottom",
         )
 

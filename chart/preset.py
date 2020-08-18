@@ -31,14 +31,12 @@ from fun.plotter.entry import EntryZone
 from fun.plotter.equal_weighted import EqualWeightedRelativeStrength
 from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
+from fun.plotter.level import Level
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
-from fun.plotter.volatility import (
-    VolatilityLevel,
-    VolatilityRealBodyContraction,
-    VolatilitySummary,
-)
+from fun.plotter.volatility import VolatilityRealBodyContraction, VolatilitySummary
 from fun.plotter.zone import VolatilityZone
+from fun.plotter.volume import Volume
 
 
 class CandleSticksPreset:
@@ -350,8 +348,10 @@ class CandleSticksPreset:
 
             base_date = self._cache.quotes().index[ax]
 
-            info["diff(d)"] = f"{(df.index[nx] - base_date).days}"
-            info["diff(w)"] = f"{(df.index[nx] - base_date).days // 7}"
+            info["diff(B)"] = f"{nx-ax}"
+            info["diff(D)"] = f"{(df.index[nx] - base_date).days}"
+            info["diff(W)"] = f"{(df.index[nx] - base_date).days // 7}"
+            info["diff(M)"] = f"{(df.index[nx] - base_date).days / 30:.2f}"
             info["diff($)"] = f"{ny - ay:,.{decimals}f}"
             info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{decimals}f}"
 
@@ -437,24 +437,24 @@ class KushamiNekoController(PresetController):
                             line_alpha=self.get_theme().get_alpha("sma"),
                             line_width=self._setting.linewidth(),
                         ),
-                        SimpleMovingAverage(
-                            n=60,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("sma2"),
-                            line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                        SimpleMovingAverage(
-                            n=100,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("sma3"),
-                            line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
-                        ),
+                        # SimpleMovingAverage(
+                        #     n=60,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma2"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
+                        # SimpleMovingAverage(
+                        #     n=100,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma3"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
                         # SimpleMovingAverage(
                         #     n=300,
                         #     quotes=self._cache.full_quotes(),
@@ -512,9 +512,67 @@ class KushamiNekoController(PresetController):
                     ]
                 )
 
-            if self._parameters.get("VolatilityLevel", "").lower() == "true":
+            if self._parameters.get("MovingAverages60", "").lower() == "true":
                 plotters.append(
-                    VolatilityLevel(
+                    SimpleMovingAverage(
+                        n=60,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma2"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        line_width=self._setting.linewidth(),
+                    ),
+                )
+
+            if self._parameters.get("MovingAveragesPlus", "").lower() == "true":
+                plotters.extend(
+                    [
+                        # SimpleMovingAverage(
+                        #     n=60,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma2"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
+                        SimpleMovingAverage(
+                            n=100,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("sma3"),
+                            line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        SimpleMovingAverage(
+                            n=300,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("sma4"),
+                            line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                    ]
+                )
+
+            if self._parameters.get("Volume", "").lower() == "true":
+                plotters.append(
+                    Volume(
+                        quotes=self._cache.quotes(),
+                        body_width=self._setting.body_width(),
+                        color_up=self.get_theme().get_color("up"),
+                        color_down=self.get_theme().get_color("down"),
+                        color_unchanged=self.get_theme().get_color("unchanged"),
+                    ),
+                )
+
+            if self._parameters.get("TradingLevel", "").lower() == "true":
+                plotters.append(
+                    Level(
+                        full_quotes=self._cache.full_quotes(),
                         quotes=self._cache.quotes(),
                         symbol=self._symbol,
                         frequency=self._frequency,
