@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
+from functools import cmp_to_key
 
 import numpy as np
 from fun.trading.book import TradingBook
@@ -154,7 +155,9 @@ class TradingAgent:
                 uid = random_string()
 
                 self._db.insert(
-                    self._DB_ADMIN, self._COL_USER, {"name": user_name, "uid": uid},
+                    self._DB_ADMIN,
+                    self._COL_USER,
+                    {"name": user_name, "uid": uid},
                 )
 
                 return uid
@@ -169,6 +172,21 @@ class TradingAgent:
                     return b
 
         return None
+
+    @staticmethod
+    def _transaction_compare(x: FuturesTransaction, y: FuturesTransaction) -> int:
+        if x.datetime() == y.datetime():
+            if x.time_stamp() > y.time_stamp():
+                return 1
+            elif x.time_stamp() < y.time_stamp():
+                return -1
+            else:
+                raise ValueError("find identical time stamp")
+        else:
+            if x.datetime() > y.datetime():
+                return 1
+            else:
+                return -1
 
     def books(self) -> Optional[List[TradingBook]]:
         books = self._db.find(
@@ -219,7 +237,9 @@ class TradingAgent:
             if new_book:
                 book = TradingBook(title=title)
                 self._db.insert(
-                    self._DB_TRADING_BOOKS, self._uid, book.to_entity(),
+                    self._DB_TRADING_BOOKS,
+                    self._uid,
+                    book.to_entity(),
                 )
             else:
                 raise ValueError(f"book {title} does not exist")
@@ -238,7 +258,8 @@ class TradingAgent:
             if entities is not None and len(entities) != 0:
                 return sorted(
                     [FuturesTransaction.from_entity(e) for e in entities],
-                    key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+                    # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+                    key=cmp_to_key(self._transaction_compare),
                 )
 
         return None
@@ -261,7 +282,9 @@ class TradingAgent:
 
         # return ts
         return sorted(
-            ts, key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+            ts,
+            # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
+            key=cmp_to_key(self._transaction_compare),
         )
 
     def read_trades(self, title: str) -> Optional[List[FuturesTrade]]:
@@ -298,24 +321,44 @@ class TradingAgent:
 
         trades = self._process_trades(transactions)
         if trades is not None:
-            last_time_stamp = trades[-1].close_time_stamp()
             last_date = trades[-1].close_time()
+            last_time_stamp = trades[-1].close_time_stamp()
 
             if dtime is None:
-                op = [
-                    transaction
-                    for transaction in transactions
-                    if transaction.time_stamp() > last_time_stamp
-                    and transaction.datetime() > last_date
-                ]
+                op = []
+                for t in transactions:
+                    if t.datetime() > last_date:
+                        op.append(t)
+                    elif t.datetime() == last_date:
+                        if t.time_stamp() > last_time_stamp:
+                            op.append(t)
+                    else:
+                        continue
+                # op = [
+                #     transaction
+                #     for transaction in transactions
+                #     if transaction.time_stamp() > last_time_stamp
+                #     # and transaction.datetime() > last_date
+                # ]
             else:
-                op = [
-                    transaction
-                    for transaction in transactions
-                    if transaction.time_stamp() > last_time_stamp
-                    and transaction.datetime() > last_date
-                    and transaction.datetime() <= dtime
-                ]
+                op = []
+                for t in transactions:
+                    if t.datetime() > last_date:
+                        if t.datetime() < dtime:
+                            op.append(t)
+                    elif t.datetime() == last_date:
+                        if t.time_stamp() > last_time_stamp:
+                            if t.datetime() < dtime:
+                                op.append(t)
+                    else:
+                        continue
+                # op = [
+                #     transaction
+                #     for transaction in transactions
+                #     if transaction.time_stamp() > last_time_stamp
+                #     # and transaction.datetime() > last_date
+                #     and transaction.datetime() <= dtime
+                # ]
 
             if len(op) > 0:
                 return op
@@ -411,7 +454,8 @@ class TradingAgent:
     ) -> Optional[List[FuturesTrade]]:
 
         transactions.sort(
-            key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+            # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
+            key=cmp_to_key(self._transaction_compare),
         )
 
         ops = np.add.accumulate(
@@ -432,4 +476,3 @@ class TradingAgent:
             return trades
         else:
             return None
-

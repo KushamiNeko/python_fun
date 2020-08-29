@@ -87,8 +87,65 @@ class Level(VolatilitySource, Plotter):
 
         ha = "right"
 
-        self._plot_volatility_level(ax=ax, x=x, y=y, ha=ha, va=va, ending="\n")
-        self._plot_moving_average_distance(ax=ax, x=x, y=y, ha=ha, va=va)
+        if va == "bottom":
+            self._plot_standard_deviation(ax=ax, x=x, y=y, ha=ha, va=va, ending="\n\n")
+            self._plot_volatility_level(ax=ax, x=x, y=y, ha=ha, va=va, ending="\n")
+            self._plot_moving_average_distance(ax=ax, x=x, y=y, ha=ha, va=va)
+        else:
+            self._plot_standard_deviation(ax=ax, x=x, y=y, ha=ha, va=va)
+            self._plot_volatility_level(ax=ax, x=x, y=y, ha=ha, va=va, starting="\n")
+            self._plot_moving_average_distance(
+                ax=ax, x=x, y=y, ha=ha, va=va, starting="\n\n"
+            )
+
+    def _plot_standard_deviation(
+        self,
+        ax: axes.Axes,
+        x: float,
+        y: float,
+        ha: str,
+        va: str,
+        n: int = 20,
+        yellow_threshold: float = 2.0,
+        red_threshold: float = 2.5,
+        starting: str = "",
+        ending: str = "",
+    ) -> None:
+
+        ma = (
+            self._full_quotes.loc[:, "close"]
+            .rolling(n)
+            .mean()
+            .loc[self._quotes.index[0] : self._quotes.index[-1]]
+            .iloc[-1]
+        )
+        c = self._quotes.iloc[-1].get("close")
+
+        std = (
+            self._full_quotes.loc[:, "close"]
+            .rolling(n)
+            .std()
+            .loc[self._quotes.index[0] : self._quotes.index[-1]]
+            .iloc[-1]
+        )
+
+        m = (c - ma) / std
+
+        color = self._color_green
+        if abs(m) > yellow_threshold:
+            color = self._color_yellow
+        if abs(m) > red_threshold:
+            color = self._color_red
+
+        ax.text(
+            x,
+            y,
+            f"{starting}σ: {m:.2f}{ending}",
+            color=color,
+            fontproperties=self._font_properties,
+            ha=ha,
+            va=va,
+        )
 
     def _plot_moving_average_distance(
         self,
@@ -100,10 +157,17 @@ class Level(VolatilitySource, Plotter):
         n: int = 300,
         yellow_threshold: float = 9.0,
         red_threshold: float = 12.0,
+        starting: str = "",
         ending: str = "",
     ) -> None:
 
-        ma = self._full_quotes.loc[:, "close"].rolling(n).mean().iloc[-1]
+        ma = (
+            self._full_quotes.loc[:, "close"]
+            .rolling(n)
+            .mean()
+            .loc[self._quotes.index[0] : self._quotes.index[-1]]
+            .iloc[-1]
+        )
         c = self._quotes.iloc[-1].get("close")
 
         if c < ma:
@@ -120,7 +184,7 @@ class Level(VolatilitySource, Plotter):
         ax.text(
             x,
             y,
-            f"Δ {n} MA: {p:.2f}%{ending}",
+            f"{starting}Δ {n} MA: {p:.2f}%{ending}",
             color=color,
             fontproperties=self._font_properties,
             ha=ha,
@@ -136,6 +200,7 @@ class Level(VolatilitySource, Plotter):
         va: str,
         yellow_threshold: float = 22.5,
         red_threshold: float = 45.0,
+        starting: str = "",
         ending: str = "",
     ) -> None:
         if self._vix_symbol is None or self._vix_quotes is None:
@@ -160,7 +225,7 @@ class Level(VolatilitySource, Plotter):
         ax.text(
             x,
             y,
-            f"{self._vix_symbol.upper()}: {value:.2f}{ending}",
+            f"{starting}{self._vix_symbol.upper()}: {value:.2f}{ending}",
             color=color,
             fontproperties=self._font_properties,
             ha=ha,

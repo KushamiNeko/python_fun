@@ -11,7 +11,7 @@ class BackgroundTimeRangeMark(Plotter):
             frequency: FREQUENCY,
             from_start: bool = True,
             color: str = "w",
-            alpha: float = 0.05,
+            alpha: float = 0.075,
     ) -> None:
         self._quotes = quotes
         self._frequency = frequency

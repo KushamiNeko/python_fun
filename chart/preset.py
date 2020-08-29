@@ -102,11 +102,25 @@ class CandleSticksPreset:
 
         src: Optional[DataSource] = None
 
-        if self._symbol in ("vix", "vxn", "sml", "ovx", "gvz"):
+        if self._symbol in ("vix", "vxn", "ovx", "gvz"):
             src = Yahoo()
 
-        elif self._symbol in ("vstx", "jniv", "vhsi", "vxfxi"):
+        elif self._symbol in ("rut", "sml", "dji"):
+            src = Yahoo()
+
+        elif self._symbol in ("vstx", "jniv", "vhsi", "vxfxi", "nk400"):
             src = InvestingCom()
+
+        elif self._symbol in (
+            "jpyusd",
+            "eurusd",
+            "gbpusd",
+            "chfusd",
+            "audusd",
+            "cadusd",
+            "nzdusd",
+        ):
+            src = StockCharts()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
@@ -272,6 +286,8 @@ class CandleSticksPreset:
                 parameters=parameters,
             )
 
+        assert self._controller is not None
+
         self._theme = self._controller.get_theme()
         self._setting = self._controller.get_setting()
 
@@ -350,8 +366,8 @@ class CandleSticksPreset:
 
             info["diff(B)"] = f"{nx-ax}"
             info["diff(D)"] = f"{(df.index[nx] - base_date).days}"
-            info["diff(W)"] = f"{(df.index[nx] - base_date).days // 7}"
-            info["diff(M)"] = f"{(df.index[nx] - base_date).days / 30:.2f}"
+            info["diff(W)"] = f"{(df.index[nx] - base_date).days / 7:.{decimals}f}"
+            info["diff(M)"] = f"{(df.index[nx] - base_date).days / 30:.{decimals}f}"
             info["diff($)"] = f"{ny - ay:,.{decimals}f}"
             info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{decimals}f}"
 
@@ -397,14 +413,14 @@ class KushamiNekoController(PresetController):
             BackgroundTimeRangeMark(
                 quotes=self._cache.quotes(), frequency=self._frequency,
             ),
-            CandleSticks(
-                quotes=self._cache.quotes(),
-                shadow_width=self._setting.shadow_width(),
-                body_width=self._setting.body_width(),
-                color_up=self.get_theme().get_color("up"),
-                color_down=self.get_theme().get_color("down"),
-                color_unchanged=self.get_theme().get_color("unchanged"),
-            ),
+            # CandleSticks(
+            #     quotes=self._cache.quotes(),
+            #     shadow_width=self._setting.shadow_width(),
+            #     body_width=self._setting.body_width(),
+            #     color_up=self.get_theme().get_color("up"),
+            #     color_down=self.get_theme().get_color("down"),
+            #     color_unchanged=self.get_theme().get_color("unchanged"),
+            # ),
             LastQuote(
                 quotes=self._cache.quotes(),
                 font_color=self.get_theme().get_color("text"),
@@ -415,6 +431,18 @@ class KushamiNekoController(PresetController):
         ]
 
         if self._parameters is not None:
+
+            if self._parameters.get("CandleSticks", "").lower() == "true":
+                plotters.append(
+                    CandleSticks(
+                        quotes=self._cache.quotes(),
+                        shadow_width=self._setting.shadow_width(),
+                        body_width=self._setting.body_width(),
+                        color_up=self.get_theme().get_color("up"),
+                        color_down=self.get_theme().get_color("down"),
+                        color_unchanged=self.get_theme().get_color("unchanged"),
+                    ),
+                )
 
             if self._parameters.get("MovingAverages", "").lower() == "true":
                 plotters.extend(
@@ -525,7 +553,7 @@ class KushamiNekoController(PresetController):
                     ),
                 )
 
-            if self._parameters.get("MovingAveragesPlus", "").lower() == "true":
+            if self._parameters.get("MovingAverages100", "").lower() == "true":
                 plotters.extend(
                     [
                         # SimpleMovingAverage(
@@ -546,6 +574,39 @@ class KushamiNekoController(PresetController):
                             line_alpha=self.get_theme().get_alpha("sma"),
                             line_width=self._setting.linewidth(),
                         ),
+                        # SimpleMovingAverage(
+                        #     n=300,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma4"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
+                    ]
+                )
+
+            if self._parameters.get("MovingAverages300", "").lower() == "true":
+                plotters.extend(
+                    [
+                        # SimpleMovingAverage(
+                        #     n=60,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma2"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
+                        # SimpleMovingAverage(
+                        #     n=100,
+                        #     quotes=self._cache.full_quotes(),
+                        #     slice_start=self._cache.quotes().index[0],
+                        #     slice_end=self._cache.quotes().index[-1],
+                        #     line_color=self.get_theme().get_color("sma3"),
+                        #     line_alpha=self.get_theme().get_alpha("sma"),
+                        #     line_width=self._setting.linewidth(),
+                        # ),
                         SimpleMovingAverage(
                             n=300,
                             quotes=self._cache.full_quotes(),

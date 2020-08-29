@@ -19,10 +19,10 @@ HOURLY = FREQUENCY(3)
 
 def daily_to_weekly(df: pd.DataFrame) -> pd.DataFrame:
     agg = {
-        "open":   "first",
-        "high":   "max",
-        "low":    "min",
-        "close":  "last",
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
         "volume": "sum",
     }
 
@@ -38,10 +38,10 @@ def daily_to_weekly(df: pd.DataFrame) -> pd.DataFrame:
 
 def daily_to_monthly(df: pd.DataFrame) -> pd.DataFrame:
     agg = {
-        "open":   "first",
-        "high":   "max",
-        "low":    "min",
-        "close":  "last",
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
         "volume": "sum",
     }
 
@@ -66,7 +66,7 @@ class DataSource(metaclass=ABCMeta):
 
     @abstractmethod
     def _url(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
         raise NotImplementedError
 
@@ -109,7 +109,7 @@ class DataSource(metaclass=ABCMeta):
         return df.rename(columns=cols)
 
     def read(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> pd.DataFrame:
 
         assert frequency in (DAILY, WEEKLY, MONTHLY)
@@ -128,8 +128,8 @@ class DataSource(metaclass=ABCMeta):
         unusual = df.index.hour != 0
         if unusual.any():
             pretty.color_print(
-                    colors.PAPER_AMBER_300,
-                    f"dropping {len(df.loc[unusual])} rows containing unusual timestamp from {symbol.upper()}",
+                colors.PAPER_AMBER_300,
+                f"dropping {len(df.loc[unusual])} rows containing unusual timestamp from {symbol.upper()}",
             )
             df = df.drop(df.loc[unusual].index)
 
@@ -145,8 +145,8 @@ class DataSource(metaclass=ABCMeta):
         na = df.isna().any(axis=1)
         if na.any():
             pretty.color_print(
-                    colors.PAPER_AMBER_300,
-                    f"dropping {len(df.loc[na])} rows containing nan from {symbol.upper()}",
+                colors.PAPER_AMBER_300,
+                f"dropping {len(df.loc[na])} rows containing nan from {symbol.upper()}",
             )
 
             dropped_length = len(df.loc[na])
@@ -160,7 +160,7 @@ class DataSource(metaclass=ABCMeta):
 
 class AlphaVantage(DataSource):
     def _url(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
 
         if not re.match(r"^[a-zA-Z]+$", symbol):
@@ -213,7 +213,7 @@ class Yahoo(DataSource):
         return datetime.strptime(x, "%Y-%m-%d")
 
     def _url(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
         return os.path.join("yahoo", f"{symbol}.csv")
 
@@ -234,7 +234,7 @@ class StockCharts(DataSource):
         return datetime.strptime(x, "%m-%d-%Y")
 
     def _url(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
         return os.path.join("stockcharts", f"{symbol}.txt")
 
@@ -263,7 +263,7 @@ class InvestingCom(DataSource):
         return datetime.strptime(x, "%b %d, %Y")
 
     def _url(
-            self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
         return os.path.join("investing.com", f"{symbol}.csv")
 
@@ -272,8 +272,28 @@ class InvestingCom(DataSource):
         df = df.drop("Change %", axis=1)
 
         df.loc[:, "Vol."] = df.loc[:, "Vol."].apply(
-                lambda x: 0 if x == "-" or type(x) is str else x
+            lambda x: 0 if x == "-" or type(x) is str else x
         )
+
+        df.loc[:, "Price"] = df.loc[:, "Price"].apply(
+            lambda x: x.replace(",", "") if type(x) is str and "," in x else x
+        )
+
+        df.loc[:, "Open"] = df.loc[:, "Open"].apply(
+            lambda x: x.replace(",", "") if type(x) is str and "," in x else x
+        )
+
+        df.loc[:, "High"] = df.loc[:, "High"].apply(
+            lambda x: x.replace(",", "") if type(x) is str and "," in x else x
+        )
+
+        df.loc[:, "Low"] = df.loc[:, "Low"].apply(
+            lambda x: x.replace(",", "") if type(x) is str and "," in x else x
+        )
+
+        df.loc[:, ["Price", "Open", "High", "Low", "Vol."]] = df.loc[
+            :, ["Price", "Open", "High", "Low", "Vol."]
+        ].astype(np.float)
 
         selector = df.loc[:, "Open"] <= 0
         df.loc[selector, "Open"] = df.loc[selector, "Price"]

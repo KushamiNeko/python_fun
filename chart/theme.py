@@ -41,10 +41,12 @@ class Theme:
 
         self._colors["sma0"] = colors.PAPER_YELLOW_300
         self._colors["sma1"] = colors.PAPER_BLUE_GREY_200
-        self._colors["sma2"] = colors.PAPER_LIGHT_GREEN_300
-        self._colors["sma3"] = colors.PAPER_PURPLE_300
-        self._colors["sma4"] = colors.PAPER_ORANGE_300
-        self._colors["sma5"] = colors.PAPER_BROWN_200
+        # self._colors["sma2"] = colors.PAPER_LIGHT_GREEN_300
+        self._colors["sma2"] = colors.PAPER_INDIGO_400
+        self._colors["sma3"] = colors.PAPER_PURPLE_400
+        # self._colors["sma4"] = colors.PAPER_ORANGE_400
+        self._colors["sma4"] = colors.PAPER_RED_900
+        self._colors["sma5"] = colors.PAPER_BLUE_700
 
         self._colors["background"] = "#000000"
         self._colors["grid"] = colors.PAPER_GREY_400
@@ -52,7 +54,7 @@ class Theme:
         self._colors["text"] = "#ffffff"
 
         self._alpha["sma"] = 1.0
-        self._alpha["bb"] = 0.7
+        self._alpha["bb"] = 0.6
         self._alpha["grid"] = 0.35
 
     def get_color(self, key: str) -> str:

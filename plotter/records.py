@@ -7,6 +7,7 @@ from fun.data.source import FREQUENCY, WEEKLY
 from fun.plotter.plotter import TextPlotter
 from fun.trading.transaction import FuturesTransaction
 from fun.trading.agent import TradingAgent
+from fun.utils import colors
 from matplotlib import axes, font_manager as fm
 
 
@@ -133,7 +134,8 @@ class LeverageRecords(TextPlotter):
             )
 
 
-class LongShortLeverageRecords(TextPlotter):
+# class LongShortLeverageRecords(TextPlotter):
+class TradingHedgingLeverageRecords(TextPlotter):
     def __init__(
         self,
         dtime: datetime,
@@ -143,11 +145,12 @@ class LongShortLeverageRecords(TextPlotter):
         trading_book_title: str,
         hedging_book_title: str,
         agent: TradingAgent,
-        font_color: str = "k",
+        trading_font_color: str = "#ffffff",
+        hedging_font_color: str = colors.PAPER_DEEP_PURPLE_A100,
         font_size: float = 10.0,
         font_src: Optional[str] = None,
         font_properties: Optional[fm.FontProperties] = None,
-        info_font_color: str = "k",
+        info_font_color: str = "w",
         info_font_size: float = 10.0,
         info_font_src: Optional[str] = None,
         info_font_properties: Optional[fm.FontProperties] = None,
@@ -155,7 +158,7 @@ class LongShortLeverageRecords(TextPlotter):
         assert quotes is not None
 
         super().__init__(
-            font_color=font_color,
+            font_color=trading_font_color,
             font_size=font_size,
             font_src=font_src,
             font_properties=font_properties,
@@ -163,6 +166,9 @@ class LongShortLeverageRecords(TextPlotter):
 
         self._font_size = font_size
         self._font_src = font_src
+
+        self._trading_font_color = trading_font_color
+        self._hedging_font_color = hedging_font_color
 
         self._info_font_color = info_font_color
         self._info_font_size = info_font_size
@@ -208,7 +214,7 @@ class LongShortLeverageRecords(TextPlotter):
             frequency=self._frequency,
             book_title=self._trading_book_title,
             agent=self._agent,
-            font_color=self._font_color,
+            font_color=self._trading_font_color,
             font_size=self._font_size,
             font_src=self._font_src,
             font_properties=self._font_properties,
@@ -236,7 +242,7 @@ class LongShortLeverageRecords(TextPlotter):
             book_title=self._hedging_book_title,
             agent=self._agent,
             flip_position=True,
-            font_color=self._font_color,
+            font_color=self._hedging_font_color,
             font_size=self._font_size,
             font_src=self._font_src,
             font_properties=self._font_properties,

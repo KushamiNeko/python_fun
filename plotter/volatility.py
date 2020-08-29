@@ -1,13 +1,15 @@
 from datetime import datetime
-from typing import Optional
 
-import numpy as np
+# from typing import Optional
+
+# import numpy as np
 import pandas as pd
 from matplotlib import axes
-from matplotlib import font_manager as fm
+
+# from matplotlib import font_manager as fm
 
 from fun.data.source import FREQUENCY, DataSource, InvestingCom, StockCharts, Yahoo
-from fun.plotter.plotter import LinePlotter, Plotter
+from fun.plotter.plotter import LinePlotter
 from fun.utils import colors
 
 
@@ -22,7 +24,7 @@ class VolatilitySource:
             self._vix_symbol = "vix"
         elif self._symbol in ("nq", "ndx"):
             self._vix_symbol = "vxn"
-        elif self._symbol in ("qr", "sml", "vle"):
+        elif self._symbol in ("rut", "qr", "sml", "vle"):
             self._vix_symbol = "rvx"
             src = StockCharts()
         elif self._symbol in ("np", "nl", "no", "nikk"):
