@@ -112,6 +112,8 @@ class CandleSticksPreset:
             src = InvestingCom()
 
         elif self._symbol in (
+            # "usd",
+            "dxy",
             "jpyusd",
             "eurusd",
             "gbpusd",
@@ -119,8 +121,14 @@ class CandleSticksPreset:
             "audusd",
             "cadusd",
             "nzdusd",
+            "eurjpy",
+            "eurgbp",
+            "euraud",
+            "eurcad",
+            "eurchf",
         ):
-            src = StockCharts()
+            # src = StockCharts()
+            src = Barchart()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
