@@ -10,6 +10,7 @@ class LastQuote(TextPlotter):
     def __init__(
         self,
         quotes: pd.DataFrame,
+        decimals: int = 4,
         x_offset: float = 3,
         font_color: str = "k",
         font_size: float = 10.0,
@@ -26,6 +27,7 @@ class LastQuote(TextPlotter):
         )
 
         self._quotes = quotes
+        self._decimals = decimals
 
         self._x_offset = x_offset
 
@@ -37,14 +39,14 @@ class LastQuote(TextPlotter):
             text = "\n".join(
                 [
                     f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d')}",
-                    f"Open:  {quote.loc['open']:,.2f}",
-                    f"High: {quote.loc['high']:,.2f}",
-                    f"Low: {quote.loc['low']:,.2f}",
-                    f"Close:  {quote.loc['close']:,.2f}",
+                    f"Open:  {quote.loc['open']:,.{self._decimals}f}",
+                    f"High: {quote.loc['high']:,.{self._decimals}f}",
+                    f"Low: {quote.loc['low']:,.{self._decimals}f}",
+                    f"Close:  {quote.loc['close']:,.{self._decimals}f}",
                     f"Volume:  {int(quote.get('volume', 0)):,}",
                     f"Interest:  {int(quote.get('open interest', 0)):,}",
-                    f"Diff($):  {quote.loc['close'] - prev_quote.loc['close']:,.2f}",
-                    f"Diff(%):  {((quote.loc['close'] - prev_quote.loc['close']) / prev_quote.loc['close']) * 100.0:,.2f}",
+                    f"Diff($):  {quote.loc['close'] - prev_quote.loc['close']:,.{self._decimals}f}",
+                    f"Diff(%):  {((quote.loc['close'] - prev_quote.loc['close']) / prev_quote.loc['close']) * 100.0:,.{self._decimals}f}",
                 ]
             )
 

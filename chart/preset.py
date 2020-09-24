@@ -115,11 +115,14 @@ class CandleSticksPreset:
             # "usd",
             "dxy",
             "jpyusd",
+            "usdjpy",
             "eurusd",
             "gbpusd",
             "chfusd",
+            "usdchf",
             "audusd",
             "cadusd",
+            "usdcad",
             "nzdusd",
             "eurjpy",
             "eurgbp",
@@ -334,7 +337,7 @@ class CandleSticksPreset:
         y: float,
         ax: Optional[float] = None,
         ay: Optional[float] = None,
-        decimals: int = 2,
+        decimals: int = 8,
     ) -> Optional[Dict[str, str]]:
         n = self._chart.to_data_coordinates(x, y)
         if n is None:

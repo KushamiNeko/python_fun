@@ -39,11 +39,17 @@ class OrderProcessor:
     def delete_all_orders(self) -> None:
         self._orders = []
 
-    def check_orders(self, price: float) -> Optional[List[TransactionOrder]]:
+    def check_orders(
+        self, price: float, symbol: Optional[str] = None
+    ) -> Optional[List[TransactionOrder]]:
         indexes = []
         orders = []
 
         for i, order in enumerate(self._orders):
+            if symbol is not None:
+                if order.symbol() != symbol:
+                    continue
+
             if order.operation() == "+":
                 if order.price() <= price:
                     orders.append(order)
@@ -99,8 +105,10 @@ class TradingAgent:
         cls._ORDER_PROCESSOR.delete_all_orders()
 
     @classmethod
-    def _check_orders(cls, price: float) -> Optional[List[TransactionOrder]]:
-        return cls._ORDER_PROCESSOR.check_orders(price)
+    def _check_orders(
+        cls, price: float, symbol: Optional[str] = None
+    ) -> Optional[List[TransactionOrder]]:
+        return cls._ORDER_PROCESSOR.check_orders(price, symbol=symbol)
         # indexes = []
         # orders = []
 
@@ -214,13 +222,23 @@ class TradingAgent:
         return self._read_orders()
 
     def check_orders(
-        self, title: str, dtime: datetime, price: float, new_book: bool = False
+        # self, title: str, dtime: datetime, price: float, new_book: bool = False
+        self,
+        title: str,
+        dtime: datetime,
+        price: float,
+        new_book: bool = False,
+        symbol: Optional[str] = None,
     ) -> None:
-        orders = self._check_orders(price)
+        orders = self._check_orders(price, symbol=symbol)
         if orders is None or len(orders) == 0:
             return
         else:
             for order in orders:
+                if symbol is not None:
+                    if order.symbol() != symbol:
+                        continue
+
                 entity = order.to_entity()
                 entity["datetime"] = dtime.strftime("%Y%m%d")
 
