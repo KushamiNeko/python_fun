@@ -129,8 +129,11 @@ class CandleSticksPreset:
             "euraud",
             "eurcad",
             "eurchf",
+            "gbpjpy",
+            "audjpy",
+            "cadjpy",
+            "nzdjpy",
         ):
-            # src = StockCharts()
             src = Barchart()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
@@ -150,15 +153,22 @@ class CandleSticksPreset:
         ):
             src = Yahoo()
 
-        elif self._symbol in ("spxew", "smlew", "midew", "topix",):
+        elif self._symbol in (
+            "spxew",
+            "smlew",
+            "midew",
+            "topix",
+        ):
             src = Barchart()
 
         elif self._symbol in (
             "gsy",
             "near",
+            "jpst",
             "icsh",
             "shv",
             "hyg",
+            "jnk",
             "ushy",
             "shyg",
             "emb",
@@ -263,7 +273,9 @@ class CandleSticksPreset:
         return self._cache.backward()
 
     def make_controller(
-        self, parameters: Optional[Dict[str, str]], preset_key: str = "Preset",
+        self,
+        parameters: Optional[Dict[str, str]],
+        preset_key: str = "Preset",
     ) -> None:
         if parameters is None:
             self._controller = KushamiNekoController(
@@ -322,7 +334,9 @@ class CandleSticksPreset:
             plotters.extend(additional_plotters)
 
         self._chart = TradingChart(
-            quotes=self._cache.quotes(), theme=self._theme, setting=self._setting,
+            quotes=self._cache.quotes(),
+            theme=self._theme,
+            setting=self._setting,
         )
 
         self._chart.render(buf, plotters=plotters)
@@ -419,10 +433,13 @@ class KushamiNekoController(PresetController):
     def get_theme(self) -> Theme:
         return Theme()
 
-    def get_plotters(self,) -> List[Plotter]:
+    def get_plotters(
+        self,
+    ) -> List[Plotter]:
         plotters = [
             BackgroundTimeRangeMark(
-                quotes=self._cache.quotes(), frequency=self._frequency,
+                quotes=self._cache.quotes(),
+                frequency=self._frequency,
             ),
             # CandleSticks(
             #     quotes=self._cache.quotes(),
@@ -465,7 +482,8 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma0"),
                             line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
+                            # line_width=self._setting.linewidth(),
+                            line_width=self._setting.linewidth() * 1.5,
                         ),
                         SimpleMovingAverage(
                             n=20,
@@ -474,7 +492,8 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma1"),
                             line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
+                            # line_width=self._setting.linewidth(),
+                            line_width=self._setting.linewidth() * 1.5,
                         ),
                         # SimpleMovingAverage(
                         #     n=60,
@@ -505,50 +524,19 @@ class KushamiNekoController(PresetController):
                         # ),
                     ]
                 )
-            if self._parameters.get("BollingerBands", "").lower() == "true":
-                plotters.extend(
-                    [
-                        BollingerBand(
-                            n=20,
-                            m=1.5,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("bb0"),
-                            line_alpha=self.get_theme().get_alpha("bb"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                        BollingerBand(
-                            n=20,
-                            m=2.0,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("bb1"),
-                            line_alpha=self.get_theme().get_alpha("bb"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                        BollingerBand(
-                            n=20,
-                            m=2.5,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("bb2"),
-                            line_alpha=self.get_theme().get_alpha("bb"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                        BollingerBand(
-                            n=20,
-                            m=3.0,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("bb3"),
-                            line_alpha=self.get_theme().get_alpha("bb"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                    ]
+
+            if self._parameters.get("MovingAverages10", "").lower() == "true":
+                plotters.append(
+                    SimpleMovingAverage(
+                        n=10,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma6"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        # line_width=self._setting.linewidth(),
+                        line_width=self._setting.linewidth() * 1.5,
+                    ),
                 )
 
             if self._parameters.get("MovingAverages60", "").lower() == "true":
@@ -560,7 +548,8 @@ class KushamiNekoController(PresetController):
                         slice_end=self._cache.quotes().index[-1],
                         line_color=self.get_theme().get_color("sma2"),
                         line_alpha=self.get_theme().get_alpha("sma"),
-                        line_width=self._setting.linewidth(),
+                        # line_width=self._setting.linewidth(),
+                        line_width=self._setting.linewidth() * 1.5,
                     ),
                 )
 
@@ -625,6 +614,52 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma4"),
                             line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                    ]
+                )
+
+            if self._parameters.get("BollingerBands", "").lower() == "true":
+                plotters.extend(
+                    [
+                        BollingerBand(
+                            n=20,
+                            m=1.5,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("bb0"),
+                            line_alpha=self.get_theme().get_alpha("bb"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        BollingerBand(
+                            n=20,
+                            m=2.0,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("bb1"),
+                            line_alpha=self.get_theme().get_alpha("bb"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        BollingerBand(
+                            n=20,
+                            m=2.5,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("bb2"),
+                            line_alpha=self.get_theme().get_alpha("bb"),
+                            line_width=self._setting.linewidth(),
+                        ),
+                        BollingerBand(
+                            n=20,
+                            m=3.0,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("bb3"),
+                            line_alpha=self.get_theme().get_alpha("bb"),
                             line_width=self._setting.linewidth(),
                         ),
                     ]
@@ -771,7 +806,8 @@ class MagicalController(PresetController):
     def get_plotters(self) -> List[Plotter]:
         plotters = [
             BackgroundTimeRangeMark(
-                quotes=self._cache.quotes(), frequency=self._frequency,
+                quotes=self._cache.quotes(),
+                frequency=self._frequency,
             ),
             CandleSticks(
                 quotes=self._cache.quotes(),

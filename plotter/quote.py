@@ -38,7 +38,7 @@ class LastQuote(TextPlotter):
 
             text = "\n".join(
                 [
-                    f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d')}",
+                    f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d %a')}",
                     f"Open:  {quote.loc['open']:,.{self._decimals}f}",
                     f"High: {quote.loc['high']:,.{self._decimals}f}",
                     f"Low: {quote.loc['low']:,.{self._decimals}f}",

@@ -47,6 +47,8 @@ class Theme:
         # self._colors["sma4"] = colors.PAPER_ORANGE_400
         self._colors["sma4"] = colors.PAPER_RED_900
         self._colors["sma5"] = colors.PAPER_BLUE_700
+        self._colors["sma6"] = colors.PAPER_BROWN_300
+        # self._colors["sma6"] = colors.PAPER_LIGHT_GREEN_400
 
         self._colors["background"] = "#000000"
         self._colors["grid"] = colors.PAPER_GREY_400

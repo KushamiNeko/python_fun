@@ -45,6 +45,7 @@ class ContinuousContract:
             )
         else:
             return LastNTradingDays(offset=4, adjustment_method=RATIO)
+            # return LastNTradingDays(offset=2, adjustment_method=RATIO)
 
     def read(
             self,
