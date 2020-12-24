@@ -3,7 +3,14 @@ from datetime import datetime
 from typing import Optional
 
 import pandas as pd
-from fun.data.source import DAILY, FREQUENCY, MONTHLY, WEEKLY, daily_to_monthly, daily_to_weekly
+from fun.data.source import (
+    DAILY,
+    FREQUENCY,
+    MONTHLY,
+    WEEKLY,
+    daily_to_monthly,
+    daily_to_weekly,
+)
 from fun.futures.contract import (
     ALL_CONTRACT_MONTHS,
     BARCHART,
@@ -12,7 +19,13 @@ from fun.futures.contract import (
     FINANCIAL_CONTRACT_MONTHS,
     contract_list,
 )
-from fun.futures.rolling import (LastNTradingDays, RATIO, RollingMethod, VolumeAndOpenInterest)
+from fun.futures.rolling import (
+    LastNTradingDays,
+    RATIO,
+    RollingMethod,
+    VolumeAndOpenInterest,
+    FirstOfMonth,
+)
 from fun.utils import colors, pretty
 
 
@@ -35,26 +48,41 @@ class ContinuousContract:
     def _default_rolling_method(cls, symbol: str) -> RollingMethod:
         if symbol == "cl":
             return VolumeAndOpenInterest(
-                    backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
-                    adjustment_method=RATIO,
+                backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
+                adjustment_method=RATIO,
             )
         elif symbol == "gc":
             return VolumeAndOpenInterest(
-                    backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
-                    adjustment_method=RATIO,
+                backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
+        elif symbol in ("zn", "zf", "zt", "zb", "ge", "tj", "gg"):
+            return VolumeAndOpenInterest(
+                backup=FirstOfMonth(adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
+        elif symbol in ("e6", "j6", "b6", "a6", "d6", "s6", "n6", "dx"):
+            return VolumeAndOpenInterest(
+                backup=LastNTradingDays(offset=2, adjustment_method=RATIO),
+                adjustment_method=RATIO,
             )
         else:
-            return LastNTradingDays(offset=4, adjustment_method=RATIO)
+            return VolumeAndOpenInterest(
+                backup=LastNTradingDays(offset=4, adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
+            # return LastNTradingDays(offset=4, adjustment_method=RATIO)
+            # return FirstOfMonth(adjustment_method=RATIO)
             # return LastNTradingDays(offset=2, adjustment_method=RATIO)
 
     def read(
-            self,
-            start: datetime,
-            end: datetime,
-            symbol: str,
-            frequency: FREQUENCY,
-            contract_months: Optional[CONTRACT_MONTHS] = None,
-            rolling_method: Optional[RollingMethod] = None,
+        self,
+        start: datetime,
+        end: datetime,
+        symbol: str,
+        frequency: FREQUENCY,
+        contract_months: Optional[CONTRACT_MONTHS] = None,
+        rolling_method: Optional[RollingMethod] = None,
     ) -> pd.DataFrame:
 
         assert re.match(r"^\w+$", symbol) is not None
@@ -68,12 +96,12 @@ class ContinuousContract:
             rolling_method = self._default_rolling_method(symbol)
 
         cs = contract_list(
-                start=start,
-                end=end,
-                symbol=symbol,
-                months=contract_months,
-                fmt=BARCHART,
-                read_data=True,
+            start=start,
+            end=end,
+            symbol=symbol,
+            months=contract_months,
+            fmt=BARCHART,
+            read_data=True,
         )
 
         cs_length = len(cs)
@@ -121,8 +149,8 @@ class ContinuousContract:
         na = link.isna().any(axis=1)
         if na.any():
             pretty.color_print(
-                    colors.PAPER_AMBER_300,
-                    f"dropping {len(link.loc[na])} rows containing nan from {symbol.upper()}",
+                colors.PAPER_AMBER_300,
+                f"dropping {len(link.loc[na])} rows containing nan from {symbol.upper()}",
             )
 
             dropped_length = len(link.loc[na])

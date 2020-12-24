@@ -83,7 +83,7 @@ class CandleSticksPreset:
         elif self._frequency == MONTHLY:
             stime = etime - timedelta(days=365 * 18)
         else:
-            raise ValueError(f"invalid frequency")
+            raise ValueError("invalid frequency")
 
         return stime, etime
 
@@ -136,6 +136,15 @@ class CandleSticksPreset:
         ):
             src = Barchart()
 
+        elif self._symbol in (
+            "btcusd",
+            "ethusd",
+            "xrpusd",
+            "ltcusd",
+        ):
+            # src = Barchart()
+            src = Yahoo()
+
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
 
@@ -167,12 +176,14 @@ class CandleSticksPreset:
             "jpst",
             "icsh",
             "shv",
+            "hylb",
             "hyg",
             "jnk",
             "ushy",
             "shyg",
             "emb",
             "lqd",
+            "mbb",
             "igsb",
             "igib",
             "shy",
@@ -185,6 +196,18 @@ class CandleSticksPreset:
         ):
             # src = AlphaVantage()
             src = Yahoo()
+
+        elif self._symbol in (
+            "fedfunds",
+            "ustm1",
+            "ustm3",
+            "ustm6",
+            "usty2",
+            "usty5",
+            "usty10",
+            "usty30",
+        ):
+            src = Barchart()
 
         df: pd.DataFrame
         if src is None:

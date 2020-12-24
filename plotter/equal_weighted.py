@@ -29,20 +29,20 @@ class EqualWeightedSource:
 
 class EqualWeightedRelativeStrength(EqualWeightedSource, LinePlotter):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            frequency: FREQUENCY,
-            symbol: str,
-            height_ratio: float = 0.5,
-            line_color: str = colors.PAPER_LIGHT_GREEN_A100,
-            line_alpha: float = 0.5,
-            line_width: float = 2.5,
+        self,
+        quotes: pd.DataFrame,
+        frequency: FREQUENCY,
+        symbol: str,
+        height_ratio: float = 0.5,
+        line_color: str = colors.PAPER_LIGHT_GREEN_A100,
+        line_alpha: float = 0.5,
+        line_width: float = 2.5,
     ) -> None:
 
         EqualWeightedSource.__init__(self, symbol=symbol)
 
         LinePlotter.__init__(
-                self, line_color=line_color, line_alpha=line_alpha, line_width=line_width
+            self, line_color=line_color, line_alpha=line_alpha, line_width=line_width
         )
 
         self._quotes = quotes
@@ -53,11 +53,11 @@ class EqualWeightedRelativeStrength(EqualWeightedSource, LinePlotter):
 
         if self._ew_symbol is not None and self._src is not None:
             self._ew_quotes = self._src.read(
-                    start=datetime.strptime("19000101", "%Y%m%d"),
-                    end=datetime.now(),
-                    symbol=self._ew_symbol,
-                    frequency=self._frequency,
-            ).loc[self._quotes.index[0]: self._quotes.index[-1]]
+                start=datetime.strptime("19000101", "%Y%m%d"),
+                end=datetime.now(),
+                symbol=self._ew_symbol,
+                frequency=self._frequency,
+            ).loc[self._quotes.index[0] : self._quotes.index[-1]]
 
     def plot(self, ax: axes.Axes) -> None:
         if self._ew_symbol is None or self._ew_quotes is None:
@@ -67,7 +67,10 @@ class EqualWeightedRelativeStrength(EqualWeightedSource, LinePlotter):
 
         top = ((mx - mn) * self._height_ratio) + mn
 
-        rs = self._ew_quotes.loc[:, "close"] / self._quotes.loc[self._ew_quotes.index, "close"]
+        rs = (
+            self._ew_quotes.loc[:, "close"]
+            / self._quotes.loc[self._ew_quotes.index, "close"]
+        )
 
         rs_max = rs.max()
         rs_min = rs.min()
@@ -79,13 +82,9 @@ class EqualWeightedRelativeStrength(EqualWeightedSource, LinePlotter):
         rs += mn
 
         ax.plot(
-                [
-                    i
-                    for i, d in enumerate(self._quotes.index)
-                    if d in self._ew_quotes.index
-                ],
-                rs,
-                color=self._line_color,
-                alpha=self._line_alpha,
-                linewidth=self._line_width,
+            [i for i, d in enumerate(self._quotes.index) if d in self._ew_quotes.index],
+            rs,
+            color=self._line_color,
+            alpha=self._line_alpha,
+            linewidth=self._line_width,
         )
