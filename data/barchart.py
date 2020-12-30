@@ -128,6 +128,9 @@ class Barchart(DataSource):
         if "Change" in columns:
             df = df.drop("Change", axis=1)
 
+        if "%Chg" in columns:
+            df = df.drop("%Chg", axis=1)
+
         # barchart ondemand
         if "symbol" in columns:
             df = df.drop("symbol", axis=1)

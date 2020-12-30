@@ -45,6 +45,7 @@ class CandleSticksPreset:
         dtime: datetime,
         symbol: str,
         frequency: FREQUENCY,
+        chart_range: Optional[str] = None,
         chart_size: CHART_SIZE = MEDIUM_CHART,
     ) -> None:
         assert re.match(r"^[a-zA-Z0-9]+$", symbol) is not None
@@ -54,6 +55,8 @@ class CandleSticksPreset:
         assert frequency in (DAILY, WEEKLY, MONTHLY)
 
         self._frequency = frequency
+
+        self._chart_range = chart_range
 
         self._stime, self._etime = self._time_range(dtime)
         self._exstime, self._exetime = self._extime_range()
@@ -72,18 +75,73 @@ class CandleSticksPreset:
     def _time_range(self, dtime: datetime) -> Tuple[datetime, datetime]:
 
         etime = dtime
-
         stime: datetime
-        if self._frequency == HOURLY:
-            stime = etime - timedelta(days=15)
-        elif self._frequency == DAILY:
-            stime = etime - timedelta(days=365)
-        elif self._frequency == WEEKLY:
-            stime = etime - timedelta(days=365 * 4)
-        elif self._frequency == MONTHLY:
-            stime = etime - timedelta(days=365 * 18)
+
+        if self._chart_range is not None:
+            regex = re.compile(r"^(\d+)([my])$")
+            match = regex.findall(self._chart_range.lower())
+
+            num = int(match[0][0])
+            unit = match[0][1]
+
+            days = -1
+            if unit == "d":
+                days = 1
+            if unit == "w":
+                days = 7
+            if unit == "m":
+                days = 30
+            elif unit == "y":
+                days = 365
+
+            assert days > 0
+
+            total_days = days * num
+
+            if self._frequency == HOURLY and total_days > 15:
+                total_days = 15
+                self._chart_range = "15D"
+
+            elif self._frequency == DAILY and total_days > 365:
+                total_days = 365
+                self._chart_range = "1Y"
+
+            elif self._frequency == WEEKLY and (
+                total_days < 365 * 3 or total_days > 365 * 5
+            ):
+                total_days = 365 * 3
+                self._chart_range = "3Y"
+
+            elif self._frequency == MONTHLY and (
+                total_days < 365 * 15 or total_days > 365 * 20
+            ):
+                total_days = 365 * 15
+                self._chart_range = "15Y"
+
+            stime = etime - timedelta(days=total_days)
+
         else:
-            raise ValueError("invalid frequency")
+            if self._frequency == HOURLY:
+                stime = etime - timedelta(days=15)
+                self._chart_range = "15D"
+
+            elif self._frequency == DAILY:
+                stime = etime - timedelta(days=365)
+
+                self._chart_range = "1Y"
+
+            elif self._frequency == WEEKLY:
+                stime = etime - timedelta(days=365 * 3)
+
+                self._chart_range = "3Y"
+
+            elif self._frequency == MONTHLY:
+                stime = etime - timedelta(days=365 * 15)
+
+                self._chart_range = "15Y"
+
+            else:
+                raise ValueError("invalid frequency")
 
         return stime, etime
 
@@ -139,11 +197,27 @@ class CandleSticksPreset:
         elif self._symbol in (
             "btcusd",
             "ethusd",
-            "xrpusd",
+            "bchusd",
             "ltcusd",
+            "xrpusd",
+            "linkusd",
+            "adausd",
+            "dotusd",
+            "bsvusd",
+            "bnbusd",
+            "uniusd",
+            "xmrusd",
+            "xlmusd",
+            "eosusd",
+            "trxusd",
+            "xlmusd",
+            "dashusd",
+            "usdcusd",
+            "usdtusd",
         ):
             # src = Barchart()
-            src = Yahoo()
+            # src = Yahoo()
+            src = InvestingCom()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
@@ -239,6 +313,9 @@ class CandleSticksPreset:
     def quotes(self) -> pd.DataFrame:
         return self._cache.quotes()
 
+    def chart_range(self) -> str:
+        return self._chart_range if self._chart_range is not None else ""
+
     # def theme(self) -> Optional[Theme]:
     def theme(self) -> Theme:
         assert self._theme is not None
@@ -261,7 +338,10 @@ class CandleSticksPreset:
             "interest": df.get("open interest", 0),
         }
 
-    def time_slice(self, dtime: datetime) -> None:
+    def time_slice(self, dtime: datetime, chart_range: Optional[str] = None) -> None:
+        if chart_range is not None:
+            self._chart_range = chart_range
+
         stime, etime = self._time_range(dtime)
 
         if (
@@ -374,7 +454,8 @@ class CandleSticksPreset:
         y: float,
         ax: Optional[float] = None,
         ay: Optional[float] = None,
-        decimals: int = 8,
+        quote_decimals: int = 5,
+        diff_decimals: int = 3,
     ) -> Optional[Dict[str, str]]:
         n = self._chart.to_data_coordinates(x, y)
         if n is None:
@@ -386,11 +467,11 @@ class CandleSticksPreset:
 
         info = {
             "date": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
-            "price": f"{ny:,.{decimals}f}",
-            "open": f"{df.iloc[nx].get('open'):,.{decimals}f}",
-            "high": f"{df.iloc[nx].get('high'):,.{decimals}f}",
-            "low": f"{df.iloc[nx].get('low'):,.{decimals}f}",
-            "close": f"{df.iloc[nx].get('close'):,.{decimals}f}",
+            "price": f"{ny:,.{quote_decimals}f}",
+            "open": f"{df.iloc[nx].get('open'):,.{quote_decimals}f}",
+            "high": f"{df.iloc[nx].get('high'):,.{quote_decimals}f}",
+            "low": f"{df.iloc[nx].get('low'):,.{quote_decimals}f}",
+            "close": f"{df.iloc[nx].get('close'):,.{quote_decimals}f}",
             "volume": f"{df.iloc[nx].get('volume', 0):,.0f}",
             "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
         }
@@ -398,11 +479,13 @@ class CandleSticksPreset:
         if ax is None or ay is None:
             if nx != 0:
                 base = self._cache.quotes().iloc[nx - 1].get("close")
-                info["diff($)"] = f"{df.iloc[nx].get('close') - base:,.{decimals}f}"
+                info[
+                    "diff($)"
+                ] = f"{df.iloc[nx].get('close') - base:,.{quote_decimals}f}"
 
                 info[
                     "diff(%)"
-                ] = f"{((df.iloc[nx].get('close') - base) / base) * 100.0:,.{decimals}f}"
+                ] = f"{((df.iloc[nx].get('close') - base) / base) * 100.0:,.{diff_decimals}f}"
 
         else:
             an = self._chart.to_data_coordinates(ax, ay)
@@ -414,10 +497,10 @@ class CandleSticksPreset:
 
             info["diff(B)"] = f"{nx-ax}"
             info["diff(D)"] = f"{(df.index[nx] - base_date).days}"
-            info["diff(W)"] = f"{(df.index[nx] - base_date).days / 7:.{decimals}f}"
-            info["diff(M)"] = f"{(df.index[nx] - base_date).days / 30:.{decimals}f}"
-            info["diff($)"] = f"{ny - ay:,.{decimals}f}"
-            info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{decimals}f}"
+            info["diff(W)"] = f"{(df.index[nx] - base_date).days / 7:.2f}"
+            info["diff(M)"] = f"{(df.index[nx] - base_date).days / 30:.2f}"
+            info["diff($)"] = f"{ny - ay:,.{quote_decimals}f}"
+            info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{diff_decimals}f}"
 
         return info
 
@@ -518,15 +601,15 @@ class KushamiNekoController(PresetController):
                             # line_width=self._setting.linewidth(),
                             line_width=self._setting.linewidth() * 1.5,
                         ),
-                        # SimpleMovingAverage(
-                        #     n=60,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma2"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
+                        SimpleMovingAverage(
+                            n=60,
+                            quotes=self._cache.full_quotes(),
+                            slice_start=self._cache.quotes().index[0],
+                            slice_end=self._cache.quotes().index[-1],
+                            line_color=self.get_theme().get_color("sma2"),
+                            line_alpha=self.get_theme().get_alpha("sma"),
+                            line_width=self._setting.linewidth(),
+                        ),
                         # SimpleMovingAverage(
                         #     n=100,
                         #     quotes=self._cache.full_quotes(),
@@ -562,19 +645,19 @@ class KushamiNekoController(PresetController):
                     ),
                 )
 
-            if self._parameters.get("MovingAverages60", "").lower() == "true":
-                plotters.append(
-                    SimpleMovingAverage(
-                        n=60,
-                        quotes=self._cache.full_quotes(),
-                        slice_start=self._cache.quotes().index[0],
-                        slice_end=self._cache.quotes().index[-1],
-                        line_color=self.get_theme().get_color("sma2"),
-                        line_alpha=self.get_theme().get_alpha("sma"),
-                        # line_width=self._setting.linewidth(),
-                        line_width=self._setting.linewidth() * 1.5,
-                    ),
-                )
+            # if self._parameters.get("MovingAverages60", "").lower() == "true":
+            # plotters.append(
+            # SimpleMovingAverage(
+            # n=60,
+            # quotes=self._cache.full_quotes(),
+            # slice_start=self._cache.quotes().index[0],
+            # slice_end=self._cache.quotes().index[-1],
+            # line_color=self.get_theme().get_color("sma2"),
+            # line_alpha=self.get_theme().get_alpha("sma"),
+            # # line_width=self._setting.linewidth(),
+            # line_width=self._setting.linewidth() * 1.5,
+            # ),
+            # )
 
             if self._parameters.get("MovingAverages100", "").lower() == "true":
                 plotters.extend(
@@ -850,7 +933,8 @@ class MagicalController(PresetController):
         ]
 
         for key, value in self._parameters.items():
-            match = re.match(r"^SMA\s*(\d+)$", key)
+            # match = re.match(r"^SMA\s*(\d+)$", key)
+            match = re.match(r"^MovingAverages\s*(\d+)$", key)
             if match is not None:
                 if value.lower() != "true":
                     continue

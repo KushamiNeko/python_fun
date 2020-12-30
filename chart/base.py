@@ -28,15 +28,21 @@ class ChartFactory(metaclass=ABCMeta):
         return -0.5, (len(self._quotes) - 1) + 0.5
 
     def chart_yrange(self) -> Tuple[float, float]:
-        extend_ratio = 25.0
+        extend_ratio = 0.0025
 
         mn, mx = self.quotes_range()
-        r = mx - mn
+        mid = (mn + mx) / 2.0
 
-        return (
-            mn - (r / extend_ratio),
-            mx + (r / extend_ratio),
-        )
+        ratio = (mx - mid) / mid
+
+        if ratio < 0.1:
+            extend_ratio = 0.0035
+        elif ratio < 0.5:
+            extend_ratio = 0.01
+        else:
+            extend_ratio = 0.05
+
+        return (mn * (1 - extend_ratio), mx * (1 + extend_ratio))
 
     @abstractmethod
     def to_data_coordinates(self, x: float, y: float) -> Optional[Tuple[float, float]]:
@@ -44,9 +50,9 @@ class ChartFactory(metaclass=ABCMeta):
 
     @abstractmethod
     def render(
-            self,
-            output: Optional[Union[str, io.BytesIO]] = None,
-            plotters: Optional[List[Plotter]] = None,
-            interactive: bool = False,
+        self,
+        output: Optional[Union[str, io.BytesIO]] = None,
+        plotters: Optional[List[Plotter]] = None,
+        interactive: bool = False,
     ) -> None:
         raise NotImplementedError
