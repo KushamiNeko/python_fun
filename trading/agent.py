@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from functools import cmp_to_key
 
@@ -14,15 +14,6 @@ from fun.utils.jsondb import JsonDB
 
 
 class OrderProcessor:
-
-    # _DB_ADMIN = "admin"
-
-    # _DB_TRADING_BOOKS = "books"
-    # _DB_TRADING_RECORDS = "records"
-    # _DB_TRADING_ORDERS = "orders"
-
-    # _COL_USER = "user"
-
     def __init__(self) -> None:
         self._orders: List[TransactionOrder] = []
 
@@ -61,8 +52,6 @@ class OrderProcessor:
             else:
                 raise ValueError("invalid operation")
 
-        # for i in indexes:
-        # del self._orders[i]
         self._orders = [o for i, o in enumerate(self._orders) if i not in indexes]
 
         if len(orders) == 0:
@@ -80,8 +69,6 @@ class TradingAgent:
 
     _COL_USER = "user"
 
-    # _ORDERS: List[TransactionOrder] = []
-
     _ORDER_PROCESSOR: OrderProcessor = OrderProcessor()
 
     @classmethod
@@ -90,18 +77,14 @@ class TradingAgent:
 
     @classmethod
     def _new_order(cls, entity: Dict[str, str]) -> None:
-        # o = TransactionOrder.from_entity(entity)
-        # cls._ORDERS.append(o)
         cls._ORDER_PROCESSOR.new_order(entity)
 
     @classmethod
     def _delete_order(cls, index: int) -> None:
-        # del cls._ORDERS[index]
         cls._ORDER_PROCESSOR.delete_order(index)
 
     @classmethod
     def _delete_all_orders(cls) -> None:
-        # cls._ORDERS = []
         cls._ORDER_PROCESSOR.delete_all_orders()
 
     @classmethod
@@ -109,28 +92,6 @@ class TradingAgent:
         cls, price: float, symbol: Optional[str] = None
     ) -> Optional[List[TransactionOrder]]:
         return cls._ORDER_PROCESSOR.check_orders(price, symbol=symbol)
-        # indexes = []
-        # orders = []
-
-        # for i, order in enumerate(cls._ORDERS):
-        #     if order.operation() == "+":
-        #         if order.price() <= price:
-        #             orders.append(order)
-        #             indexes.append(i)
-        #     elif order.operation() == "-":
-        #         if order.price() >= price:
-        #             orders.append(order)
-        #             indexes.append(i)
-        #     else:
-        #         raise ValueError("invalid operation")
-
-        # for i in indexes:
-        #     del cls._ORDERS[i]
-
-        # if len(orders) == 0:
-        #     return None
-        # else:
-        #     return orders
 
     def __init__(
         self, root: str = "", user_name: str = "default", new_user: bool = False
@@ -218,11 +179,9 @@ class TradingAgent:
         self._delete_all_orders()
 
     def read_orders(self) -> List[TransactionOrder]:
-        # return self._ORDERS
         return self._read_orders()
 
     def check_orders(
-        # self, title: str, dtime: datetime, price: float, new_book: bool = False
         self,
         title: str,
         dtime: datetime,
@@ -242,7 +201,6 @@ class TradingAgent:
                 entity = order.to_entity()
                 entity["datetime"] = dtime.strftime("%Y%m%d")
 
-                # self.new_record(title, entity, new_book=new_book)
                 self.new_record(f"{title}_{order.account()}", entity, new_book=new_book)
 
     def new_record(
@@ -276,7 +234,6 @@ class TradingAgent:
             if entities is not None and len(entities) != 0:
                 return sorted(
                     [FuturesTransaction.from_entity(e) for e in entities],
-                    # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
                     key=cmp_to_key(self._transaction_compare),
                 )
 
@@ -298,10 +255,8 @@ class TradingAgent:
             else:
                 ts.extend([FuturesTransaction.from_entity(e) for e in entities])
 
-        # return ts
         return sorted(
             ts,
-            # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp()),
             key=cmp_to_key(self._transaction_compare),
         )
 
@@ -312,13 +267,25 @@ class TradingAgent:
         else:
             return self._process_trades(ts)
 
-    def read_statistic(self, titles: List[str]) -> Dict[str, str]:
+    def read_statistic(
+        self,
+        titles: List[str],
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Dict[str, str]:
         trades = []
 
         for title in titles:
             ts = self.read_trades(title)
             if ts is not None and len(ts) > 0:
                 trades.extend(ts)
+
+        if start_date is not None and end_date is not None:
+
+            s = datetime.strptime(start_date, "%Y%m%d")
+            e = datetime.strptime(end_date, "%Y%m%d")
+
+            trades = [t for t in trades if t.open_time() >= s and t.close_time() <= e]
 
         if len(trades) > 0:
             return Statistic(trades).to_entity()
@@ -352,12 +319,6 @@ class TradingAgent:
                             op.append(t)
                     else:
                         continue
-                # op = [
-                #     transaction
-                #     for transaction in transactions
-                #     if transaction.time_stamp() > last_time_stamp
-                #     # and transaction.datetime() > last_date
-                # ]
             else:
                 op = []
                 for t in transactions:
@@ -370,13 +331,6 @@ class TradingAgent:
                                 op.append(t)
                     else:
                         continue
-                # op = [
-                #     transaction
-                #     for transaction in transactions
-                #     if transaction.time_stamp() > last_time_stamp
-                #     # and transaction.datetime() > last_date
-                #     and transaction.datetime() <= dtime
-                # ]
 
             if len(op) > 0:
                 return op
@@ -472,7 +426,6 @@ class TradingAgent:
     ) -> Optional[List[FuturesTrade]]:
 
         transactions.sort(
-            # key=lambda x: x.datetime() + timedelta(seconds=x.time_stamp())
             key=cmp_to_key(self._transaction_compare),
         )
 

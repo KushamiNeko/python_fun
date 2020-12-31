@@ -90,7 +90,7 @@ class CandleSticksPreset:
             if unit == "w":
                 days = 7
             if unit == "m":
-                days = 30
+                days = 31
             elif unit == "y":
                 days = 365
 
@@ -103,8 +103,8 @@ class CandleSticksPreset:
                 self._chart_range = "15D"
 
             elif self._frequency == DAILY and total_days > 365:
-                total_days = 365
-                self._chart_range = "1Y"
+                total_days = 31 * 9
+                self._chart_range = "9M"
 
             elif self._frequency == WEEKLY and (
                 total_days < 365 * 3 or total_days > 365 * 5
@@ -128,7 +128,7 @@ class CandleSticksPreset:
             elif self._frequency == DAILY:
                 stime = etime - timedelta(days=365)
 
-                self._chart_range = "1Y"
+                self._chart_range = "9M"
 
             elif self._frequency == WEEKLY:
                 stime = etime - timedelta(days=365 * 3)
@@ -205,18 +205,21 @@ class CandleSticksPreset:
             "dotusd",
             "bsvusd",
             "bnbusd",
-            "uniusd",
+            # "uniusd",
             "xmrusd",
             "xlmusd",
             "eosusd",
             "trxusd",
             "xlmusd",
             "dashusd",
+            "zecusd",
+            "neousd",
             "usdcusd",
             "usdtusd",
         ):
-            # src = Barchart()
-            # src = Yahoo()
+            src = Yahoo()
+
+        elif self._symbol in ("uniusd",):
             src = InvestingCom()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
