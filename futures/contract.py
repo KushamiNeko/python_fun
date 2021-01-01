@@ -339,11 +339,6 @@ def contract_list(
         pretty.color_print(colors.PAPER_AMBER_300, msg)
         raise ValueError(msg)
 
-    print(start)
-    print(end)
-    print(cur.year())
-    print(cur.month())
-
     contracts = [cur]
     while not (
         (cur.year() * 10000 + cur.month() * 100)
