@@ -11,9 +11,17 @@ from fun.utils import colors, pretty
 
 CONTRACT_MONTHS = NewType("CONTRACT_MONTHS", str)
 
+CONTRACT_MONTHS_REGEX = "^[fghjkmnquvxz]+$"
+
 ALL_CONTRACT_MONTHS = CONTRACT_MONTHS("fghjkmnquvxz")
+ODD_CONTRACT_MONTHS = CONTRACT_MONTHS("fhknux")
 EVEN_CONTRACT_MONTHS = CONTRACT_MONTHS("gjmqvz")
 FINANCIAL_CONTRACT_MONTHS = CONTRACT_MONTHS("hmuz")
+
+# SOYBEAN_CONTRACT_MONTHS = CONTRACT_MONTHS("fhknqux")
+# CORN_WHEAT_CONTRACT_MONTHS = CONTRACT_MONTHS("hknuz")
+# SILVER_COPPER_CONTRACT_MONTHS = CONTRACT_MONTHS("hknuz")
+
 
 CODE_FORMAT = NewType("CODE_FORMAT", int)
 BARCHART = CODE_FORMAT(0)
@@ -57,11 +65,12 @@ class Contract:
         time: datetime = datetime.now(),
     ) -> Contract:
         assert fmt in (BARCHART, QUANDL)
-        assert months in (
-            ALL_CONTRACT_MONTHS,
-            EVEN_CONTRACT_MONTHS,
-            FINANCIAL_CONTRACT_MONTHS,
-        )
+        assert re.match(CONTRACT_MONTHS_REGEX, months) is not None
+        # assert months in (
+        # ALL_CONTRACT_MONTHS,
+        # EVEN_CONTRACT_MONTHS,
+        # FINANCIAL_CONTRACT_MONTHS,
+        # )
 
         front_year = 0
         front_month = ""
@@ -123,11 +132,12 @@ class Contract:
     ) -> None:
 
         assert fmt in (BARCHART, QUANDL)
-        assert months in (
-            ALL_CONTRACT_MONTHS,
-            EVEN_CONTRACT_MONTHS,
-            FINANCIAL_CONTRACT_MONTHS,
-        )
+        assert re.match(CONTRACT_MONTHS_REGEX, months) is not None
+        # assert months in (
+        # ALL_CONTRACT_MONTHS,
+        # EVEN_CONTRACT_MONTHS,
+        # FINANCIAL_CONTRACT_MONTHS,
+        # )
 
         self._fmt = fmt
         self._months = months

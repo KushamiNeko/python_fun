@@ -12,11 +12,14 @@ from fun.data.source import (
     daily_to_weekly,
 )
 from fun.futures.contract import (
-    ALL_CONTRACT_MONTHS,
     BARCHART,
     CONTRACT_MONTHS,
+    ALL_CONTRACT_MONTHS,
     EVEN_CONTRACT_MONTHS,
     FINANCIAL_CONTRACT_MONTHS,
+    # SOYBEAN_CONTRACT_MONTHS,
+    # CORN_WHEAT_CONTRACT_MONTHS,
+    # SILVER_COPPER_CONTRACT_MONTHS,
     contract_list,
 )
 from fun.futures.rolling import (
@@ -33,10 +36,19 @@ class ContinuousContract:
     @classmethod
     def _default_contract_months(cls, symbol: str) -> CONTRACT_MONTHS:
         months: CONTRACT_MONTHS
-        if symbol == "cl":
+        if symbol in ("cl", "ng"):
             months = ALL_CONTRACT_MONTHS
         elif symbol == "gc":
             months = EVEN_CONTRACT_MONTHS
+        elif symbol in ("si", "hg"):
+            # months = SILVER_COPPER_CONTRACT_MONTHS
+            months = CONTRACT_MONTHS("hknuz")
+        elif symbol == "zs":
+            # months = SOYBEAN_CONTRACT_MONTHS
+            months = CONTRACT_MONTHS("fhknqux")
+        elif symbol in ("zc", "zw"):
+            # months = CORN_WHEAT_CONTRACT_MONTHS
+            months = CONTRACT_MONTHS("hknuz")
         else:
             months = FINANCIAL_CONTRACT_MONTHS
 

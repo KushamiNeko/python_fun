@@ -10,18 +10,20 @@ from matplotlib import axes
 
 class Indicator(LinePlotter):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            slice_start: Optional[datetime] = None,
-            slice_end: Optional[datetime] = None,
-            line_color: str = "k",
-            line_alpha: float = 1.0,
-            line_width: float = 10.0,
+        self,
+        quotes: pd.DataFrame,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
     ) -> None:
         assert quotes is not None
 
         super().__init__(
-                line_color=line_color, line_alpha=line_alpha, line_width=line_width,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
         )
 
         self._quotes = quotes
@@ -34,14 +36,14 @@ class Indicator(LinePlotter):
 
     def _render(self, ax: axes.Axes, ys: pd.Series) -> None:
         if self._slice_start is not None and self._slice_end is not None:
-            ys = ys.loc[self._slice_start: self._slice_end]
+            ys = ys.loc[self._slice_start : self._slice_end]
 
         ax.plot(
-                np.arange(len(ys)),
-                ys,
-                color=self._line_color,
-                alpha=self._line_alpha,
-                linewidth=self._line_width,
+            np.arange(len(ys)),
+            ys,
+            color=self._line_color,
+            alpha=self._line_alpha,
+            linewidth=self._line_width,
         )
 
     def plot(self, ax: axes.Axes) -> None:
@@ -61,22 +63,22 @@ class Indicator(LinePlotter):
 
 class SimpleMovingAverage(Indicator):
     def __init__(
-            self,
-            n: int,
-            quotes: pd.DataFrame,
-            slice_start: Optional[datetime] = None,
-            slice_end: Optional[datetime] = None,
-            line_color: str = "k",
-            line_alpha: float = 1.0,
-            line_width: float = 10.0,
+        self,
+        n: int,
+        quotes: pd.DataFrame,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
     ) -> None:
         super().__init__(
-                quotes=quotes,
-                slice_start=slice_start,
-                slice_end=slice_end,
-                line_color=line_color,
-                line_alpha=line_alpha,
-                line_width=line_width,
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
         )
 
         self._n = n
@@ -87,29 +89,31 @@ class SimpleMovingAverage(Indicator):
 
 class BollingerBand(Indicator):
     def __init__(
-            self,
-            n: int,
-            m: float,
-            quotes: pd.DataFrame,
-            slice_start: Optional[datetime] = None,
-            slice_end: Optional[datetime] = None,
-            line_color: str = "k",
-            line_alpha: float = 1.0,
-            line_width: float = 10.0,
+        self,
+        n: int,
+        m: float,
+        quotes: pd.DataFrame,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
     ) -> None:
         super().__init__(
-                quotes=quotes,
-                slice_start=slice_start,
-                slice_end=slice_end,
-                line_color=line_color,
-                line_alpha=line_alpha,
-                line_width=line_width,
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
         )
 
         self._n = n
         self._m = m
 
-    def _calculate(self, ) -> List[pd.DataFrame]:
+    def _calculate(
+        self,
+    ) -> List[pd.DataFrame]:
         mean = self._quotes.loc[:, "close"].rolling(self._n).mean()
 
         return [
@@ -120,27 +124,29 @@ class BollingerBand(Indicator):
 
 class RelativeStrength(Indicator):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            quotes_b: pd.DataFrame,
-            slice_start: Optional[datetime] = None,
-            slice_end: Optional[datetime] = None,
-            line_color: str = "k",
-            line_alpha: float = 1.0,
-            line_width: float = 10.0,
+        self,
+        quotes: pd.DataFrame,
+        quotes_b: pd.DataFrame,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
     ) -> None:
         super().__init__(
-                quotes=quotes,
-                slice_start=slice_start,
-                slice_end=slice_end,
-                line_color=line_color,
-                line_alpha=line_alpha,
-                line_width=line_width,
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
         )
 
         self._quotes_b = quotes_b
 
-    def _calculate(self, ) -> pd.Series:
+    def _calculate(
+        self,
+    ) -> pd.Series:
         a = self._quotes.loc[:, "close"]
         b = self._quotes_b.loc[:, "close"]
 
@@ -154,24 +160,24 @@ SHADOW_RANGE = RANGE_SRC(1)
 
 class CandleRange(Indicator):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            moving_average: int = 0,
-            range_type: RANGE_SRC = BODY_RANGE,
-            slice_start: Optional[datetime] = None,
-            slice_end: Optional[datetime] = None,
-            line_color: str = "k",
-            line_alpha: float = 1.0,
-            line_width: float = 10.0,
+        self,
+        quotes: pd.DataFrame,
+        moving_average: int = 0,
+        range_type: RANGE_SRC = BODY_RANGE,
+        slice_start: Optional[datetime] = None,
+        slice_end: Optional[datetime] = None,
+        line_color: str = "k",
+        line_alpha: float = 1.0,
+        line_width: float = 10.0,
     ) -> None:
 
         super().__init__(
-                quotes=quotes,
-                slice_start=slice_start,
-                slice_end=slice_end,
-                line_color=line_color,
-                line_alpha=line_alpha,
-                line_width=line_width,
+            quotes=quotes,
+            slice_start=slice_start,
+            slice_end=slice_end,
+            line_color=line_color,
+            line_alpha=line_alpha,
+            line_width=line_width,
         )
 
         assert moving_average >= 0
@@ -180,7 +186,9 @@ class CandleRange(Indicator):
         self._moving_average = moving_average
         self._range_type = range_type
 
-    def _calculate(self, ) -> pd.Series:
+    def _calculate(
+        self,
+    ) -> pd.Series:
         height: pd.Series
 
         if self._range_type == BODY_RANGE:

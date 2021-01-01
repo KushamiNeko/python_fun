@@ -8,22 +8,24 @@ from matplotlib import axes, font_manager as fm
 
 def label_simplify(label: str, length_limit: int = 50) -> str:
     if len(label) > length_limit:
-        return f"{label[: int(length_limit / 2.0)]}.....{label[-int(length_limit / 2.0):]}"
+        return (
+            f"{label[: int(length_limit / 2.0)]}.....{label[-int(length_limit / 2.0):]}"
+        )
     else:
         return label
 
 
 def correlation(
-        xs: np.ndarray,
-        ys: np.ndarray,
-        ax: Optional[axes.Axes] = None,
-        xlabel: Optional[str] = None,
-        ylabel: Optional[str] = None,
-        labelsize: int = 14,
-        label_length_limit: int = 50,
-        pointsize: int = 50,
-        linewidth: int = 2,
-        font_src: Optional[str] = None,
+    xs: np.ndarray,
+    ys: np.ndarray,
+    ax: Optional[axes.Axes] = None,
+    xlabel: Optional[str] = None,
+    ylabel: Optional[str] = None,
+    labelsize: int = 14,
+    label_length_limit: int = 50,
+    pointsize: int = 50,
+    linewidth: int = 2,
+    font_src: Optional[str] = None,
 ) -> None:
     if font_src is not None:
         prop = fm.FontProperties(fname=font_src, size=labelsize)
@@ -38,7 +40,10 @@ def correlation(
 
     mask = ~np.isnan(xs.reset_index(drop=True)) & ~np.isnan(ys.reset_index(drop=True))
 
-    tau, p = stats.kendalltau(xs[mask].astype(np.float), ys[mask].astype(np.float), )
+    tau, p = stats.kendalltau(
+        xs[mask].astype(np.float),
+        ys[mask].astype(np.float),
+    )
 
     s, i, _, _, _ = stats.linregress(xs[mask], ys[mask])
     xl = np.linspace(xs.min(), xs.max())
@@ -51,8 +56,8 @@ def correlation(
 
     if maxy != miny and maxy > miny:
         ax.set_ylim(
-                top=maxy + (ry * ryratio),
-                bottom=min(miny, (xs.min() * s) + i) - (ry * (ryratio / 2.0)),
+            top=maxy + (ry * ryratio),
+            bottom=min(miny, (xs.min() * s) + i) - (ry * (ryratio / 2.0)),
         )
 
     ylim_min, ylim_max = ax.get_ylim()
@@ -66,20 +71,20 @@ def correlation(
     tx = maxx - (rx * rxratio)
     ha = "right"
     if (
-            ys[xs < ((xs.max() + xs.min()) / 2.0)].max()
-            < ys[xs > ((xs.max() + xs.min()) / 2.0)].max()
+        ys[xs < ((xs.max() + xs.min()) / 2.0)].max()
+        < ys[xs > ((xs.max() + xs.min()) / 2.0)].max()
     ):
         tx = minx + (rx * rxratio)
         ha = "left"
 
     ax.text(
-            tx,
-            max(maxy + (ry * (ryratio / 2.0)), ylim_mean + (ylim_range * 0.4)),
-            s=f"P: {p:.3f}\nTAU: {tau:.3f}",
-            color="k",
-            ha=ha,
-            va="bottom",
-            fontproperties=prop,
+        tx,
+        max(maxy + (ry * (ryratio / 2.0)), ylim_mean + (ylim_range * 0.4)),
+        s=f"P: {p:.3f}\nTAU: {tau:.3f}",
+        color="k",
+        ha=ha,
+        va="bottom",
+        fontproperties=prop,
     )
 
     if xlabel is not None:

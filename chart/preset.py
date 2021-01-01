@@ -28,6 +28,7 @@ from fun.plotter.advance_decline import AdvanceDeclineLine
 from fun.plotter.background import BackgroundTimeRangeMark
 from fun.plotter.candlesticks import CandleSticks
 from fun.plotter.entry import EntryZone
+from fun.plotter.study import StudyZone
 from fun.plotter.equal_weighted import EqualWeightedRelativeStrength
 from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
@@ -591,7 +592,6 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma0"),
                             line_alpha=self.get_theme().get_alpha("sma"),
-                            # line_width=self._setting.linewidth(),
                             line_width=self._setting.linewidth() * 1.5,
                         ),
                         SimpleMovingAverage(
@@ -601,7 +601,6 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma1"),
                             line_alpha=self.get_theme().get_alpha("sma"),
-                            # line_width=self._setting.linewidth(),
                             line_width=self._setting.linewidth() * 1.5,
                         ),
                         SimpleMovingAverage(
@@ -611,26 +610,8 @@ class KushamiNekoController(PresetController):
                             slice_end=self._cache.quotes().index[-1],
                             line_color=self.get_theme().get_color("sma2"),
                             line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
+                            line_width=self._setting.linewidth() * 1.5,
                         ),
-                        # SimpleMovingAverage(
-                        #     n=100,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma3"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
-                        # SimpleMovingAverage(
-                        #     n=300,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma4"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
                     ]
                 )
 
@@ -649,83 +630,78 @@ class KushamiNekoController(PresetController):
                 )
 
             # if self._parameters.get("MovingAverages60", "").lower() == "true":
-            # plotters.append(
-            # SimpleMovingAverage(
-            # n=60,
-            # quotes=self._cache.full_quotes(),
-            # slice_start=self._cache.quotes().index[0],
-            # slice_end=self._cache.quotes().index[-1],
-            # line_color=self.get_theme().get_color("sma2"),
-            # line_alpha=self.get_theme().get_alpha("sma"),
-            # # line_width=self._setting.linewidth(),
-            # line_width=self._setting.linewidth() * 1.5,
-            # ),
-            # )
+            #   plotters.append(
+            #   SimpleMovingAverage(
+            #   n=60,
+            #   quotes=self._cache.full_quotes(),
+            #   slice_start=self._cache.quotes().index[0],
+            #   slice_end=self._cache.quotes().index[-1],
+            #   line_color=self.get_theme().get_color("sma2"),
+            #   line_alpha=self.get_theme().get_alpha("sma"),
+            #   # line_width=self._setting.linewidth(),
+            #   line_width=self._setting.linewidth() * 1.5,
+            #   ),
+            #   )
+
+            if self._parameters.get("Studies", "").lower() == "true":
+                plotters.append(
+                    StudyZone(
+                        symbol=self._symbol,
+                        quotes=self._cache.quotes(),
+                        frequency=self._frequency,
+                    )
+                )
 
             if self._parameters.get("MovingAverages100", "").lower() == "true":
-                plotters.extend(
-                    [
-                        # SimpleMovingAverage(
-                        #     n=60,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma2"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
-                        SimpleMovingAverage(
-                            n=100,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("sma3"),
-                            line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                        # SimpleMovingAverage(
-                        #     n=300,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma4"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
-                    ]
+                plotters.append(
+                    SimpleMovingAverage(
+                        n=100,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma3"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        line_width=self._setting.linewidth(),
+                    )
+                )
+
+            if self._parameters.get("MovingAverages125", "").lower() == "true":
+                plotters.append(
+                    SimpleMovingAverage(
+                        n=125,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma3"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        line_width=self._setting.linewidth(),
+                    )
                 )
 
             if self._parameters.get("MovingAverages300", "").lower() == "true":
-                plotters.extend(
-                    [
-                        # SimpleMovingAverage(
-                        #     n=60,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma2"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
-                        # SimpleMovingAverage(
-                        #     n=100,
-                        #     quotes=self._cache.full_quotes(),
-                        #     slice_start=self._cache.quotes().index[0],
-                        #     slice_end=self._cache.quotes().index[-1],
-                        #     line_color=self.get_theme().get_color("sma3"),
-                        #     line_alpha=self.get_theme().get_alpha("sma"),
-                        #     line_width=self._setting.linewidth(),
-                        # ),
-                        SimpleMovingAverage(
-                            n=300,
-                            quotes=self._cache.full_quotes(),
-                            slice_start=self._cache.quotes().index[0],
-                            slice_end=self._cache.quotes().index[-1],
-                            line_color=self.get_theme().get_color("sma4"),
-                            line_alpha=self.get_theme().get_alpha("sma"),
-                            line_width=self._setting.linewidth(),
-                        ),
-                    ]
+                plotters.append(
+                    SimpleMovingAverage(
+                        n=300,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma4"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        line_width=self._setting.linewidth(),
+                    )
+                )
+
+            if self._parameters.get("MovingAverages250", "").lower() == "true":
+                plotters.append(
+                    SimpleMovingAverage(
+                        n=250,
+                        quotes=self._cache.full_quotes(),
+                        slice_start=self._cache.quotes().index[0],
+                        slice_end=self._cache.quotes().index[-1],
+                        line_color=self.get_theme().get_color("sma4"),
+                        line_alpha=self.get_theme().get_alpha("sma"),
+                        line_width=self._setting.linewidth(),
+                    )
                 )
 
             if self._parameters.get("BollingerBands", "").lower() == "true":

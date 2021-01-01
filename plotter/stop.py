@@ -9,14 +9,14 @@ from matplotlib import axes
 
 class StopOrder(Plotter):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            orders: List[TransactionOrder],
-            line_length: int = 20,
-            long_color: str = colors.PAPER_LIGHT_GREEN_A200,
-            short_color: str = colors.PAPER_YELLOW_A200,
-            line_alpha: float = 0.6,
-            line_width: float = 3,
+        self,
+        quotes: pd.DataFrame,
+        orders: List[TransactionOrder],
+        line_length: int = 20,
+        long_color: str = colors.PAPER_LIGHT_GREEN_A200,
+        short_color: str = colors.PAPER_YELLOW_A200,
+        line_alpha: float = 0.6,
+        line_width: float = 3,
     ) -> None:
         self._quotes = quotes
         self._orders = orders
@@ -37,9 +37,9 @@ class StopOrder(Plotter):
                 color = self._short_color
 
             ax.plot(
-                    [full - self._line_length, full],
-                    [order.price(), order.price()],
-                    color=color,
-                    alpha=self._line_alpha,
-                    linewidth=self._line_width,
+                [full - self._line_length, full],
+                [order.price(), order.price()],
+                color=color,
+                alpha=self._line_alpha,
+                linewidth=self._line_width,
             )
