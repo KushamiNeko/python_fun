@@ -22,6 +22,7 @@ from fun.data.source import (
     InvestingCom,
     StockCharts,
     Yahoo,
+    CryptoData,
 )
 from fun.futures.continuous import ContinuousContract
 from fun.plotter.advance_decline import AdvanceDeclineLine
@@ -198,23 +199,29 @@ class CandleSticksPreset:
         elif self._symbol in (
             "btcusd",
             "ethusd",
-            "bchusd",
             "ltcusd",
             "xrpusd",
+            "bchusd",
+        ):
+            src = CryptoData()
+
+        elif self._symbol in (
             "linkusd",
             "adausd",
             "dotusd",
-            "bsvusd",
-            "bnbusd",
-            # "uniusd",
             "xmrusd",
             "xlmusd",
             "eosusd",
             "trxusd",
-            "xlmusd",
             "dashusd",
-            "zecusd",
             "neousd",
+            "zecusd",
+        ):
+            src = CryptoData()
+
+        elif self._symbol in (
+            "bsvusd",
+            "bnbusd",
             "usdcusd",
             "usdtusd",
         ):

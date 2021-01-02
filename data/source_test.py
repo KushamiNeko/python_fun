@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pandas as pd
 from fun.data.barchart import Barchart, BarchartContract
-from fun.data.source import DAILY, InvestingCom, StockCharts, WEEKLY, Yahoo
+from fun.data.source import DAILY, InvestingCom, StockCharts, WEEKLY, Yahoo, CryptoData
 from fun.utils import colors, pretty
 
 
@@ -54,7 +54,8 @@ class TestSource(unittest.TestCase):
                     )
 
                 self.assertEqual(
-                    len(rows), 0,
+                    len(rows),
+                    0,
                 )
 
     def test_daily_to_weekly(self):
@@ -98,6 +99,10 @@ class TestSource(unittest.TestCase):
     def test_yahoo(self):
         root = os.path.join(self._root(), "yahoo")
         self._loop_files(root, Yahoo())
+
+    def test_cryptodata(self):
+        root = os.path.join(self._root(), "cryptodata")
+        self._loop_files(root, CryptoData())
 
     def test_stockcharts(self):
         root = os.path.join(self._root(), "stockcharts")

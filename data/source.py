@@ -306,3 +306,40 @@ class InvestingCom(DataSource):
         cols["Vol."] = "volume"
         cols["Price"] = "close"
         return df.rename(columns=cols)
+
+
+class CryptoData(DataSource):
+    def _timestamp_preprocessing(self, x: str) -> datetime:
+        m = re.match(r"(\d{4}-\d{2}-\d{2})(\s\d{2}:\d{2}:\d{2})*", x)
+        assert m is not None
+
+        if m.group(2) is not None:
+            return datetime.strptime(x, r"%Y-%m-%d %H:%M:%S")
+        else:
+            return datetime.strptime(x, r"%Y-%m-%d")
+
+    def _url(
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+    ) -> str:
+        return os.path.join("cryptodata", f"{symbol}.csv")
+
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+        df = pd.read_csv(
+            self._localfile(self._url(start, end, symbol, DAILY)), header=1
+        )
+        df = df.drop("unix", axis=1)
+        df = df.drop("symbol", axis=1)
+
+        if "vwap" in df.columns:
+            df = df.drop("vwap", axis=1)
+
+        if "tradecount" in df.columns:
+            df.loc[:, "tradecount"].fillna(0, inplace=True)
+
+        return df
+
+    def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        cols = {k: k.lower() for k in df.columns}
+        cols["date"] = "timestamp"
+        cols["Volume USD"] = "volume"
+        return df.rename(columns=cols)
