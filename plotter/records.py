@@ -20,7 +20,7 @@ class LeverageRecords(TextPlotter):
         book_title: str,
         agent: TradingAgent,
         flip_position: bool = False,
-        font_color: str = "k",
+        font_color: str = "w",
         font_size: float = 10.0,
         font_src: Optional[str] = None,
         font_properties: Optional[fm.FontProperties] = None,
@@ -223,7 +223,8 @@ class TradingHedgingLeverageRecords(TextPlotter):
         plotter.plot(ax)
 
         hedging_leverage = self._agent.open_positions_leverage(
-            title=self._hedging_book_title, dtime=self._dtime,
+            title=self._hedging_book_title,
+            dtime=self._dtime,
         )
 
         hedging_operation = self._agent.open_positions_operation(
@@ -313,4 +314,3 @@ class TradingHedgingLeverageRecords(TextPlotter):
             va=va,
             # va="bottom",
         )
-

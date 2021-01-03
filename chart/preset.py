@@ -1,4 +1,5 @@
 import io
+import os
 import re
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta
@@ -18,27 +19,27 @@ from fun.data.source import (
     HOURLY,
     MONTHLY,
     WEEKLY,
+    CryptoData,
     DataSource,
     InvestingCom,
     StockCharts,
     Yahoo,
-    CryptoData,
 )
 from fun.futures.continuous import ContinuousContract
 from fun.plotter.advance_decline import AdvanceDeclineLine
 from fun.plotter.background import BackgroundTimeRangeMark
 from fun.plotter.candlesticks import CandleSticks
 from fun.plotter.entry import EntryZone
-from fun.plotter.study import StudyZone
 from fun.plotter.equal_weighted import EqualWeightedRelativeStrength
 from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
 from fun.plotter.level import Level
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
+from fun.plotter.study import NoteMarker, StudyZone
 from fun.plotter.volatility import VolatilityRealBodyContraction, VolatilitySummary
-from fun.plotter.zone import VolatilityZone
 from fun.plotter.volume import Volume
+from fun.plotter.zone import VolatilityZone
 
 
 class CandleSticksPreset:
@@ -315,6 +316,76 @@ class CandleSticksPreset:
         cache = QuotesCache(df, self._stime, self._etime)
         return cache
 
+    def _read_note(self, date: str) -> Optional[str]:
+
+        root = os.path.join(
+            os.getenv("HOME"),
+            "Documents",
+            "TRADING_NOTES",
+            "notes",
+            self._symbol.lower(),
+        )
+
+        file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+
+        notes = ["\n"]
+        max_lenght = 0
+
+        try:
+            for f in os.listdir(root):
+                m = file_regex.match(f)
+                assert m is not None
+
+                start = m.group(1)
+                end = m.group(2)
+
+                assert start is not None
+
+                if date == start or (end is not None and date == end):
+                    with open(os.path.join(root, f), "r") as note_file:
+                        note = note_file.read()
+
+                        for c in note.split("\n"):
+                            lc = len(c)
+                            max_lenght = max(lc, max_lenght)
+
+                        notes.append(
+                            f"{f.replace('.txt', '')}\n\n{note}"
+                        )
+
+                        # note_regex = re.compile(
+                        #     r"^([&]*\s*\w+:\s*(\d{8}))", flags=re.MULTILINE
+                        # )
+                        # ns = note_regex.split(note)
+
+                        # for i, n in enumerate(ns):
+                        #     n = n.strip()
+                        #     if n == "":
+                        #         continue
+                        #     else:
+                        #         if n == date:
+                        #             assert i > 0
+                        #             # return ns[i + 1].strip()
+                        #             title = ns[i - 1].strip()
+                        #             content = ns[i + 1].strip()
+
+                        #             for c in content.split("\n"):
+                        #                 lc = len(c)
+                        #                 max_lenght = max(lc, max_lenght)
+
+                        #             notes.append(
+                        #                 f"{f.replace('.txt', '')}\n\n{title}\n{content}"
+                        #             )
+
+            if len(notes) > 0:
+                notes.append("\n")
+                return f"\n\n{'='*max_lenght}\n\n".join(notes).strip()
+
+        except FileNotFoundError:
+            pass
+
+        return None
+
     def cache(self) -> QuotesCache:
         return self._cache
 
@@ -467,10 +538,12 @@ class CandleSticksPreset:
         ay: Optional[float] = None,
         quote_decimals: int = 5,
         diff_decimals: int = 3,
-    ) -> Optional[Dict[str, str]]:
+        # ) -> Optional[Dict[str, str]]:
+    ) -> Tuple[Optional[Dict[str, str]], Optional[str]]:
         n = self._chart.to_data_coordinates(x, y)
         if n is None:
-            return None
+            # return None
+            return None, None
 
         nx, ny = n
 
@@ -486,6 +559,8 @@ class CandleSticksPreset:
             "volume": f"{df.iloc[nx].get('volume', 0):,.0f}",
             "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
         }
+
+        note = self._read_note(self._cache.quotes().index[nx].strftime("%Y%m%d"))
 
         if ax is None or ay is None:
             if nx != 0:
@@ -513,7 +588,7 @@ class CandleSticksPreset:
             info["diff($)"] = f"{ny - ay:,.{quote_decimals}f}"
             info["diff(%)"] = f"{((ny - ay) / ay) * 100.0:,.{diff_decimals}f}"
 
-        return info
+        return info, note
 
 
 class PresetController(metaclass=ABCMeta):
@@ -656,7 +731,15 @@ class KushamiNekoController(PresetController):
                         symbol=self._symbol,
                         quotes=self._cache.quotes(),
                         frequency=self._frequency,
-                    )
+                    ),
+                )
+
+                plotters.append(
+                    NoteMarker(
+                        symbol=self._symbol,
+                        quotes=self._cache.quotes(),
+                        frequency=self._frequency,
+                    ),
                 )
 
             if self._parameters.get("MovingAverages100", "").lower() == "true":

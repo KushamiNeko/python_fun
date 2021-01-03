@@ -58,12 +58,12 @@ class ContinuousContract:
 
     @classmethod
     def _default_rolling_method(cls, symbol: str) -> RollingMethod:
-        if symbol == "cl":
+        if symbol in ("cl", "ng"):
             return VolumeAndOpenInterest(
                 backup=LastNTradingDays(offset=8, adjustment_method=RATIO),
                 adjustment_method=RATIO,
             )
-        elif symbol == "gc":
+        elif symbol in ("gc", "si"):
             return VolumeAndOpenInterest(
                 backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
                 adjustment_method=RATIO,
