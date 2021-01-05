@@ -68,6 +68,11 @@ class ContinuousContract:
                 backup=LastNTradingDays(offset=27, adjustment_method=RATIO),
                 adjustment_method=RATIO,
             )
+        elif symbol in ("zs", "zc", "zw"):
+            return VolumeAndOpenInterest(
+                backup=LastNTradingDays(offset=15, adjustment_method=RATIO),
+                adjustment_method=RATIO,
+            )
         elif symbol in ("zn", "zf", "zt", "zb", "ge", "tj", "gg"):
             return VolumeAndOpenInterest(
                 backup=FirstOfMonth(adjustment_method=RATIO),

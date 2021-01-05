@@ -20,6 +20,7 @@ from fun.data.source import (
     MONTHLY,
     WEEKLY,
     CryptoData,
+    CoinAPI,
     DataSource,
     InvestingCom,
     StockCharts,
@@ -204,7 +205,8 @@ class CandleSticksPreset:
             "xrpusd",
             "bchusd",
         ):
-            src = CryptoData()
+            # src = CryptoData()
+            src = CoinAPI()
 
         elif self._symbol in (
             "linkusd",

@@ -4,7 +4,15 @@ from datetime import datetime
 
 import pandas as pd
 from fun.data.barchart import Barchart, BarchartContract
-from fun.data.source import DAILY, InvestingCom, StockCharts, WEEKLY, Yahoo, CryptoData
+from fun.data.source import (
+    DAILY,
+    InvestingCom,
+    StockCharts,
+    WEEKLY,
+    Yahoo,
+    CryptoData,
+    CoinAPI,
+)
 from fun.utils import colors, pretty
 
 
@@ -141,6 +149,37 @@ class TestSource(unittest.TestCase):
                 self.assertNotEqual(len(df.index), 0)
 
                 self.assertFalse(df.isna().any(axis=1).any())
+
+    def test_coinapi(self):
+        source = CoinAPI()
+
+        root = os.path.join(self._root(), "coinapi")
+
+        for symbol in os.listdir(root):
+            if len(os.listdir(os.path.join(root, symbol))) == 0:
+                continue
+
+            df = source.read(self._start, self._end, symbol, DAILY)
+            self.assertEqual(df.index.nunique(), len(df.index))
+            self.assertFalse(df.isna().any(axis=1).any())
+
+            opens = df.loc[:, "open"]
+            highs = df.loc[:, "high"]
+            lows = df.loc[:, "low"]
+            closes = df.loc[:, "close"]
+
+            rows = df.loc[(opens <= 0) | (highs <= 0) | (lows <= 0) | (closes <= 0)]
+
+            if len(rows) > 0:
+                pretty.color_print(
+                    colors.PAPER_RED_400,
+                    f"{symbol.upper()} contains 0 in open, high, low, or close",
+                )
+
+            self.assertEqual(
+                len(rows),
+                0,
+            )
 
 
 if __name__ == "__main__":

@@ -336,6 +336,20 @@ class CryptoData(DataSource):
         if "tradecount" in df.columns:
             df.loc[:, "tradecount"].fillna(0, inplace=True)
 
+        opens = df.loc[:, "open"]
+        highs = df.loc[:, "high"]
+        lows = df.loc[:, "low"]
+        closes = df.loc[:, "close"]
+
+        rows = df.loc[(opens <= 0) | (highs <= 0) | (lows <= 0) | (closes <= 0)].index
+
+        if len(rows) > 0:
+            pretty.color_print(
+                colors.PAPER_AMBER_300,
+                f"CryptoData {symbol.upper()} contains 0 in open, high, low, or close. Dropping {len(rows)} rows",
+            )
+        df = df.drop(rows)
+
         return df
 
     def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -343,3 +357,75 @@ class CryptoData(DataSource):
         cols["date"] = "timestamp"
         cols["Volume USD"] = "volume"
         return df.rename(columns=cols)
+
+
+class CoinAPI(DataSource):
+    def _timestamp_preprocessing(self, x: str) -> datetime:
+        # 2020-12-02T00:00:00.0000000Z
+        m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.[0]+Z$", x)
+        assert m is not None
+
+        return datetime.strptime(m.group(1), r"%Y-%m-%dT%H:%M:%S")
+
+    def _url(
+        self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
+    ) -> str:
+        raise NotImplementedError()
+
+    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+
+        root = self._localfile(os.path.join("coinapi", symbol))
+
+        files = os.listdir(root)
+        files.sort()
+
+        df = None
+        for f in files:
+            path = os.path.join(root, f)
+            if df is None:
+                df = pd.read_json(path)
+            else:
+                df = df.append(pd.read_json(path))
+
+        if df is None:
+            raise ValueError(f"no files for symbol: {symbol}")
+
+        assert df is not None
+
+        assert (
+            len(df.loc[:, "time_period_start"])
+            == df.loc[:, "time_period_start"].nunique()
+        )
+
+        assert (
+            len(df.loc[:, "time_period_end"]) == df.loc[:, "time_period_end"].nunique()
+        )
+
+        df = df.drop("time_period_end", axis=1)
+        df = df.drop("time_open", axis=1)
+        df = df.drop("time_close", axis=1)
+
+        return df
+
+    def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        cols = {k: k.lower() for k in df.columns}
+
+        for k in cols.keys():
+            if "price" in k:
+                cols[k] = k.replace("price_", "", -1)
+
+        cols["time_period_start"] = "timestamp"
+        cols["volume_traded"] = "volume"
+        return df.rename(columns=cols)
+
+
+# if __name__ == "__main__":
+# c = CoinAPI()
+
+# s = datetime.strptime("20190101", "%Y%m%d")
+# e = datetime.strptime("20201201", "%Y%m%d")
+
+# df = c.read(s, e, "ltcusd", DAILY)
+# print(df.head(100))
+# print(df.tail(95))
+# print(df.index.nunique())
