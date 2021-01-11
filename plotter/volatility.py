@@ -43,8 +43,12 @@ class VolatilitySource:
             self._vix_symbol = "ovx"
         elif self._symbol == "gc":
             self._vix_symbol = "gvz"
-        # elif self._symbol == "zn":
-        #     self._vix_symbol = "tyvix"
+        elif self._symbol in ("zn", "zt", "zf", "zb", "ge"):
+            self._vix_symbol = "vix"
+        elif self._symbol == "tj":
+            self._vix_symbol = "jniv"
+        elif self._symbol == "gg":
+            self._vix_symbol = "vstx"
 
         self._src = src
 

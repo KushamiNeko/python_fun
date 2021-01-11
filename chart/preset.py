@@ -111,13 +111,13 @@ class CandleSticksPreset:
                 self._chart_range = "9M"
 
             elif self._frequency == WEEKLY and (
-                total_days < 365 * 3 or total_days > 365 * 5
+                total_days < 365 * 2 or total_days > 365 * 5
             ):
                 total_days = 365 * 3
                 self._chart_range = "3Y"
 
             elif self._frequency == MONTHLY and (
-                total_days < 365 * 15 or total_days > 365 * 20
+                total_days < 365 * 12 or total_days > 365 * 20
             ):
                 total_days = 365 * 15
                 self._chart_range = "15Y"
@@ -204,6 +204,7 @@ class CandleSticksPreset:
             "ltcusd",
             "xrpusd",
             "bchusd",
+            "usdcusd",
         ):
             # src = CryptoData()
             src = CoinAPI()
@@ -212,26 +213,23 @@ class CandleSticksPreset:
             "linkusd",
             "adausd",
             "dotusd",
-            "xmrusd",
             "xlmusd",
             "eosusd",
             "trxusd",
-            "dashusd",
-            "neousd",
-            "zecusd",
+            "uniusd",
         ):
-            src = CryptoData()
+            src = CoinAPI()
 
-        elif self._symbol in (
-            "bsvusd",
-            "bnbusd",
-            "usdcusd",
-            "usdtusd",
-        ):
-            src = Yahoo()
-
-        elif self._symbol in ("uniusd",):
-            src = InvestingCom()
+        # elif self._symbol in (
+        # "bsvusd",
+        # "bnbusd",
+        # "usdtusd",
+        # "dashusd",
+        # "neousd",
+        # "zecusd",
+        # "xmrusd",
+        # ):
+        # src = Yahoo()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
@@ -272,6 +270,7 @@ class CandleSticksPreset:
             "emb",
             "lqd",
             "mbb",
+            "mub",
             "igsb",
             "igib",
             "shy",
@@ -283,6 +282,18 @@ class CandleSticksPreset:
             "rem",
         ):
             # src = AlphaVantage()
+            src = Yahoo()
+
+        elif self._symbol in (
+            "idv",
+            "dvy",
+            "pff",
+            "hdv",
+            "dgro",
+            "schd",
+            "vym",
+            "sdy",
+        ):
             src = Yahoo()
 
         elif self._symbol in (
@@ -325,8 +336,19 @@ class CandleSticksPreset:
             "Documents",
             "TRADING_NOTES",
             "notes",
-            self._symbol.lower(),
+            # self._symbol.lower(),
         )
+
+        found = False
+        for r in os.listdir(root):
+            targets = [s.strip() for s in r.split(",")]
+            if self._symbol.lower() in targets:
+                root = os.path.join(root, r)
+                found = True
+                break
+
+        if not found:
+            return None
 
         file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
 
@@ -351,9 +373,7 @@ class CandleSticksPreset:
                             lc = len(c)
                             max_lenght = max(lc, max_lenght)
 
-                        notes.append(
-                            f"{f.replace('.txt', '')}\n\n{note}"
-                        )
+                        notes.append(f"{f.replace('.txt', '')}\n\n{note}")
 
                         # note_regex = re.compile(
                         #     r"^([&]*\s*\w+:\s*(\d{8}))", flags=re.MULTILINE
@@ -733,6 +753,7 @@ class KushamiNekoController(PresetController):
                         symbol=self._symbol,
                         quotes=self._cache.quotes(),
                         frequency=self._frequency,
+                        candlesticks_body_width=self._setting.body_width(),
                     ),
                 )
 

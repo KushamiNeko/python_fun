@@ -25,6 +25,7 @@ from fun.futures.contract import (
 from fun.futures.rolling import (
     LastNTradingDays,
     RATIO,
+    DIFFERENCE,
     RollingMethod,
     VolumeAndOpenInterest,
     FirstOfMonth,
@@ -75,8 +76,10 @@ class ContinuousContract:
             )
         elif symbol in ("zn", "zf", "zt", "zb", "ge", "tj", "gg"):
             return VolumeAndOpenInterest(
-                backup=FirstOfMonth(adjustment_method=RATIO),
-                adjustment_method=RATIO,
+                # backup=FirstOfMonth(adjustment_method=RATIO),
+                # adjustment_method=RATIO,
+                backup=FirstOfMonth(adjustment_method=DIFFERENCE),
+                adjustment_method=DIFFERENCE,
             )
         elif symbol in ("e6", "j6", "b6", "a6", "d6", "s6", "n6", "dx"):
             return VolumeAndOpenInterest(

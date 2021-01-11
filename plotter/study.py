@@ -20,38 +20,55 @@ class StudyZone(Plotter):
         symbol: str,
         quotes: pd.DataFrame,
         frequency: FREQUENCY,
-        color_long_entry: str = colors.PAPER_PURPLE_400,
-        color_short_entry: str = colors.PAPER_INDIGO_400,
-        color_close: str = colors.PAPER_GREEN_400,
-        alpha: float = 0.25,
+        candlesticks_body_width: float = 0.6,
+        # color_long_entry: str = colors.PAPER_PURPLE_900,
+        # color_short_entry: str = colors.PAPER_INDIGO_900,
+        color_entry: str = colors.PAPER_BROWN_700,
+        color_close: str = colors.PAPER_GREEN_700,
+        color_warning: str = colors.PAPER_LIME_900,
+        alpha: float = 0.3,
     ) -> None:
         assert quotes is not None
 
         root = os.path.join(
             os.getenv("HOME"), "Documents", "TRADING_NOTES", "study_zone"
         )
-        path = os.path.join(root, f"{symbol.lower()}.json")
+        # path = os.path.join(root, f"{symbol.lower()}.json")
 
         self._symbol = symbol
         self._quotes = quotes
         self._frequency = frequency
 
-        self._studies = None
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                try:
-                    self._studies = json.load(f)
-                except json.JSONDecodeError:
-                    pretty.color_print(
-                        colors.PAPER_RED_400,
-                        f"invalid json file for trading study zone: {path}",
-                    )
-                    self._studies = None
+        self._candlesticks_body_width = candlesticks_body_width
 
-        self._color_long_entry = color_long_entry
-        self._color_short_entry = color_short_entry
+        # self._color_long_entry = color_long_entry
+        # self._color_short_entry = color_short_entry
+        self._color_entry = color_entry
         self._color_close = color_close
+        self._color_warning = color_warning
+
         self._alpha = alpha
+
+        self._studies = None
+
+        for r in os.listdir(root):
+            f = os.path.splitext(r)[0]
+            targets = [s.strip() for s in f.split(",")]
+            if self._symbol.lower() in targets:
+                path = os.path.join(root, r)
+
+                if os.path.exists(path):
+                    with open(path, "r") as f:
+                        try:
+                            self._studies = json.load(f)
+                        except json.JSONDecodeError:
+                            pretty.color_print(
+                                colors.PAPER_RED_400,
+                                f"invalid json file for trading study zone: {path}",
+                            )
+                            self._studies = None
+
+                    break
 
     def plot(self, ax: axes.Axes) -> None:
         if self._studies is None:
@@ -87,17 +104,21 @@ class StudyZone(Plotter):
 
             color = ""
             if study["operation"] == "long":
-                color = self._color_long_entry
+                # color = self._color_long_entry
+                color = self._color_entry
             elif study["operation"] == "short":
-                color = self._color_short_entry
+                # color = self._color_short_entry
+                color = self._color_entry
             elif study["operation"] == "close":
                 color = self._color_close
+            elif study["operation"] == "warning":
+                color = self._color_warning
             else:
                 raise ValueError(f"invalid study operation: {study['operation']}")
 
             ax.bar(
-                start_index,
-                width=end_index - start_index,
+                start_index - (self._candlesticks_body_width / 2.0),
+                width=(end_index - start_index) + self._candlesticks_body_width,
                 bottom=mn,
                 height=mx - mn,
                 align="edge",
@@ -316,13 +337,32 @@ class NoteMarker(TextPlotter):
 
         assert ax is not None
 
+        # root = os.path.join(
+        # os.getenv("HOME"),
+        # "Documents",
+        # "TRADING_NOTES",
+        # "notes",
+        # self._symbol.lower(),
+        # )
+
         root = os.path.join(
             os.getenv("HOME"),
             "Documents",
             "TRADING_NOTES",
             "notes",
-            self._symbol.lower(),
+            # self._symbol.lower(),
         )
+
+        found = False
+        for r in os.listdir(root):
+            targets = [s.strip() for s in r.split(",")]
+            if self._symbol.lower() in targets:
+                root = os.path.join(root, r)
+                found = True
+                break
+
+        if not found:
+            return
 
         if not os.path.exists(root):
             return
