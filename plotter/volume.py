@@ -3,6 +3,7 @@ import pandas as pd
 from fun.plotter.plotter import Plotter
 from matplotlib import axes, patches
 from matplotlib.collections import PatchCollection
+from typing import Optional
 
 
 class Volume(Plotter):
@@ -16,6 +17,10 @@ class Volume(Plotter):
         alpha: float = 0.35,
         chart_height_ratio: float = 0.15,
         quantile_clamp_ratio: float = 0.95,
+        plot_average: bool = False,
+        average_n: int = 20,
+        line_width: float = 1.5,
+        line_alpha: float = 0.025,
     ):
 
         self._quotes = quotes
@@ -26,8 +31,14 @@ class Volume(Plotter):
         self._color_unchanged = color_unchanged
         self._alpha = alpha
 
+
         self._chart_height_ratio = chart_height_ratio
         self._quantile_clamp_ratio = quantile_clamp_ratio
+
+        self._plot_average = plot_average
+        self._average_n = average_n
+        self._line_width = line_width
+        self._line_alpha = line_alpha
 
     def plot(self, ax: axes.Axes) -> None:
         volumes = self._quotes.get("volume")
@@ -59,9 +70,16 @@ class Volume(Plotter):
         # volumes = ((volumes / volumes_max)) * (max_height - mn)
         # volumes += mn
 
+        # interests = self._quotes.get("open interest")
+
+        # if interests is not None:
+        # interests = ((interests / interests.max())) * max_height
+
         length = len(self._quotes)
 
         bodies = np.ndarray(shape=length, dtype=object)
+
+        xs = np.arange(length)
 
         for index, df in enumerate(self._quotes.itertuples()):
 
@@ -86,6 +104,23 @@ class Volume(Plotter):
                     alpha=self._alpha,
                 )
 
+                if self._plot_average:
+                    ax.plot(
+                        xs,
+                        (mn + volumes).rolling(self._average_n).mean(),
+                        color=self._color_unchanged,
+                        alpha=self._line_alpha,
+                        linewidth=self._line_width,
+                    )
+
+                # ax.plot(
+                # xs,
+                # (mn + interests),
+                # color="r",
+                # alpha=self._alpha,
+                # linewidth=self._line_width,
+                # )
+
             else:
                 body = patches.Rectangle(
                     xy=(index - (self._body_width / 2.0), mx),
@@ -97,31 +132,29 @@ class Volume(Plotter):
                     alpha=self._alpha,
                 )
 
+                if self._plot_average:
+                    ax.plot(
+                        xs,
+                        (mx - volumes).rolling(self._average_n).mean(),
+                        color=self._color_unchanged,
+                        alpha=self._line_alpha,
+                        linewidth=self._line_width,
+                    )
+
+                # ax.plot(
+                # xs,
+                # (mx - interests),
+                # color="r",
+                # alpha=self._alpha,
+                # linewidth=self._line_width,
+                # )
+
             bodies[index] = body
 
-        ax.add_collection(PatchCollection(bodies, match_original=True, zorder=3))
-
-        # ax.plot(
-        #     np.arange(len(self._quotes.index)),
-        #     volumes.rolling(60).mean(),
-        #     color=self._color_unchanged,
-        #     alpha=self._alpha,
-        #     linewidth=2.5,
-        # )
-
-        # interests = self._quotes.get("open interest")
-
-        # if interests is not None:
-        #     interests -= interests.min()
-        #     interests /= interests.max()
-
-        #     interests *= max_height - mn
-        #     interests += mn
-
-        #     ax.plot(
-        #         np.arange(len(self._quotes.index)),
-        #         interests,
-        #         color="r",
-        #         alpha=self._alpha,
-        #         linewidth=2.5,
-        #     )
+        ax.add_collection(
+            PatchCollection(
+                bodies,
+                match_original=True,
+                zorder=3,
+            ),
+        )
