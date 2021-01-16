@@ -52,15 +52,20 @@ class StudyZone(Plotter):
         self._studies = None
 
         for r in os.listdir(root):
-            f = os.path.splitext(r)[0]
-            targets = [s.strip() for s in f.split(",")]
+            pattern = r"[&_,|]"
+            targets = re.split(pattern, r)
+            targets = list(map(lambda x: x.strip(), targets))
+
             if self._symbol.lower() in targets:
                 path = os.path.join(root, r)
-
-                if os.path.exists(path):
-                    with open(path, "r") as f:
+                assert os.path.exists(path)
+                for f in os.listdir(path):
+                    with open(os.path.join(path, f), "r") as src:
                         try:
-                            self._studies = json.load(f)
+                            if self._studies is None:
+                                self._studies = json.load(src)
+                            else:
+                                self._studies.extend(json.load(src))
                         except json.JSONDecodeError:
                             pretty.color_print(
                                 colors.PAPER_RED_400,
@@ -68,7 +73,7 @@ class StudyZone(Plotter):
                             )
                             self._studies = None
 
-                    break
+                break
 
     def plot(self, ax: axes.Axes) -> None:
         if self._studies is None:
@@ -328,7 +333,63 @@ class NoteMarker(TextPlotter):
         self._quotes = quotes
         self._frequency = frequency
 
+        root = os.path.join(
+            os.getenv("HOME"),
+            "Documents",
+            "TRADING_NOTES",
+            "notes",
+        )
+
+        self._notes_root = None
+        for r in os.listdir(root):
+            pattern = r"[&_,|]"
+
+            targets = re.split(pattern, r)
+            targets = list(map(lambda x: x.strip(), targets))
+
+            if self._symbol.lower() in targets:
+                path = os.path.join(root, r)
+                if os.path.exists(path):
+                    self._notes_root = path
+                break
+
+    def _plot_text(self, ax, highs, lows, middle, offset, x, text):
+        high = highs.iloc[x]
+        low = lows.iloc[x]
+        m = (high + low) / 2.0
+
+        va = "bottom" if m > middle else "top"
+        y = low - offset if va == "top" else high + offset
+
+        ax.text(
+            x,
+            y,
+            text,
+            color=self._font_color,
+            fontproperties=self._font_properties,
+            ha="center",
+            va=va,
+        )
+
+    def _append_note(self, notes, dtime, text):
+        try:
+            x = self._quotes.index.get_loc(
+                dtime,
+            )
+
+        except KeyError:
+            return
+
+        if x not in notes:
+            notes[x] = [text]
+        else:
+            if text not in notes[x]:
+                notes[x].append(text)
+
     def plot(self, ax: axes.Axes) -> None:
+        if self._notes_root is None:
+            return
+
         if len(self._quotes) == 0:
             return
 
@@ -337,85 +398,11 @@ class NoteMarker(TextPlotter):
 
         assert ax is not None
 
-        # root = os.path.join(
-        # os.getenv("HOME"),
-        # "Documents",
-        # "TRADING_NOTES",
-        # "notes",
-        # self._symbol.lower(),
-        # )
-
-        root = os.path.join(
-            os.getenv("HOME"),
-            "Documents",
-            "TRADING_NOTES",
-            "notes",
-            # self._symbol.lower(),
-        )
-
-        found = False
-        for r in os.listdir(root):
-            targets = [s.strip() for s in r.split(",")]
-            if self._symbol.lower() in targets:
-                root = os.path.join(root, r)
-                found = True
-                break
-
-        if not found:
-            return
-
-        if not os.path.exists(root):
-            return
-
-        highs = self._quotes.loc[:, "high"]
-        lows = self._quotes.loc[:, "low"]
-
-        mx = highs.max()
-        mn = lows.min()
-        mr = mx - mn
-
-        middle = (mx + mn) / 2.0
-
-        offset = mr * 0.0075
-
-        def plot_text(x, text):
-            high = highs.iloc[x]
-            low = lows.iloc[x]
-            m = (high + low) / 2.0
-
-            va = "bottom" if m > middle else "top"
-            y = low - offset if va == "top" else high + offset
-
-            ax.text(
-                x,
-                y,
-                text,
-                color=self._font_color,
-                fontproperties=self._font_properties,
-                ha="center",
-                va=va,
-            )
-
-        def append_note(notes, dtime, text):
-            try:
-                x = self._quotes.index.get_loc(
-                    dtime,
-                )
-
-            except KeyError:
-                return
-
-            if x not in notes:
-                notes[x] = [text]
-            else:
-                if text not in notes[x]:
-                    notes[x].append(text)
-
         file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
 
         notes = {}
 
-        for f in os.listdir(root):
+        for f in os.listdir(self._notes_root):
             m = file_regex.match(f)
             assert m is not None
 
@@ -439,16 +426,7 @@ class NoteMarker(TextPlotter):
                     days=start_datetime.weekday()
                 )
 
-            append_note(notes, start_datetime, text)
-
-            # x = self._quotes.index.get_loc(
-            # start_datetime,
-            # )
-
-            # if x not in notes:
-            # notes[x] = [text]
-            # else:
-            # notes[x].append(text)
+            self._append_note(notes, start_datetime, text)
 
             if end is not None:
                 end_datetime = datetime.strptime(end, "%Y%m%d")
@@ -456,16 +434,25 @@ class NoteMarker(TextPlotter):
                 if self._frequency == WEEKLY:
                     end_datetime = end_datetime - timedelta(days=end_datetime.weekday())
 
-                append_note(notes, end_datetime, text)
+                self._append_note(notes, end_datetime, text)
 
-                # x = self._quotes.index.get_loc(
-                # end_datetime,
-                # )
+        highs = self._quotes.loc[:, "high"]
+        lows = self._quotes.loc[:, "low"]
 
-                # if x not in notes:
-                # notes[x] = [text]
-                # else:
-                # notes[x].append(text)
+        mx = highs.max()
+        mn = lows.min()
+        mr = mx - mn
+
+        middle = (mx + mn) / 2.0
+        offset = mr * 0.0075
 
         for x, text in notes.items():
-            plot_text(x, "\n".join(text))
+            self._plot_text(
+                ax,
+                highs,
+                lows,
+                middle,
+                offset,
+                x,
+                "\n".join(text),
+            )

@@ -17,12 +17,12 @@ matplotlib.use("agg")
 
 class TradingChart(base.ChartFactory):
     def __init__(
-            self,
-            quotes: pd.DataFrame,
-            theme: Theme = Theme(),
-            scale: str = "log",
-            setting: Setting = Setting(chart_size=LARGE_CHART),
-            figsize: Tuple[float, float] = (16.0, 9.0),
+        self,
+        quotes: pd.DataFrame,
+        theme: Theme = Theme(),
+        scale: str = "log",
+        setting: Setting = Setting(chart_size=LARGE_CHART),
+        figsize: Tuple[float, float] = (16.0, 9.0),
     ) -> None:
 
         assert quotes is not None
@@ -52,14 +52,14 @@ class TradingChart(base.ChartFactory):
         loc, labels = ticker.ticks()
         ax.set_xticks(loc)
         ax.set_xticklabels(
-                labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
+            labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
         )
 
     def _setup_yticks(self, ax: axes.Axes, ticker: Ticker) -> None:
         loc, labels = ticker.ticks()
         ax.set_yticks(loc)
         ax.set_yticklabels(
-                labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
+            labels, fontproperties=self._theme.get_font(self._setting.tick_fontsize())
         )
 
     def _setup_general(self, fig: figure.Figure, ax: axes.Axes) -> None:
@@ -69,9 +69,9 @@ class TradingChart(base.ChartFactory):
         ax.spines["right"].set_visible(False)
 
         ax.grid(
-                True,
-                color=self._theme.get_color("grid"),
-                alpha=self._theme.get_alpha("grid"),
+            True,
+            color=self._theme.get_color("grid"),
+            alpha=self._theme.get_alpha("grid"),
         )
 
         ax.set_axisbelow(True)
@@ -80,10 +80,10 @@ class TradingChart(base.ChartFactory):
         ax.set_facecolor(self._theme.get_color("background"))
 
         ax.tick_params(
-                axis="both",
-                color=self._theme.get_color("ticks"),
-                labelcolor=self._theme.get_color("ticks"),
-                labelsize=self._setting.tick_fontsize(),
+            axis="both",
+            color=self._theme.get_color("ticks"),
+            labelcolor=self._theme.get_color("ticks"),
+            labelsize=self._setting.tick_fontsize(),
         )
 
         ax.yaxis.tick_right()
@@ -103,16 +103,16 @@ class TradingChart(base.ChartFactory):
         return (nx, ny)
 
     def render(
-            self,
-            output: Optional[Union[str, io.BytesIO]] = None,
-            plotters: Optional[List[Plotter]] = None,
-            interactive: bool = False,
+        self,
+        output: Optional[Union[str, io.BytesIO]] = None,
+        plotters: Optional[List[Plotter]] = None,
+        interactive: bool = False,
     ) -> None:
 
         fig, ax = plt.subplots(
-                figsize=self._figsize,
-                facecolor=self._theme.get_color("background"),
-                tight_layout=False,
+            figsize=self._figsize,
+            facecolor=self._theme.get_color("background"),
+            tight_layout=False,
         )
 
         ax.set_yscale(self._scale)
@@ -139,6 +139,10 @@ class TradingChart(base.ChartFactory):
             plt.show()
         else:
             assert output is not None
-            plt.savefig(output, dpi=100, facecolor=self._theme.get_color("background"))
+            plt.savefig(
+                output,
+                dpi=100,
+                facecolor=self._theme.get_color("background"),
+            )
 
         plt.close(fig)

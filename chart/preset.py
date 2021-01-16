@@ -19,7 +19,6 @@ from fun.data.source import (
     HOURLY,
     MONTHLY,
     WEEKLY,
-    CryptoData,
     CoinAPI,
     DataSource,
     InvestingCom,
@@ -31,6 +30,7 @@ from fun.plotter.advance_decline import AdvanceDeclineLine
 from fun.plotter.background import BackgroundTimeRangeMark
 from fun.plotter.candlesticks import CandleSticks
 from fun.plotter.entry import EntryZone
+from fun.plotter.rates import InterestRatesSummary
 from fun.plotter.equal_weighted import EqualWeightedRelativeStrength
 from fun.plotter.ibd import DistributionsDay
 from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
@@ -206,7 +206,6 @@ class CandleSticksPreset:
             "bchusd",
             "usdcusd",
         ):
-            # src = CryptoData()
             src = CoinAPI()
 
         elif self._symbol in (
@@ -219,17 +218,6 @@ class CandleSticksPreset:
             "uniusd",
         ):
             src = CoinAPI()
-
-        # elif self._symbol in (
-        # "bsvusd",
-        # "bnbusd",
-        # "usdtusd",
-        # "dashusd",
-        # "neousd",
-        # "zecusd",
-        # "xmrusd",
-        # ):
-        # src = Yahoo()
 
         elif self._symbol in ("vle", "rvx", "tyvix"):
             src = StockCharts()
@@ -336,18 +324,22 @@ class CandleSticksPreset:
             "Documents",
             "TRADING_NOTES",
             "notes",
-            # self._symbol.lower(),
         )
 
-        found = False
+        notes_root = None
         for r in os.listdir(root):
-            targets = [s.strip() for s in r.split(",")]
+            pattern = r"[&_,|]"
+
+            targets = re.split(pattern, r)
+            targets = list(map(lambda x: x.strip(), targets))
+
             if self._symbol.lower() in targets:
-                root = os.path.join(root, r)
-                found = True
+                path = os.path.join(root, r)
+                if os.path.exists(path):
+                    notes_root = path
                 break
 
-        if not found:
+        if notes_root is None:
             return None
 
         file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
@@ -356,7 +348,7 @@ class CandleSticksPreset:
         max_lenght = 0
 
         try:
-            for f in os.listdir(root):
+            for f in os.listdir(notes_root):
                 m = file_regex.match(f)
                 assert m is not None
 
@@ -366,7 +358,7 @@ class CandleSticksPreset:
                 assert start is not None
 
                 if date == start or (end is not None and date == end):
-                    with open(os.path.join(root, f), "r") as note_file:
+                    with open(os.path.join(notes_root, f), "r") as note_file:
                         note = note_file.read()
 
                         for c in note.split("\n"):
@@ -374,30 +366,6 @@ class CandleSticksPreset:
                             max_lenght = max(lc, max_lenght)
 
                         notes.append(f"{f.replace('.txt', '')}\n\n{note}")
-
-                        # note_regex = re.compile(
-                        #     r"^([&]*\s*\w+:\s*(\d{8}))", flags=re.MULTILINE
-                        # )
-                        # ns = note_regex.split(note)
-
-                        # for i, n in enumerate(ns):
-                        #     n = n.strip()
-                        #     if n == "":
-                        #         continue
-                        #     else:
-                        #         if n == date:
-                        #             assert i > 0
-                        #             # return ns[i + 1].strip()
-                        #             title = ns[i - 1].strip()
-                        #             content = ns[i + 1].strip()
-
-                        #             for c in content.split("\n"):
-                        #                 lc = len(c)
-                        #                 max_lenght = max(lc, max_lenght)
-
-                        #             notes.append(
-                        #                 f"{f.replace('.txt', '')}\n\n{title}\n{content}"
-                        #             )
 
             if len(notes) > 0:
                 notes.append("\n")
@@ -420,12 +388,10 @@ class CandleSticksPreset:
     def chart_range(self) -> str:
         return self._chart_range if self._chart_range is not None else ""
 
-    # def theme(self) -> Optional[Theme]:
     def theme(self) -> Theme:
         assert self._theme is not None
         return self._theme
 
-    # def setting(self) -> Optional[Setting]:
     def setting(self) -> Setting:
         assert self._setting is not None
         return self._setting
@@ -533,8 +499,6 @@ class CandleSticksPreset:
 
         assert self._controller is not None
 
-        # self._theme = self._controller.get_theme()
-        # self._setting = self._controller.get_setting()
         plotters.extend(self._controller.get_plotters())
 
         if additional_plotters is not None and len(additional_plotters) > 0:
@@ -560,11 +524,11 @@ class CandleSticksPreset:
         ay: Optional[float] = None,
         quote_decimals: int = 5,
         diff_decimals: int = 3,
-        # ) -> Optional[Dict[str, str]]:
     ) -> Tuple[Optional[Dict[str, str]], Optional[str]]:
+
         n = self._chart.to_data_coordinates(x, y)
+
         if n is None:
-            # return None
             return None, None
 
         nx, ny = n
@@ -655,14 +619,6 @@ class KushamiNekoController(PresetController):
                 quotes=self._cache.quotes(),
                 frequency=self._frequency,
             ),
-            # CandleSticks(
-            #     quotes=self._cache.quotes(),
-            #     shadow_width=self._setting.shadow_width(),
-            #     body_width=self._setting.body_width(),
-            #     color_up=self.get_theme().get_color("up"),
-            #     color_down=self.get_theme().get_color("down"),
-            #     color_unchanged=self.get_theme().get_color("unchanged"),
-            # ),
             LastQuote(
                 quotes=self._cache.quotes(),
                 font_color=self.get_theme().get_color("text"),
@@ -728,24 +684,9 @@ class KushamiNekoController(PresetController):
                         slice_end=self._cache.quotes().index[-1],
                         line_color=self.get_theme().get_color("sma6"),
                         line_alpha=self.get_theme().get_alpha("sma"),
-                        # line_width=self._setting.linewidth(),
                         line_width=self._setting.linewidth() * 1.5,
                     ),
                 )
-
-            # if self._parameters.get("MovingAverages60", "").lower() == "true":
-            #   plotters.append(
-            #   SimpleMovingAverage(
-            #   n=60,
-            #   quotes=self._cache.full_quotes(),
-            #   slice_start=self._cache.quotes().index[0],
-            #   slice_end=self._cache.quotes().index[-1],
-            #   line_color=self.get_theme().get_color("sma2"),
-            #   line_alpha=self.get_theme().get_alpha("sma"),
-            #   # line_width=self._setting.linewidth(),
-            #   line_width=self._setting.linewidth() * 1.5,
-            #   ),
-            #   )
 
             if self._parameters.get("Studies", "").lower() == "true":
                 plotters.append(
@@ -760,6 +701,14 @@ class KushamiNekoController(PresetController):
                 plotters.append(
                     NoteMarker(
                         symbol=self._symbol,
+                        quotes=self._cache.quotes(),
+                        frequency=self._frequency,
+                    ),
+                )
+
+            if self._parameters.get("InterestRates", "").lower() == "true":
+                plotters.append(
+                    InterestRatesSummary(
                         quotes=self._cache.quotes(),
                         frequency=self._frequency,
                     ),
