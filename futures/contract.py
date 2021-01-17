@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import List, NewType, Tuple
 
 import pandas as pd
-from fun.data.barchart import BarchartContract
-from fun.data.source import DAILY
+from fun.data.barchart import BarchartContract, Barchart
+from fun.data.source import DAILY, DataSource, FREQUENCY
 from fun.utils import colors, pretty
 
 CONTRACT_MONTHS = NewType("CONTRACT_MONTHS", str)
@@ -62,6 +62,8 @@ class Contract:
         months: CONTRACT_MONTHS,
         fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
+        src: Barchart = BarchartContract(),
+        frequency: FREQUENCY = DAILY,
         time: datetime = datetime.now(),
     ) -> Contract:
         assert fmt in (BARCHART, QUANDL)
@@ -113,6 +115,8 @@ class Contract:
             fmt=fmt,
             months=months,
             read_data=read_data,
+            src=src,
+            frequency=frequency,
         )
 
         if symbol in ("zn", "zf", "zt", "zb", "ge", "gg", "tj"):
@@ -129,6 +133,8 @@ class Contract:
         months: CONTRACT_MONTHS,
         fmt: CODE_FORMAT = BARCHART,
         read_data: bool = True,
+        src: DataSource = BarchartContract(),
+        frequency: FREQUENCY = DAILY,
     ) -> None:
 
         assert fmt in (BARCHART, QUANDL)
@@ -142,6 +148,9 @@ class Contract:
         self._fmt = fmt
         self._months = months
         self._code = code
+
+        self._src = src
+        self._frequency = frequency
 
         symbol = ""
         year = 0
@@ -189,12 +198,13 @@ class Contract:
         if read_data:
             self.read_data()
 
-    def read_data(self, src=BarchartContract()) -> None:
-        self._df = src.read(
+    # def read_data(self, src=BarchartContract()) -> None:
+    def read_data(self) -> None:
+        self._df = self._src.read(
             start=datetime(1776, 7, 4),
             end=datetime.now(),
             symbol=self._code,
-            frequency=DAILY,
+            frequency=self._frequency,
         )
 
         assert self._df is not None
@@ -239,6 +249,8 @@ class Contract:
             months=self._months,
             fmt=self._fmt,
             read_data=read_data,
+            src=self._src,
+            frequency=self._frequency,
         )
 
     def next_contract(self, read_data: bool = True) -> Contract:
@@ -269,6 +281,8 @@ class Contract:
                         months=self._months,
                         fmt=self._fmt,
                         read_data=read_data,
+                        src=self._src,
+                        frequency=self._frequency,
                     )
 
         raise AssertionError("impossible situation")
@@ -339,10 +353,18 @@ def contract_list(
     months: CONTRACT_MONTHS,
     fmt: CODE_FORMAT,
     read_data: bool = True,
+    src: DataSource = BarchartContract(),
+    frequency: FREQUENCY = DAILY,
 ) -> List[Contract]:
     try:
         cur = Contract.front_month(
-            symbol=symbol, months=months, fmt=fmt, time=end, read_data=read_data
+            symbol=symbol,
+            months=months,
+            fmt=fmt,
+            time=end,
+            read_data=read_data,
+            src=src,
+            frequency=frequency,
         )
     except FileNotFoundError:
         msg = "empty contract list"

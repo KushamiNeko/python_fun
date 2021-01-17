@@ -1,9 +1,10 @@
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 import pandas as pd
 from fun.data.source import (
+    HOURLY,
     DAILY,
     FREQUENCY,
     MONTHLY,
@@ -11,6 +12,9 @@ from fun.data.source import (
     daily_to_monthly,
     daily_to_weekly,
 )
+
+from fun.data.barchart import BarchartContractHourly
+
 from fun.futures.contract import (
     BARCHART,
     CONTRACT_MONTHS,
@@ -21,6 +25,7 @@ from fun.futures.contract import (
     # CORN_WHEAT_CONTRACT_MONTHS,
     # SILVER_COPPER_CONTRACT_MONTHS,
     contract_list,
+    Contract,
 )
 from fun.futures.rolling import (
     LastNTradingDays,
@@ -95,6 +100,75 @@ class ContinuousContract:
             # return FirstOfMonth(adjustment_method=RATIO)
             # return LastNTradingDays(offset=2, adjustment_method=RATIO)
 
+    def _read_hourly_contract(
+        self,
+        start: datetime,
+        end: datetime,
+        symbol: str,
+        frequency: FREQUENCY,
+        daily_contracts: List[Contract],
+        contract_months: Optional[CONTRACT_MONTHS] = None,
+        rolling_method: Optional[RollingMethod] = None,
+    ) -> pd.DataFrame:
+        hourly_contracts = contract_list(
+            start=start,
+            end=end,
+            symbol=symbol,
+            months=contract_months,
+            fmt=BARCHART,
+            read_data=True,
+            src=BarchartContractHourly(),
+            frequency=HOURLY,
+        )
+
+        daily_length = len(daily_contracts)
+
+        split_hour = 16
+
+        rolling_date = rolling_method.rolling_date(
+            daily_contracts[1], daily_contracts[0]
+        )
+
+        rolling_date = rolling_date.replace(hour=split_hour)
+
+        link: pd.DataFrame
+        for i in range(daily_length):
+            df = hourly_contracts[i].dataframe()
+            if i == 0:
+                link = df.loc[df.index >= rolling_date].sort_index(ascending=False)
+                continue
+            else:
+                part = df.loc[(df.index < rolling_date)].sort_index(ascending=False)
+
+                columns = ["open", "high", "low", "close"]
+                part.loc[:, columns] = rolling_method.adjust(part.loc[:, columns])
+
+                link = link.loc[link.index >= rolling_date].append(part)
+
+                if i + 1 < daily_length:
+                    rolling_date = rolling_method.rolling_date(
+                        daily_contracts[i + 1], daily_contracts[i]
+                    )
+                else:
+                    p = daily_contracts[i].previous_contract(read_data=False)
+                    rolling_date = datetime(
+                        year=p.year(), month=p.month(), day=1, hour=split_hour
+                    )
+                    # p = daily_contracts[i].previous_contract(read_data=True)
+                    # rolling_date = rolling_method.rolling_date(
+                    # p, daily_contracts[i]
+                    # )
+
+                rolling_date = rolling_date.replace(hour=split_hour)
+
+        link = link.loc[link.index >= rolling_date]
+
+        assert link is not None
+
+        link = link.sort_index()
+
+        return link
+
     def read(
         self,
         start: datetime,
@@ -106,8 +180,7 @@ class ContinuousContract:
     ) -> pd.DataFrame:
 
         assert re.match(r"^\w+$", symbol) is not None
-        assert frequency in (DAILY, WEEKLY)
-        # assert frequency in (DAILY, WEEKLY, MONTHLY)
+        assert frequency in (HOURLY, DAILY, WEEKLY, MONTHLY)
 
         if contract_months is None:
             contract_months = self._default_contract_months(symbol)
@@ -130,6 +203,17 @@ class ContinuousContract:
             raise ValueError("empty contract list")
         elif cs_length == 1:
             return cs[0].dataframe()
+
+        if frequency == HOURLY:
+            return self._read_hourly_contract(
+                start=start,
+                end=end,
+                symbol=symbol,
+                frequency=frequency,
+                daily_contracts=cs,
+                contract_months=contract_months,
+                rolling_method=rolling_method,
+            )
 
         rolling_date = rolling_method.rolling_date(cs[1], cs[0])
 
@@ -180,3 +264,12 @@ class ContinuousContract:
             assert length == len(link) + dropped_length
 
         return link
+
+
+# if __name__ == "__main__":
+    # start = datetime.strptime("20200101", "%Y%m%d")
+    # end = datetime.strptime("20210101", "%Y%m%d")
+
+    # src = ContinuousContract()
+    # df = src.read(start=start, end=end, symbol="zn", frequency=HOURLY)
+    # print(df.head(50))

@@ -56,7 +56,7 @@ class CandleSticksPreset:
 
         self._symbol = symbol
 
-        assert frequency in (DAILY, WEEKLY, MONTHLY)
+        assert frequency in (HOURLY, DAILY, WEEKLY, MONTHLY)
 
         self._frequency = frequency
 
@@ -82,7 +82,7 @@ class CandleSticksPreset:
         stime: datetime
 
         if self._chart_range is not None:
-            regex = re.compile(r"^(\d+)([my])$")
+            regex = re.compile(r"^(\d+)([dmy])$")
             match = regex.findall(self._chart_range.lower())
 
             num = int(match[0][0])
@@ -102,13 +102,13 @@ class CandleSticksPreset:
 
             total_days = days * num
 
-            if self._frequency == HOURLY and total_days > 15:
-                total_days = 15
-                self._chart_range = "15D"
+            if self._frequency == HOURLY and total_days > 16:
+                total_days = 8
+                self._chart_range = "8D"
 
             elif self._frequency == DAILY and total_days > 365:
-                total_days = 31 * 9
-                self._chart_range = "9M"
+                total_days = 31 * 6
+                self._chart_range = "6M"
 
             elif self._frequency == WEEKLY and (
                 total_days < 365 * 2 or total_days > 365 * 5
@@ -126,13 +126,13 @@ class CandleSticksPreset:
 
         else:
             if self._frequency == HOURLY:
-                stime = etime - timedelta(days=15)
-                self._chart_range = "15D"
+                stime = etime - timedelta(days=8)
+                self._chart_range = "8D"
 
             elif self._frequency == DAILY:
-                stime = etime - timedelta(days=365)
+                stime = etime - timedelta(days=31 * 6)
 
-                self._chart_range = "9M"
+                self._chart_range = "6M"
 
             elif self._frequency == WEEKLY:
                 stime = etime - timedelta(days=365 * 3)
@@ -146,6 +146,9 @@ class CandleSticksPreset:
 
             else:
                 raise ValueError("invalid frequency")
+
+        if self._frequency == HOURLY:
+            etime = etime.replace(hour=16)
 
         return stime, etime
 
@@ -305,6 +308,7 @@ class CandleSticksPreset:
                 frequency=self._frequency,
             )
         else:
+            assert self._frequency in (DAILY, WEEKLY, MONTHLY)
             df = src.read(
                 start=self._exstime,
                 end=self._exetime,
@@ -537,14 +541,37 @@ class CandleSticksPreset:
 
         info = {
             "date": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
-            "price": f"{ny:,.{quote_decimals}f}",
-            "open": f"{df.iloc[nx].get('open'):,.{quote_decimals}f}",
-            "high": f"{df.iloc[nx].get('high'):,.{quote_decimals}f}",
-            "low": f"{df.iloc[nx].get('low'):,.{quote_decimals}f}",
-            "close": f"{df.iloc[nx].get('close'):,.{quote_decimals}f}",
-            "volume": f"{df.iloc[nx].get('volume', 0):,.0f}",
-            "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
         }
+
+        if self._frequency == HOURLY:
+            info["time(CT)"] = self._cache.quotes().index[nx].strftime("%H:%M")
+            ch = int(self._cache.quotes().index[nx].strftime("%H"))
+            if ch > 12:
+                ja = ch - 12 + 3
+            else:
+                ja = (ch + 12 + 3) % 24
+            info[
+                "time(JA)"
+            ] = f"{ja:02d}:{self._cache.quotes().index[nx].strftime('%M')}"
+
+        info["price"] = f"{ny:,.{quote_decimals}f}"
+        info["open"] = f"{df.iloc[nx].get('open'):,.{quote_decimals}f}"
+        info["high"] = f"{df.iloc[nx].get('high'):,.{quote_decimals}f}"
+        info["low"] = f"{df.iloc[nx].get('low'):,.{quote_decimals}f}"
+        info["close"] = f"{df.iloc[nx].get('close'):,.{quote_decimals}f}"
+        info["volume"] = f"{df.iloc[nx].get('volume', 0):,.0f}"
+        info["interest"] = f"{df.iloc[nx].get('open interest', 0):,.0f}"
+
+        # info = {
+        # "date": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
+        # "price": f"{ny:,.{quote_decimals}f}",
+        # "open": f"{df.iloc[nx].get('open'):,.{quote_decimals}f}",
+        # "high": f"{df.iloc[nx].get('high'):,.{quote_decimals}f}",
+        # "low": f"{df.iloc[nx].get('low'):,.{quote_decimals}f}",
+        # "close": f"{df.iloc[nx].get('close'):,.{quote_decimals}f}",
+        # "volume": f"{df.iloc[nx].get('volume', 0):,.0f}",
+        # "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
+        # }
 
         note = self._read_note(self._cache.quotes().index[nx].strftime("%Y%m%d"))
 
@@ -621,6 +648,7 @@ class KushamiNekoController(PresetController):
             ),
             LastQuote(
                 quotes=self._cache.quotes(),
+                frequency=self._frequency,
                 font_color=self.get_theme().get_color("text"),
                 font_properties=self.get_theme().get_font(
                     self._setting.text_fontsize(multiplier=1.5)

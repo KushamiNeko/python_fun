@@ -58,6 +58,14 @@ class TimeTicker(Ticker):
             labels = np.unique(dates)
             loc = [np.argwhere(dates == l).min() for l in labels]
 
+        elif frequency == HOURLY:
+            dates = self._quotes.index.strftime("%Y-%m-%d\n%H:%M")
+
+            labels = self._quotes.index[self._quotes.index.hour == 17].strftime(
+                "%Y-%m-%d\n%H:%M"
+            )
+            loc = [np.argwhere(dates == l).min() for l in labels]
+
         else:
             raise NotImplementedError
 

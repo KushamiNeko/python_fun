@@ -1,5 +1,5 @@
 import pandas as pd
-from fun.data.source import DAILY, FREQUENCY, MONTHLY, WEEKLY
+from fun.data.source import DAILY, FREQUENCY, MONTHLY, WEEKLY, HOURLY
 from fun.plotter.plotter import Plotter
 from matplotlib import axes
 
@@ -24,15 +24,21 @@ class BackgroundTimeRangeMark(Plotter):
             self._monthly_range(ax)
         elif self._frequency == MONTHLY:
             self._yearly_range(ax)
+        elif self._frequency == HOURLY:
+            self._daily_range(ax)
 
     def _time_range(self, ax: axes.Axes, range_type: str) -> None:
         anchor_x = 0
 
-        assert range_type in ("m", "y")
+        assert range_type in ("d", "m", "y")
+
         if range_type == "m":
             current = self._quotes.index[0].to_pydatetime().month
         elif range_type == "y":
             current = self._quotes.index[0].to_pydatetime().year
+        # elif range_type == "d":
+        # current = self._quotes.index[0].to_pydatetime().day
+        # current = 16
 
         plotting = self._from_start
 
@@ -44,23 +50,43 @@ class BackgroundTimeRangeMark(Plotter):
                 cursor = x.to_pydatetime().month
             elif range_type == "y":
                 cursor = x.to_pydatetime().year
+            elif range_type == "d":
+                cursor = x.to_pydatetime().hour
 
-            if cursor != current:
-                plotting = not plotting
-                current = cursor
+            if range_type in ("m", "y"):
+                if cursor != current:
+                    plotting = not plotting
+                    current = cursor
 
-                if plotting is False:
-                    ax.bar(
-                        anchor_x,
-                        width=i - anchor_x,
-                        bottom=mn,
-                        height=mx - mn,
-                        align="edge",
-                        color=self._color,
-                        alpha=self._alpha,
-                    )
-                else:
-                    anchor_x = i
+                    if plotting is False:
+                        ax.bar(
+                            anchor_x,
+                            width=i - anchor_x,
+                            bottom=mn,
+                            height=mx - mn,
+                            align="edge",
+                            color=self._color,
+                            alpha=self._alpha,
+                        )
+                    else:
+                        anchor_x = i
+
+            else:
+                if cursor == 17:
+                    plotting = not plotting
+
+                    if plotting is False:
+                        ax.bar(
+                            anchor_x,
+                            width=i - 1 - anchor_x,
+                            bottom=mn,
+                            height=mx - mn,
+                            align="edge",
+                            color=self._color,
+                            alpha=self._alpha,
+                        )
+                    else:
+                        anchor_x = i
 
         if plotting is True:
             ax.bar(
@@ -72,6 +98,9 @@ class BackgroundTimeRangeMark(Plotter):
                 color=self._color,
                 alpha=self._alpha,
             )
+
+    def _daily_range(self, ax: axes.Axes) -> None:
+        self._time_range(ax, "d")
 
     def _monthly_range(self, ax: axes.Axes) -> None:
         self._time_range(ax, "m")

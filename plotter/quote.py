@@ -4,12 +4,14 @@ import numpy as np
 import pandas as pd
 from fun.plotter.plotter import TextPlotter
 from matplotlib import axes, font_manager as fm
+from fun.data.source import FREQUENCY, HOURLY
 
 
 class LastQuote(TextPlotter):
     def __init__(
         self,
         quotes: pd.DataFrame,
+        frequency: FREQUENCY,
         decimals: int = 4,
         x_offset: float = 3,
         font_color: str = "k",
@@ -27,6 +29,8 @@ class LastQuote(TextPlotter):
         )
 
         self._quotes = quotes
+        self._frequency = frequency
+
         self._decimals = decimals
 
         self._x_offset = x_offset
@@ -36,9 +40,17 @@ class LastQuote(TextPlotter):
             quote = self._quotes.iloc[-1]
             prev_quote = self._quotes.iloc[-2]
 
-            text = "\n".join(
+            info = [
+                f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d %a')}",
+            ]
+
+            if self._frequency == HOURLY:
+                info.append(
+                    f"Time(CT):  {self._quotes.index[-1].strftime('%H:%M')}",
+                )
+
+            info.extend(
                 [
-                    f"Date:  {self._quotes.index[-1].strftime('%Y-%m-%d %a')}",
                     f"Open:  {quote.loc['open']:,.{self._decimals}f}",
                     f"High: {quote.loc['high']:,.{self._decimals}f}",
                     f"Low: {quote.loc['low']:,.{self._decimals}f}",
@@ -47,8 +59,10 @@ class LastQuote(TextPlotter):
                     f"Interest:  {int(quote.get('open interest', 0)):,}",
                     f"Diff($):  {quote.loc['close'] - prev_quote.loc['close']:,.{self._decimals}f}",
                     f"Diff(%):  {((quote.loc['close'] - prev_quote.loc['close']) / prev_quote.loc['close']) * 100.0:,.{self._decimals}f}",
-                ]
+                ],
             )
+
+            text = "\n".join(info)
 
             h = np.amax(self._quotes.loc[:, "high"])
             l = np.amin(self._quotes.loc[:, "low"])
