@@ -41,8 +41,6 @@ from fun.plotter.study import (
     NoteMarker,
     StudyZone,
     read_notes,
-    # NOTE_FILE_REGEX,
-    # NOTE_CONTENT_TITLE_REGEX,
 )
 from fun.plotter.volatility import VolatilityRealBodyContraction, VolatilitySummary
 from fun.plotter.volume import Volume
@@ -352,12 +350,6 @@ class CandleSticksPreset:
         if notes_root is None:
             return None
 
-        # file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
-        # file_regex = re.compile(NOTE_FILE_REGEX)
-
-        # if self._frequency != HOURLY:
-        #     dt = dt.split("T")[0].strip()
-
         notes = ["\n"]
         max_lenght = 0
 
@@ -386,56 +378,9 @@ class CandleSticksPreset:
             ),
         )
 
-        # try:
-        #     for f in os.listdir(notes_root):
-        #         m = file_regex.match(f)
-        #         assert m is not None
-
-        #         start = m.group(1)
-        #         # start_time = m.group(2)
-        #         end = m.group(3)
-        #         # end_time = m.group(4)
-
-        #         if self._frequency == HOURLY:
-        #             with open(os.path.join(notes_root, f)) as nf:
-        #                 regex = re.compile(NOTE_CONTENT_TITLE_REGEX, re.MULTILINE)
-        #                 note = nf.read()
-
-        #                 match = regex.findall(note)
-
-        #                 for m in match:
-        #                     # title = m[0].strip().lower()
-        #                     date = m[1].strip()
-        #                     time = m[2].strip()
-
-        #                     if dt == f"{date}T{time}":
-        #                         for c in note.split("\n"):
-        #                             lc = len(c)
-        #                             max_lenght = max(lc, max_lenght)
-
-        #                         notes.append(f"{f.replace('.txt', '')}\n\n{note}")
-        #                         break
-
-        #         else:
-
-        #             assert start is not None
-
-        #             if dt == start or (end is not None and dt == end):
-        #                 with open(os.path.join(notes_root, f), "r") as note_file:
-        #                     note = note_file.read()
-
-        #                     for c in note.split("\n"):
-        #                         lc = len(c)
-        #                         max_lenght = max(lc, max_lenght)
-
-        #                     notes.append(f"{f.replace('.txt', '')}\n\n{note}")
-
         if len(notes) > 0:
             notes.append("\n")
             return f"\n\n{'='*max_lenght}\n\n".join(notes).strip()
-
-        # except FileNotFoundError:
-        #     pass
 
         return None
 
