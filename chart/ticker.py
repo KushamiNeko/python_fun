@@ -59,11 +59,15 @@ class TimeTicker(Ticker):
             loc = [np.argwhere(dates == l).min() for l in labels]
 
         elif frequency == HOURLY:
-            dates = self._quotes.index.strftime("%Y-%m-%d\n%H:%M")
+            pattern = "%y-%m-%d\n%H:%M"
+            dates = self._quotes.index.strftime(pattern)
 
-            labels = self._quotes.index[self._quotes.index.hour == 17].strftime(
-                "%Y-%m-%d\n%H:%M"
-            )
+            labels = self._quotes.index[
+                (self._quotes.index.hour == 17)
+                | (self._quotes.index.hour == 6)
+                | (self._quotes.index.hour == 0)
+                | (self._quotes.index.hour == 11)
+            ].strftime(pattern)
             loc = [np.argwhere(dates == l).min() for l in labels]
 
         else:

@@ -79,6 +79,7 @@ class BackgroundTimeRangeMark(Plotter):
                         ax.bar(
                             anchor_x,
                             width=i - 1 - anchor_x,
+                            # width=i - anchor_x,
                             bottom=mn,
                             height=mx - mn,
                             align="edge",

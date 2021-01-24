@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from fun.data.source import FREQUENCY, WEEKLY
+from fun.data.source import FREQUENCY, WEEKLY, DAILY
 from fun.plotter.plotter import TextPlotter
 from fun.trading.transaction import FuturesTransaction
 from fun.trading.agent import TradingAgent
@@ -50,6 +50,9 @@ class LeverageRecords(TextPlotter):
             return
 
         assert ax is not None
+
+        if self._frequency != DAILY and self._frequency != WEEKLY:
+            return
 
         dates = self._quotes.index
         ops = np.add.accumulate(

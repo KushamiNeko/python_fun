@@ -77,9 +77,17 @@ class Barchart(DataSource):
         if re.match(r"^\d{2}/\d{2}/\d{2}$", x) is not None:
             return datetime.strptime(x, r"%m/%d/%y")
 
+        # barchart historic hourly
+        if re.match(r"^\d{2}/\d{2}/\d{4}\s\d{2}:\d{2}$", x) is not None:
+            return datetime.strptime(x, r"%m/%d/%Y %H:%M")
+
         # barchart interactive
         if re.match(r"^\d{4}-\d{2}-\d{2}$", x) is not None:
             return datetime.strptime(x, r"%Y-%m-%d")
+
+        # barchart interactive hourly
+        if re.match(r"^\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2}:\d{2}$", x) is not None:
+            return datetime.strptime(x, r"%Y-%m-%d %H:%M:%S")
 
         # barchart ondemand
         m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})-\d{2}:\d{2}$", x)
@@ -99,11 +107,12 @@ class Barchart(DataSource):
             content = f.readlines()
 
         if (
-            re.match(
-                r"""["']*Symbol:\s*\w+\d*["']*,+["']*Study:\s*\w+["']*,""",
-                content[0].strip(),
-            )
-            is not None
+            # re.match(
+                # r"""["']*Symbol:\s*\w+\d*["']*,+["']*Study:\s*\w+["']*,""",
+                # content[0].strip(),
+            # )
+            # is not None
+            "Study:" in content[0].strip() and "Symbol:" in content[0].strip()
         ):
             df = pd.read_csv(
                 self._localfile(self._url(start, end, symbol, DAILY)), header=1
@@ -177,7 +186,7 @@ class BarchartContract(Barchart):
         )
 
 
-class BarchartContractHourly(DataSource):
+class BarchartContractHourly(Barchart):
     def _url(
         self, start: datetime, end: datetime, symbol: str, frequency: FREQUENCY
     ) -> str:
@@ -188,32 +197,33 @@ class BarchartContractHourly(DataSource):
             f"{symbol}.csv",
         )
 
-    def _timestamp_preprocessing(self, x: str) -> datetime:
-        m = re.match(r"^\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2}:\d{2}$", x)
-        assert m is not None
 
-        dt = datetime.strptime(x, r"%Y-%m-%d %H:%M:%S")
-        # dt += timedelta(hours=1)
-
-        return dt
-
-    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
-
-        path = self._localfile(
-            self._url(start=start, end=end, symbol=symbol, frequency=HOURLY)
-        )
-
-        df = pd.read_csv(path, header=1)
-        df = df.drop(df.tail(1).index)
-        df = df.drop("Change", axis=1)
-        df.loc[:, "Open Interest"] = df.loc[:, "Open Interest"].fillna(0)
-
-        return df
-
-    def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-        cols = {k: k.lower() for k in df.columns}
-        cols["Date Time"] = "timestamp"
-        return df.rename(columns=cols)
+#    def _timestamp_preprocessing(self, x: str) -> datetime:
+#        m = re.match(r"^\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2}:\d{2}$", x)
+#        assert m is not None
+#
+#        dt = datetime.strptime(x, r"%Y-%m-%d %H:%M:%S")
+#        # dt += timedelta(hours=1)
+#
+#        return dt
+#
+#    def _read_data(self, start: datetime, end: datetime, symbol: str) -> pd.DataFrame:
+#
+#        path = self._localfile(
+#            self._url(start=start, end=end, symbol=symbol, frequency=HOURLY)
+#        )
+#
+#        df = pd.read_csv(path, header=1)
+#        df = df.drop(df.tail(1).index)
+#        df = df.drop("Change", axis=1)
+#        df.loc[:, "Open Interest"] = df.loc[:, "Open Interest"].fillna(0)
+#
+#        return df
+#
+#    def _rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+#        cols = {k: k.lower() for k in df.columns}
+#        cols["Date Time"] = "timestamp"
+#        return df.rename(columns=cols)
 
 
 # if __name__ == "__main__":

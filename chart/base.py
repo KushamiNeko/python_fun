@@ -35,7 +35,11 @@ class ChartFactory(metaclass=ABCMeta):
 
         ratio = (mx - mid) / mid
 
-        if ratio < 0.1:
+        if ratio < 0.01:
+            extend_ratio = 0.00035
+        elif ratio < 0.05:
+            extend_ratio = 0.002
+        elif ratio < 0.1:
             extend_ratio = 0.0035
         elif ratio < 0.5:
             extend_ratio = 0.01

@@ -2,16 +2,67 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Callable
 
 import numpy as np
 import pandas as pd
 from matplotlib import axes
 from matplotlib import font_manager as fm
 
-from fun.data.source import FREQUENCY, DAILY, WEEKLY
+from fun.data.source import FREQUENCY, DAILY, WEEKLY, HOURLY
 from fun.plotter.plotter import Plotter, TextPlotter
 from fun.utils import colors, pretty
+
+
+# NOTE_FILE_REGEX = (
+# r"(\d{8})(?:[T\s](\d{2}:\d{2}))*(?:-(\d{8})(?:[T\s](\d{2}:\d{2}))*)*([$#]*).txt"
+# )
+
+NOTE_CONTENT_TITLE_REGEX = r"^([$#%@&]*)\s*(Entry|Exit|Study):*\s*(\d{4}-*\d{2}-*\d{2})(?:[T\s](\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}))*$"
+
+
+def read_notes(
+    notes_root: str,
+    frequency: FREQUENCY,
+    func: Callable[[str, datetime, str, str], bool],
+):
+
+    fs = os.listdir(notes_root)
+    fs.sort()
+
+    for f in fs:
+        with open(os.path.join(notes_root, f)) as nf:
+            content = nf.read()
+
+            regex = re.compile(NOTE_CONTENT_TITLE_REGEX, re.MULTILINE)
+            match = regex.findall(content)
+
+            for m in match:
+                pattern = m[0].strip()
+                date = m[2].strip().replace("-", "")
+                time = m[3].strip()
+
+                pattern = "&" if pattern == "" else pattern
+
+                if time != "":
+                    dt = datetime.strptime(f"{date}T{time}", "%Y%m%dT%H:%M")
+                else:
+                    dt = datetime.strptime(date, "%Y%m%d")
+
+                if frequency == HOURLY:
+                    pass
+
+                elif frequency == DAILY or frequency == WEEKLY:
+                    if dt.hour > 16:
+                        dt = dt + timedelta(days=1)
+
+                    dt = dt.replace(hour=0, minute=0, second=0)
+
+                    if frequency == WEEKLY:
+                        dt = dt - timedelta(days=dt.weekday())
+
+                if func(f, dt, pattern, content):
+                    break
 
 
 class StudyZone(Plotter):
@@ -79,18 +130,47 @@ class StudyZone(Plotter):
         if self._studies is None:
             return
 
-        if self._frequency != DAILY and self._frequency != WEEKLY:
+        if (
+            self._frequency != DAILY
+            and self._frequency != WEEKLY
+            and self._frequency != HOURLY
+        ):
             return
 
         mn, mx = ax.get_ylim()
 
+        regex = re.compile(r"^(\d{8})(?:[T\s](\d{2}:\d{2}))*$")
+
         for study in self._studies:
-            start = datetime.strptime(study["start"], "%Y%m%d")
-            end = datetime.strptime(study["end"], "%Y%m%d")
+            match = regex.match(study["start"])
+            start = datetime.strptime(match.group(1), "%Y%m%d")
+
+            match = regex.match(study["end"])
+            end = datetime.strptime(match.group(1), "%Y%m%d")
 
             if self._frequency == WEEKLY:
                 start = start - timedelta(days=start.weekday())
                 end = end - timedelta(days=end.weekday())
+
+            if self._frequency == HOURLY:
+                match = regex.match(study["start"])
+                if match.group(2) is not None:
+                    start = datetime.strptime(
+                        f"{match.group(1)}T{match.group(2)}", "%Y%m%dT%H:%M"
+                    )
+                else:
+                    continue
+
+                match = regex.match(study["end"])
+                if match.group(2) is not None:
+                    end = datetime.strptime(
+                        f"{match.group(1)}T{match.group(2)}", "%Y%m%dT%H:%M"
+                    )
+                else:
+                    continue
+
+            assert start is not None
+            assert end is not None
 
             try:
 
@@ -202,7 +282,8 @@ class Notes(Plotter):
             self._symbol.lower(),
         )
 
-        file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+        # file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+        file_regex = re.compile(NOTE_FILE_REGEX)
 
         try:
             for f in os.listdir(root):
@@ -210,7 +291,8 @@ class Notes(Plotter):
                 assert m is not None
 
                 start = m.group(1)
-                end = m.group(2)
+                # end = m.group(2)
+                end = m.group(3)
 
                 assert start is not None
 
@@ -371,10 +453,10 @@ class NoteMarker(TextPlotter):
             va=va,
         )
 
-    def _append_note(self, notes, dtime, text):
+    def _append_note(self, notes, date, text):
         try:
             x = self._quotes.index.get_loc(
-                dtime,
+                date,
             )
 
         except KeyError:
@@ -393,48 +475,137 @@ class NoteMarker(TextPlotter):
         if len(self._quotes) == 0:
             return
 
-        if self._frequency != DAILY and self._frequency != WEEKLY:
+        if (
+            self._frequency != DAILY
+            and self._frequency != WEEKLY
+            and self._frequency != HOURLY
+        ):
             return
 
         assert ax is not None
 
-        file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+        # file_regex = re.compile(NOTE_FILE_REGEX)
 
         notes = {}
 
-        for f in os.listdir(self._notes_root):
-            m = file_regex.match(f)
-            assert m is not None
+        read_notes(
+            self._notes_root,
+            self._frequency,
+            lambda filename, dt, pattern, content: self._append_note(
+                notes, dt, pattern
+            ),
+        )
 
-            start = m.group(1)
-            end = m.group(2)
-            pattern = m.group(3)
+        # for f in os.listdir(self._notes_root):
+        #     with open(os.path.join(self._notes_root, f)) as nf:
+        #         content = nf.read()
 
-            text = "&"
-            if pattern is not None:
-                if "$" in pattern:
-                    text = "$"
-                elif "#" in pattern:
-                    text = "#"
+        #         regex = re.compile(NOTE_CONTENT_TITLE_REGEX, re.MULTILINE)
+        #         match = regex.findall(content)
 
-            assert start is not None
+        #         for m in match:
+        #             pattern = m[0].strip()
+        #             date = m[2].strip().replace("-", "")
+        #             time = m[3].strip()
 
-            start_datetime = datetime.strptime(start, "%Y%m%d")
+        #             pattern = "&" if pattern == "" else pattern
 
-            if self._frequency == WEEKLY:
-                start_datetime = start_datetime - timedelta(
-                    days=start_datetime.weekday()
-                )
+        #             if time != "":
+        #                 dt = datetime.strptime(f"{date}T{time}", "%Y%m%dT%H:%M")
+        #             else:
+        #                 dt = datetime.strptime(date, "%Y%m%d")
 
-            self._append_note(notes, start_datetime, text)
+        #             if self._frequency == HOURLY:
+        #                 pass
 
-            if end is not None:
-                end_datetime = datetime.strptime(end, "%Y%m%d")
+        #             elif self._frequency == DAILY or self._frequency == WEEKLY:
+        #                 if dt.hour > 16:
+        #                     dt = dt + timedelta(days=1)
 
-                if self._frequency == WEEKLY:
-                    end_datetime = end_datetime - timedelta(days=end_datetime.weekday())
+        #                 dt = dt.replace(hour=0, minute=0, second=0)
 
-                self._append_note(notes, end_datetime, text)
+        #                 if self._frequency == WEEKLY:
+        #                     dt = dt - timedelta(days=dt.weekday())
+
+        #             self._append_note(notes, dt, pattern)
+
+        # m = file_regex.match(f)
+        # assert m is not None
+
+        # start_date = m.group(1)
+        # # end = m.group(2)
+        # start_time = m.group(2)
+
+        # end_date = m.group(3)
+        # # pattern = m.group(3)
+        # end_time = m.group(4)
+
+        # pattern = m.group(5)
+
+        # text = "&"
+        # if pattern is not None:
+        #     if "$" in pattern:
+        #         text = "$"
+        #     elif "#" in pattern:
+        #         text = "#"
+
+        # assert start_date is not None
+
+        # if self._frequency == DAILY or self._frequency == WEEKLY:
+
+        #     start_datetime = datetime.strptime(start_date, "%Y%m%d")
+
+        #     if self._frequency == WEEKLY:
+        #         start_datetime = start_datetime - timedelta(
+        #             days=start_datetime.weekday()
+        #         )
+
+        #     self._append_note(notes, start_datetime, text)
+
+        # elif self._frequency == HOURLY and start_time is not None:
+        #     start_datetime = datetime.strptime(
+        #         f"{start_date}T{start_time}", "%Y%m%dT%H:%M"
+        #     )
+
+        #     self._append_note(notes, start_datetime, text)
+
+        # if end_date is not None:
+
+        #     if self._frequency == DAILY or self._frequency == WEEKLY:
+
+        #         end_datetime = datetime.strptime(end_date, "%Y%m%d")
+
+        #         if self._frequency == WEEKLY:
+        #             end_datetime = end_datetime - timedelta(
+        #                 days=end_datetime.weekday()
+        #             )
+
+        #         self._append_note(notes, end_datetime, text)
+
+        #     elif self._frequency == HOURLY and end_time is not None:
+        #         end_datetime = datetime.strptime(
+        #             f"{end_date}T{end_time}", "%Y%m%dT%H:%M"
+        #         )
+
+        #         self._append_note(notes, end_datetime, text)
+
+        # if self._frequency == HOURLY:
+        #     with open(os.path.join(self._notes_root, f)) as nf:
+        #         regex = re.compile(NOTE_CONTENT_TITLE_REGEX, re.MULTILINE)
+        #         content = nf.read()
+
+        #         match = regex.findall(content)
+
+        #         for m in match:
+        #             date = m[1].strip()
+        #             time = m[2].strip()
+
+        #             if time != "":
+        #                 dt = datetime.strptime(f"{date}T{time}", "%Y%m%dT%H:%M")
+        #             else:
+        #                 dt = datetime.strptime(date, "%Y%m%d")
+
+        #             self._append_note(notes, dt, text)
 
         highs = self._quotes.loc[:, "high"]
         lows = self._quotes.loc[:, "low"]

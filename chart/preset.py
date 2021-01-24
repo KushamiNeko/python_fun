@@ -37,7 +37,13 @@ from fun.plotter.indicator import BollingerBand, SimpleMovingAverage
 from fun.plotter.level import Level
 from fun.plotter.plotter import Plotter
 from fun.plotter.quote import LastQuote
-from fun.plotter.study import NoteMarker, StudyZone
+from fun.plotter.study import (
+    NoteMarker,
+    StudyZone,
+    read_notes,
+    # NOTE_FILE_REGEX,
+    # NOTE_CONTENT_TITLE_REGEX,
+)
 from fun.plotter.volatility import VolatilityRealBodyContraction, VolatilitySummary
 from fun.plotter.volume import Volume
 from fun.plotter.zone import VolatilityZone
@@ -321,7 +327,7 @@ class CandleSticksPreset:
         cache = QuotesCache(df, self._stime, self._etime)
         return cache
 
-    def _read_note(self, date: str) -> Optional[str]:
+    def _read_note(self, dt: str) -> Optional[str]:
 
         root = os.path.join(
             os.getenv("HOME"),
@@ -346,37 +352,90 @@ class CandleSticksPreset:
         if notes_root is None:
             return None
 
-        file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+        # file_regex = re.compile(r"(\d{8})(?:-(\d{8}))*([$#]*).txt")
+        # file_regex = re.compile(NOTE_FILE_REGEX)
+
+        # if self._frequency != HOURLY:
+        #     dt = dt.split("T")[0].strip()
 
         notes = ["\n"]
         max_lenght = 0
 
-        try:
-            for f in os.listdir(notes_root):
-                m = file_regex.match(f)
-                assert m is not None
+        def append_notes(filename, note_dt, pattern, content):
+            nonlocal notes
+            nonlocal max_lenght
+            nonlocal dt
 
-                start = m.group(1)
-                end = m.group(2)
+            if dt == note_dt.strftime("%Y%m%dT%H:%M"):
+                for c in content.split("\n"):
+                    lc = len(c.strip())
+                    max_lenght = max(lc, max_lenght)
 
-                assert start is not None
+                notes.append(f"{filename.replace('.txt', '')}\n\n{content.strip()}")
 
-                if date == start or (end is not None and date == end):
-                    with open(os.path.join(notes_root, f), "r") as note_file:
-                        note = note_file.read()
+                return True
 
-                        for c in note.split("\n"):
-                            lc = len(c)
-                            max_lenght = max(lc, max_lenght)
+        read_notes(
+            notes_root,
+            self._frequency,
+            lambda filename, note_dt, pattern, content: append_notes(
+                filename=filename,
+                note_dt=note_dt,
+                pattern=pattern,
+                content=content,
+            ),
+        )
 
-                        notes.append(f"{f.replace('.txt', '')}\n\n{note}")
+        # try:
+        #     for f in os.listdir(notes_root):
+        #         m = file_regex.match(f)
+        #         assert m is not None
 
-            if len(notes) > 0:
-                notes.append("\n")
-                return f"\n\n{'='*max_lenght}\n\n".join(notes).strip()
+        #         start = m.group(1)
+        #         # start_time = m.group(2)
+        #         end = m.group(3)
+        #         # end_time = m.group(4)
 
-        except FileNotFoundError:
-            pass
+        #         if self._frequency == HOURLY:
+        #             with open(os.path.join(notes_root, f)) as nf:
+        #                 regex = re.compile(NOTE_CONTENT_TITLE_REGEX, re.MULTILINE)
+        #                 note = nf.read()
+
+        #                 match = regex.findall(note)
+
+        #                 for m in match:
+        #                     # title = m[0].strip().lower()
+        #                     date = m[1].strip()
+        #                     time = m[2].strip()
+
+        #                     if dt == f"{date}T{time}":
+        #                         for c in note.split("\n"):
+        #                             lc = len(c)
+        #                             max_lenght = max(lc, max_lenght)
+
+        #                         notes.append(f"{f.replace('.txt', '')}\n\n{note}")
+        #                         break
+
+        #         else:
+
+        #             assert start is not None
+
+        #             if dt == start or (end is not None and dt == end):
+        #                 with open(os.path.join(notes_root, f), "r") as note_file:
+        #                     note = note_file.read()
+
+        #                     for c in note.split("\n"):
+        #                         lc = len(c)
+        #                         max_lenght = max(lc, max_lenght)
+
+        #                     notes.append(f"{f.replace('.txt', '')}\n\n{note}")
+
+        if len(notes) > 0:
+            notes.append("\n")
+            return f"\n\n{'='*max_lenght}\n\n".join(notes).strip()
+
+        # except FileNotFoundError:
+        #     pass
 
         return None
 
@@ -530,6 +589,9 @@ class CandleSticksPreset:
         diff_decimals: int = 3,
     ) -> Tuple[Optional[Dict[str, str]], Optional[str]]:
 
+        if self._chart is None:
+            return None, None
+
         n = self._chart.to_data_coordinates(x, y)
 
         if n is None:
@@ -545,11 +607,17 @@ class CandleSticksPreset:
 
         if self._frequency == HOURLY:
             info["time(CT)"] = self._cache.quotes().index[nx].strftime("%H:%M")
+
+            offset = 3
+            if self._cache.quotes().index[nx].month in range(3, 11):
+                offset = 2
+
             ch = int(self._cache.quotes().index[nx].strftime("%H"))
             if ch > 12:
-                ja = ch - 12 + 3
+                ja = ch - 12 + offset
             else:
-                ja = (ch + 12 + 3) % 24
+                ja = (ch + 12 + offset) % 24
+
             info[
                 "time(JA)"
             ] = f"{ja:02d}:{self._cache.quotes().index[nx].strftime('%M')}"
@@ -573,7 +641,7 @@ class CandleSticksPreset:
         # "interest": f"{df.iloc[nx].get('open interest', 0):,.0f}",
         # }
 
-        note = self._read_note(self._cache.quotes().index[nx].strftime("%Y%m%d"))
+        note = self._read_note(self._cache.quotes().index[nx].strftime("%Y%m%dT%H:%M"))
 
         if ax is None or ay is None:
             if nx != 0:
@@ -716,7 +784,7 @@ class KushamiNekoController(PresetController):
                     ),
                 )
 
-            if self._parameters.get("Studies", "").lower() == "true":
+            if self._parameters.get("StudyZone", "").lower() == "true":
                 plotters.append(
                     StudyZone(
                         symbol=self._symbol,
@@ -726,6 +794,7 @@ class KushamiNekoController(PresetController):
                     ),
                 )
 
+            if self._parameters.get("Studies", "").lower() == "true":
                 plotters.append(
                     NoteMarker(
                         symbol=self._symbol,
