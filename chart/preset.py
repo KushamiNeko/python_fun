@@ -547,25 +547,36 @@ class CandleSticksPreset:
         df = self._cache.quotes()
 
         info = {
-            "date": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
+            "date(CT)": self._cache.quotes().index[nx].strftime("%Y-%m-%d"),
         }
+
+        ja = self._cache.quotes().index[nx]
 
         if self._frequency == HOURLY:
             info["time(CT)"] = self._cache.quotes().index[nx].strftime("%H:%M")
 
-            offset = 3
+            offset = 15
             if self._cache.quotes().index[nx].month in range(3, 11):
-                offset = 2
+                offset = 14
 
-            ch = int(self._cache.quotes().index[nx].strftime("%H"))
-            if ch > 12:
-                ja = ch - 12 + offset
-            else:
-                ja = (ch + 12 + offset) % 24
+            ja = self._cache.quotes().index[nx] + timedelta(hours=offset)
 
-            info[
-                "time(JA)"
-            ] = f"{ja:02d}:{self._cache.quotes().index[nx].strftime('%M')}"
+            info["date(JA)"] = ja.strftime("%Y-%m-%d")
+            info["time(JA)"] = ja.strftime("%H:%M")
+
+            # offset = 3
+            # if self._cache.quotes().index[nx].month in range(3, 11):
+            # offset = 2
+
+            # ch = int(self._cache.quotes().index[nx].strftime("%H"))
+            # if ch > 12:
+            # ja = ch - 12 + offset
+            # else:
+            # ja = (ch + 12 + offset) % 24
+
+            # info[
+            # "time(JA)"
+            # ] = f"{ja:02d}:{self._cache.quotes().index[nx].strftime('%M')}"
 
         info["price"] = f"{ny:,.{quote_decimals}f}"
         info["open"] = f"{df.iloc[nx].get('open'):,.{quote_decimals}f}"

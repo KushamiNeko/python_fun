@@ -19,7 +19,8 @@ def read_notes(
     func: Callable[[str, datetime, str, str], bool],
 ):
 
-    note_regex = r"^([$#%@&]*)\s*(Entry|Exit|Study):*\s*(\d{4}-*\d{2}-*\d{2})(?:[T\s](\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}))*$"
+    # note_regex = r"^([$#%@&]*)\s*(Entry|Exit|Study):*\s*(\d{4}-*\d{2}-*\d{2})(?:[T\s](\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}))*$"
+    note_regex = r"^\s*([$#%@&]*)\s*(Entry|Exit|Study):*\s*(\d{4}-*\d{2}-*\d{2})(?:[T\s](\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}))*\s*(?:\s*@\s*([\d'.]+)\s*\$\s*([LSXlsx]\d+))*$"
 
     fs = os.listdir(notes_root)
     fs.sort()
@@ -33,10 +34,18 @@ def read_notes(
 
             for m in match:
                 pattern = m[0].strip()
+                # op = m[1].strip()
                 date = m[2].strip().replace("-", "")
                 time = m[3].strip()
+                # price = m[5].strip()
+                leverage = m[6].strip()
 
                 pattern = "&" if pattern == "" else pattern
+                if leverage != "":
+                    if frequency == HOURLY:
+                        pattern = f"{leverage[:1]}\n{leverage[1:]}"
+                    else:
+                        pattern = "&"
 
                 if time != "":
                     dt = datetime.strptime(f"{date}T{time}", "%Y%m%dT%H:%M")
@@ -272,7 +281,7 @@ class NoteMarker(TextPlotter):
         if x not in notes:
             notes[x] = [text]
         else:
-            if text not in notes[x]:
+            if text not in notes[x] or "\n" in text:
                 notes[x].append(text)
 
     def plot(self, ax: axes.Axes) -> None:
